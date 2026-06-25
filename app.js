@@ -1,9 +1,10 @@
 /* ═══════════════════════════════════════════════════════════
    PANINI FIFA WORLD CUP 2026 — app.js
-   Application de suivi de collection (vanilla JS, single file)
+   Application de suivi de collection (vanilla JS)
+   Version avec DA Studio Mondial & export corrigé
 ═══════════════════════════════════════════════════════════ */
 
-// ─── 1. ÉTAT GLOBAL ──────────────────────────────────────
+// ─── 1. ÉTAT GLOBAL ───
 let stickers = [];
 let collectionState = {};
 let albumPages = [];
@@ -11,60 +12,40 @@ let currentPageIndex = 0;
 let currentTab = 'album';
 const LS_KEY = 'panini-wc2026-collection';
 
-// ─── 2. CHARGEMENT DES DONNÉES ──────────────────────────
+// ─── 2. CHARGEMENT ───
 async function loadData() {
   try {
-    console.log('🔄 Chargement de stickers.json...');
     const response = await fetch('stickers.json');
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const data = await response.json();
-
-    if (!Array.isArray(data) || data.length === 0) {
-      throw new Error('Le fichier stickers.json est vide ou invalide.');
-    }
-
+    if (!Array.isArray(data) || data.length === 0) throw new Error('Fichier vide ou invalide.');
     stickers = data;
-
-    // Initialisation de collectionState : toutes "missing"
     stickers.forEach(s => {
       if (!collectionState[s.id]) {
         collectionState[s.id] = { status: 'missing', count: 0 };
       }
     });
-
-    // Chargement depuis localStorage (si disponible)
     loadFromLocalStorage();
-
-    // Pages uniques
     albumPages = [...new Set(stickers.map(s => s.page))].sort((a, b) => {
       if (a === '/') return 1;
       if (b === '/') return -1;
       return parseInt(a) - parseInt(b);
     });
-
-    // Masquer le loader
     document.getElementById('loadingMsg').style.display = 'none';
-
-    // Peupler les filtres
     populateFilters();
-
-    // Afficher la vue initiale
     switchTab('album');
     updateGlobalProgress();
-
-    console.log('✅ Données chargées avec succès.');
-
   } catch (err) {
     document.getElementById('loadingMsg').style.display = 'none';
     const errEl = document.getElementById('errorMsg');
     errEl.style.display = 'block';
     document.getElementById('errorText').textContent =
-      `❌ Erreur : ${err.message}. Vérifie que stickers.json est dans le même dossier que index.html.`;
-    console.error('❌ Erreur de chargement :', err);
+      `❌ Impossible de charger les données : ${err.message}. Vérifiez stickers.json.`;
+    console.error(err);
   }
 }
 
-// ─── 3. GESTION DE COLLECTION ──────────────────────────
+// ─── 3. GESTION DES STATUTS ───
 function setStatus(id, status, countDelta = 0) {
   if (!collectionState[id]) {
     collectionState[id] = { status: 'missing', count: 0 };
@@ -79,20 +60,15 @@ function setStatus(id, status, countDelta = 0) {
   saveToLocalStorage();
   updateGlobalProgress();
 }
-
 function getState(id) {
   return collectionState[id] || { status: 'missing', count: 0 };
 }
 
-// ─── 4. LOCALSTORAGE ────────────────────────────────────
+// ─── 4. LOCALSTORAGE ───
 function saveToLocalStorage() {
-  try {
-    localStorage.setItem(LS_KEY, JSON.stringify(collectionState));
-  } catch (e) {
-    console.warn('localStorage indisponible :', e);
-  }
+  try { localStorage.setItem(LS_KEY, JSON.stringify(collectionState)); }
+  catch (e) { console.warn('localStorage indisponible', e); }
 }
-
 function loadFromLocalStorage() {
   try {
     const stored = localStorage.getItem(LS_KEY);
@@ -100,12 +76,10 @@ function loadFromLocalStorage() {
       const parsed = JSON.parse(stored);
       Object.assign(collectionState, parsed);
     }
-  } catch (e) {
-    console.warn('Impossible de lire localStorage :', e);
-  }
+  } catch (e) { console.warn('Impossible de lire localStorage', e); }
 }
 
-// ─── 5. EXPORT / IMPORT ──────────────────────────────────
+// ─── 5. EXPORT / IMPORT JSON ───
 function exportCollectionAsJSON() {
   try {
     const json = JSON.stringify(collectionState, null, 2);
@@ -123,30 +97,22 @@ function exportCollectionAsJSON() {
     showToast('❌ Erreur export : ' + err.message, true);
   }
 }
-
 function triggerImport() {
   document.getElementById('importFileInput').click();
 }
-
 function handleImportFile(event) {
-  const file = event.target.files && event.target.files[0];
+  const file = event.target.files?.[0];
   if (!file) return;
   importCollectionFromJSON(file);
   event.target.value = '';
 }
-
 function importCollectionFromJSON(file) {
   const reader = new FileReader();
   reader.onload = function (e) {
     try {
       const imported = JSON.parse(e.target.result);
       if (typeof imported !== 'object' || Array.isArray(imported)) {
-        throw new Error('Format invalide : objet attendu.');
-      }
-      const keys = Object.keys(imported);
-      if (keys.length > 0) {
-        const sample = imported[keys[0]];
-        if (!sample.status) throw new Error('Propriété "status" manquante.');
+        throw new Error('Format invalide : doit être un dictionnaire.');
       }
       collectionState = {};
       stickers.forEach(s => {
@@ -161,13 +127,10 @@ function importCollectionFromJSON(file) {
       showToast('❌ Erreur import : ' + err.message, true);
     }
   };
-  reader.onerror = () => showToast('❌ Impossible de lire le fichier.', true);
   reader.readAsText(file);
 }
 
-// ─── 6. VUES ─────────────────────────────────────────────
-
-// 6a. ALBUM PAR PAGE
+// ─── 6. VUES ───
 function populateAlbumSelect() {
   const sel = document.getElementById('albumPageSelect');
   sel.innerHTML = '';
@@ -178,7 +141,6 @@ function populateAlbumSelect() {
     sel.appendChild(opt);
   });
 }
-
 function renderAlbumPage() {
   const page = albumPages[currentPageIndex];
   const items = stickers.filter(s => s.page === page);
@@ -191,19 +153,10 @@ function renderAlbumPage() {
   document.getElementById('prevPageBtn').disabled = currentPageIndex === 0;
   document.getElementById('nextPageBtn').disabled = currentPageIndex === albumPages.length - 1;
 }
+function albumPrevPage() { if (currentPageIndex > 0) { currentPageIndex--; renderAlbumPage(); } }
+function albumNextPage() { if (currentPageIndex < albumPages.length - 1) { currentPageIndex++; renderAlbumPage(); } }
+function albumGoToPage(idx) { currentPageIndex = parseInt(idx); renderAlbumPage(); }
 
-function albumPrevPage() {
-  if (currentPageIndex > 0) { currentPageIndex--; renderAlbumPage(); }
-}
-function albumNextPage() {
-  if (currentPageIndex < albumPages.length - 1) { currentPageIndex++; renderAlbumPage(); }
-}
-function albumGoToPage(idx) {
-  currentPageIndex = parseInt(idx);
-  renderAlbumPage();
-}
-
-// 6b. PAR PAYS
 function populatePaysSelect() {
   const sel = document.getElementById('paysSelect');
   sel.innerHTML = '';
@@ -217,22 +170,19 @@ function populatePaysSelect() {
     sel.appendChild(opt);
   });
 }
-
 function renderPaysView() {
   const code = document.getElementById('paysSelect').value;
   const items = stickers.filter(s => s.code === code);
   const header = document.getElementById('paysHeader');
-  const sampleFlag = items[0]?.drapeau || '';
-  const sampleSection = items[0]?.section || code;
-  header.innerHTML = sampleFlag
-    ? `<img src="${escHtml(sampleFlag)}" alt="" onerror="this.style.display='none'"> ${escHtml(sampleSection)}`
-    : escHtml(sampleSection);
+  const sample = items[0];
+  header.innerHTML = sample?.drapeau
+    ? `<img src="${escHtml(sample.drapeau)}" alt="" onerror="this.style.display='none'"> ${escHtml(sample.section)}`
+    : escHtml(code);
   const grid = document.getElementById('paysGrid');
   grid.innerHTML = '';
   items.forEach(s => grid.appendChild(createStickerCard(s, 'pays')));
 }
 
-// 6c. MANQUANTES
 function renderWantlist() {
   const items = getFilteredByStatus('missing', {
     code: document.getElementById('wantFilterCode').value,
@@ -246,7 +196,6 @@ function renderWantlist() {
   items.forEach(s => grid.appendChild(createStickerCard(s, 'want')));
   document.getElementById('wantTextareaWrap').style.display = 'none';
 }
-
 function exportWantlistText() {
   const items = getFilteredByStatus('missing', {
     code: document.getElementById('wantFilterCode').value,
@@ -255,12 +204,12 @@ function exportWantlistText() {
     groupe: document.getElementById('wantFilterGroupe').value,
   });
   const text = buildExportText(items);
+  const wrap = document.getElementById('wantTextareaWrap');
   document.getElementById('wantTextarea').value = text;
-  document.getElementById('wantTextareaWrap').style.display = 'block';
-  document.getElementById('wantTextareaWrap').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  wrap.style.display = 'block';
+  wrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-// 6d. DOUBLONS
 function renderDoublons() {
   const items = getFilteredByStatus('duplicate', {
     code: document.getElementById('dubFilterCode').value,
@@ -274,7 +223,6 @@ function renderDoublons() {
   items.forEach(s => grid.appendChild(createStickerCard(s, 'dup')));
   document.getElementById('dubTextareaWrap').style.display = 'none';
 }
-
 function exportDoublonsText() {
   const items = getFilteredByStatus('duplicate', {
     code: document.getElementById('dubFilterCode').value,
@@ -283,12 +231,12 @@ function exportDoublonsText() {
     groupe: document.getElementById('dubFilterGroupe').value,
   });
   const text = buildExportText(items);
+  const wrap = document.getElementById('dubTextareaWrap');
   document.getElementById('dubTextarea').value = text;
-  document.getElementById('dubTextareaWrap').style.display = 'block';
-  document.getElementById('dubTextareaWrap').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  wrap.style.display = 'block';
+  wrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-// 6e. STATS
 function renderStats() {
   const grid = document.getElementById('statsGrid');
   grid.innerHTML = '';
@@ -319,14 +267,14 @@ function renderStats() {
         </div>
       </div>
       <div class="stat-progress-row">
-        <span class="stat-progress-label">Complétion album</span>
+        <span class="stat-progress-label">Complétion</span>
         <div class="stat-bar-wrap">
           <div class="stat-bar-fill" style="width:${pct}%"></div>
         </div>
         <span class="stat-bar-pct">${pct}%</span>
       </div>
-      <div style="font-size:11px;color:var(--c-sky);text-align:center">
-        ${owned} / ${total} vignettes possédées
+      <div style="font-family:var(--font-mono);font-size:10px;color:var(--c-sky);text-align:center">
+        ${owned} / ${total} vignettes
       </div>
     </div>
   `;
@@ -342,19 +290,18 @@ function renderStats() {
     codeMap[s.code].total++;
     if (getState(s.id).status === 'owned') codeMap[s.code].owned++;
   });
-  Object.entries(codeMap)
-    .sort((a, b) => a[1].section.localeCompare(b[1].section, 'fr'))
-    .forEach(([code, info]) => {
-      const p = info.total > 0 ? Math.round((info.owned / info.total) * 100) : 0;
-      paysRows += `
-        <div class="stat-progress-row">
-          <span class="stat-progress-label" title="${escHtml(info.section)}">${escHtml(info.section)}</span>
-          <div class="stat-bar-wrap">
-            <div class="stat-bar-fill" style="width:${p}%"></div>
-          </div>
-          <span class="stat-bar-pct">${p}%</span>
-        </div>`;
-    });
+  const sortedCodes = Object.entries(codeMap).sort((a, b) => a[1].section.localeCompare(b[1].section, 'fr'));
+  sortedCodes.forEach(([code, info]) => {
+    const p = info.total > 0 ? Math.round((info.owned / info.total) * 100) : 0;
+    paysRows += `
+      <div class="stat-progress-row">
+        <span class="stat-progress-label" title="${escHtml(info.section)}">${escHtml(info.section)}</span>
+        <div class="stat-bar-wrap">
+          <div class="stat-bar-fill" style="width:${p}%"></div>
+        </div>
+        <span class="stat-bar-pct">${p}%</span>
+      </div>`;
+  });
   paysBlock.innerHTML = `
     <div class="stats-block-header">🌍 Complétion par pays</div>
     <div class="stats-block-content">${paysRows}</div>
@@ -371,19 +318,17 @@ function renderStats() {
     secMap[s.section].total++;
     if (getState(s.id).status === 'owned') secMap[s.section].owned++;
   });
-  Object.entries(secMap)
-    .sort((a, b) => a[0].localeCompare(b[0], 'fr'))
-    .forEach(([sec, info]) => {
-      const p = info.total > 0 ? Math.round((info.owned / info.total) * 100) : 0;
-      sectionRows += `
-        <div class="stat-progress-row">
-          <span class="stat-progress-label" title="${escHtml(sec)}">${escHtml(sec)}</span>
-          <div class="stat-bar-wrap">
-            <div class="stat-bar-fill" style="width:${p}%"></div>
-          </div>
-          <span class="stat-bar-pct">${p}%</span>
-        </div>`;
-    });
+  Object.entries(secMap).sort((a, b) => a[0].localeCompare(b[0], 'fr')).forEach(([sec, info]) => {
+    const p = info.total > 0 ? Math.round((info.owned / info.total) * 100) : 0;
+    sectionRows += `
+      <div class="stat-progress-row">
+        <span class="stat-progress-label" title="${escHtml(sec)}">${escHtml(sec)}</span>
+        <div class="stat-bar-wrap">
+          <div class="stat-bar-fill" style="width:${p}%"></div>
+        </div>
+        <span class="stat-bar-pct">${p}%</span>
+      </div>`;
+  });
   sectionBlock.innerHTML = `
     <div class="stats-block-header">📋 Complétion par section</div>
     <div class="stats-block-content">${sectionRows}</div>
@@ -391,7 +336,7 @@ function renderStats() {
   grid.appendChild(sectionBlock);
 }
 
-// ─── 7. NAVIGATION ──────────────────────────────────────
+// ─── 7. NAVIGATION ───
 function switchTab(tab) {
   currentTab = tab;
   document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -407,12 +352,9 @@ function switchTab(tab) {
     case 'stats': renderStats(); break;
   }
 }
+function rerenderCurrentTab() { switchTab(currentTab); }
 
-function rerenderCurrentTab() {
-  switchTab(currentTab);
-}
-
-// ─── 8. UTILITAIRES ──────────────────────────────────────
+// ─── 8. UTILITAIRES ───
 function createStickerCard(s, context) {
   const state = getState(s.id);
   const status = state.status;
@@ -430,11 +372,7 @@ function createStickerCard(s, context) {
   card.innerHTML = `
     <div class="sticker-status-bar"></div>
     <div class="sticker-img-wrap">
-      <img class="sticker-flag"
-           src="${escHtml(s.drapeau)}"
-           alt="${escHtml(s.code)}"
-           loading="lazy"
-           onerror="this.style.display='none'" />
+      <img class="sticker-flag" src="${escHtml(s.drapeau)}" alt="${escHtml(s.code)}" loading="lazy" onerror="this.style.display='none'" />
     </div>
     <div class="sticker-body">
       <div class="sticker-id">${escHtml(s.id)}</div>
@@ -443,12 +381,9 @@ function createStickerCard(s, context) {
       <span class="sticker-type ${typeClass}">${escHtml(s.type)}</span>
     </div>
     <div class="sticker-footer">
-      <button class="sticker-btn btn-miss" title="Marquer manquante"
-              onclick="onCardAction('${escHtml(s.id)}', 'missing')">✗</button>
-      <button class="sticker-btn btn-own" title="Marquer possédée"
-              onclick="onCardAction('${escHtml(s.id)}', 'owned')">✓</button>
-      <button class="sticker-btn btn-dup" title="Ajouter un doublon"
-              onclick="onCardAction('${escHtml(s.id)}', 'duplicate')">+1</button>
+      <button class="sticker-btn btn-miss" title="Manquante" onclick="onCardAction('${escHtml(s.id)}','missing')">✗</button>
+      <button class="sticker-btn btn-own" title="Possédée" onclick="onCardAction('${escHtml(s.id)}','owned')">✓</button>
+      <button class="sticker-btn btn-dup" title="+1 doublon" onclick="onCardAction('${escHtml(s.id)}','duplicate')">+1</button>
     </div>
     ${dupBadge}
   `;
@@ -458,7 +393,11 @@ function createStickerCard(s, context) {
 function onCardAction(id, action) {
   const current = getState(id);
   if (action === 'duplicate') {
-    setStatus(id, 'duplicate', 1);
+    if (current.status === 'duplicate') {
+      setStatus(id, 'duplicate', 1);
+    } else {
+      setStatus(id, 'duplicate', 1);
+    }
   } else if (action === 'missing') {
     if (current.status === 'duplicate' && current.count > 1) {
       collectionState[id].count--;
@@ -521,8 +460,7 @@ function populateFilters() {
     const sel = document.getElementById(selId);
     sections.forEach(v => {
       const opt = document.createElement('option');
-      opt.value = v;
-      opt.textContent = v;
+      opt.value = v; opt.textContent = v;
       sel.appendChild(opt);
     });
   });
@@ -530,8 +468,7 @@ function populateFilters() {
     const sel = document.getElementById(selId);
     types.forEach(v => {
       const opt = document.createElement('option');
-      opt.value = v;
-      opt.textContent = v;
+      opt.value = v; opt.textContent = v;
       sel.appendChild(opt);
     });
   });
@@ -539,41 +476,40 @@ function populateFilters() {
     const sel = document.getElementById(selId);
     groupes.forEach(v => {
       const opt = document.createElement('option');
-      opt.value = v;
-      opt.textContent = `Groupe ${v}`;
+      opt.value = v; opt.textContent = `Groupe ${v}`;
       sel.appendChild(opt);
     });
   });
 }
 
-// ✨ FONCTION MODIFIÉE POUR L'EXPORT (correction des doublons)
+/**
+ * buildExportText – version corrigée :
+ * - chaque ligne : "CODE num1,num2,num3,…"
+ * - les numéros sont uniques (Set) pour éviter les doublons
+ * - les IDs sans chiffre sont conservés tels quels
+ */
 function buildExportText(items) {
-  const byPrefix = {};
+  const byCode = {};
   items.forEach(s => {
-    const id = s.id;
-    const match = id.match(/^([A-Za-z]+)(\d+)$/);
-    const prefix = match ? match[1] : id;
-    if (!byPrefix[prefix]) byPrefix[prefix] = [];
-    byPrefix[prefix].push(id);
+    if (!byCode[s.code]) byCode[s.code] = [];
+    byCode[s.code].push(s.id);
   });
-
   const lines = [];
-  Object.entries(byPrefix)
-    .sort((a, b) => a[0].localeCompare(b[0]))
-    .forEach(([prefix, ids]) => {
-      const nums = ids.map(id => {
-        const match = id.match(/^[A-Za-z]+(\d+)$/);
-        return match ? parseInt(match[1]) : id;
-      });
-      nums.sort((a, b) => {
-        if (typeof a === 'number' && typeof b === 'number') return a - b;
-        if (typeof a === 'number') return -1;
-        if (typeof b === 'number') return 1;
-        return String(a).localeCompare(String(b));
-      });
-      lines.push(prefix + ' ' + nums.join(','));
+  Object.entries(byCode).sort((a, b) => a[0].localeCompare(b[0])).forEach(([code, ids]) => {
+    const nums = new Set();
+    const others = [];
+    ids.forEach(id => {
+      const match = id.match(/^[A-Za-z]+(\d+)$/);
+      if (match) {
+        nums.add(parseInt(match[1]));
+      } else {
+        others.push(id);
+      }
     });
-
+    const sortedNums = [...nums].sort((a, b) => a - b);
+    const all = [...sortedNums, ...others.sort()];
+    lines.push(`${code} ${all.join(',')}`);
+  });
   return lines.join('\n');
 }
 
@@ -599,7 +535,7 @@ function updateGlobalProgress() {
   const bar = document.getElementById('globalProgressBar');
   const label = document.getElementById('globalProgressLabel');
   if (bar) bar.style.width = pct + '%';
-  if (label) label.textContent = `${owned} / ${total} vignettes possédées (${pct}%)`;
+  if (label) label.textContent = `${owned} / ${total} vignettes (${pct}%)`;
 }
 
 function showToast(msg, isError = false) {
@@ -621,5 +557,4 @@ function escHtml(str) {
     .replace(/'/g, '&#39;');
 }
 
-// ─── 9. INIT ─────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', loadData);

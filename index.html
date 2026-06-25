@@ -4,44 +4,47 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Panini FIFA World Cup 2026 — Ma Collection</title>
+  <!-- Polices -->
+  <link href="https://fonts.googleapis.com/css2?family=Climate+Crisis&family=Hanken+Grotesk:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
   <!-- ═══════════════════════════════════════════════
-       EN-TÊTE PRINCIPAL
+       EN-TÊTE – style Studio Mondial
   ═══════════════════════════════════════════════ -->
   <header class="app-header">
-    <div class="header-stripe stripe-1"></div>
-    <div class="header-stripe stripe-2"></div>
-    <div class="header-stripe stripe-3"></div>
     <div class="header-inner">
-      <div class="header-logo">
-        <span class="logo-panini">PANINI</span>
-        <span class="logo-wc">FIFA WORLD CUP 2026™</span>
-        <span class="logo-sub">Ma Collection</span>
+      <div class="logo-pill">
+        <div class="logo-text">
+          <span class="logo-source">Panini</span>
+          <span class="logo-name">MONDIAL</span>
+        </div>
+        <div class="logo-digits" aria-hidden="true">
+          <div class="digit-bubble d-dark">2</div>
+          <div class="digit-bubble d-red">0</div>
+          <div class="digit-bubble d-blue">2</div>
+          <div class="digit-bubble d-green">6</div>
+        </div>
       </div>
+      <div class="badge-studio">Ma Collection</div>
       <div class="header-actions">
-        <button class="btn btn-export" onclick="exportCollectionAsJSON()" title="Exporter ma collection">
-          ↓ Exporter
-        </button>
-        <button class="btn btn-import" onclick="triggerImport()" title="Importer une collection">
-          ↑ Importer
-        </button>
+        <button class="btn btn-export" onclick="exportCollectionAsJSON()">↓ Export</button>
+        <button class="btn btn-import" onclick="triggerImport()">↑ Import</button>
         <input type="file" id="importFileInput" accept=".json" style="display:none" onchange="handleImportFile(event)" />
       </div>
     </div>
-    <!-- Barre de progression globale -->
+    <!-- Barre de progression -->
     <div class="header-progress">
       <div class="progress-bar-wrap">
         <div class="progress-bar-fill" id="globalProgressBar" style="width:0%"></div>
       </div>
-      <span class="progress-label" id="globalProgressLabel">0 / 0 vignettes possédées (0%)</span>
+      <span class="progress-label" id="globalProgressLabel">0 / 0 vignettes (0%)</span>
     </div>
   </header>
 
   <!-- ═══════════════════════════════════════════════
-       NAVIGATION PAR ONGLETS
+       NAVIGATION – onglets skewés
   ═══════════════════════════════════════════════ -->
   <nav class="tab-nav">
     <button class="tab-btn active" data-tab="album" onclick="switchTab('album')">
@@ -62,24 +65,20 @@
   </nav>
 
   <!-- ═══════════════════════════════════════════════
-       CONTENEUR PRINCIPAL
+       CONTENU PRINCIPAL
   ═══════════════════════════════════════════════ -->
   <main class="app-main">
 
-    <!-- MESSAGE DE CHARGEMENT -->
+    <!-- Chargement / Erreur -->
     <div id="loadingMsg" class="loading-msg">
       <div class="loading-spinner"></div>
       <p>Chargement de la collection…</p>
     </div>
-
-    <!-- MESSAGE D'ERREUR -->
     <div id="errorMsg" class="error-msg" style="display:none">
       <p id="errorText">Erreur de chargement.</p>
     </div>
 
-    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-         VUE : ALBUM PAR PAGE
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <!-- ━━━ ALBUM ━━━ -->
     <section id="tab-album" class="tab-panel" style="display:none">
       <div class="album-nav">
         <button class="btn btn-nav" id="prevPageBtn" onclick="albumPrevPage()">← Précédent</button>
@@ -93,9 +92,7 @@
       <div class="sticker-grid" id="albumGrid"></div>
     </section>
 
-    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-         VUE : PAR PAYS
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <!-- ━━━ PAYS ━━━ -->
     <section id="tab-pays" class="tab-panel" style="display:none">
       <div class="filter-bar">
         <label for="paysSelect">Pays / Code :</label>
@@ -105,16 +102,14 @@
       <div class="sticker-grid" id="paysGrid"></div>
     </section>
 
-    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-         VUE : MANQUANTES (WANTLIST)
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <!-- ━━━ MANQUANTES ━━━ -->
     <section id="tab-manquantes" class="tab-panel" style="display:none">
       <div class="filter-bar">
-        <select id="wantFilterCode" onchange="renderWantlist()"><option value="">Tous les pays</option></select>
+        <select id="wantFilterCode" onchange="renderWantlist()"><option value="">Tous pays</option></select>
         <select id="wantFilterSection" onchange="renderWantlist()"><option value="">Toutes sections</option></select>
         <select id="wantFilterType" onchange="renderWantlist()"><option value="">Tous types</option></select>
         <select id="wantFilterGroupe" onchange="renderWantlist()"><option value="">Tous groupes</option></select>
-        <button class="btn btn-export-list" onclick="exportWantlistText()">📋 Copier liste texte</button>
+        <button class="btn btn-export-list" onclick="exportWantlistText()">📋 Copier liste</button>
       </div>
       <div class="list-count" id="wantCount"></div>
       <div class="sticker-grid" id="wantGrid"></div>
@@ -124,16 +119,14 @@
       </div>
     </section>
 
-    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-         VUE : DOUBLONS
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <!-- ━━━ DOUBLONS ━━━ -->
     <section id="tab-doublons" class="tab-panel" style="display:none">
       <div class="filter-bar">
-        <select id="dubFilterCode" onchange="renderDoublons()"><option value="">Tous les pays</option></select>
+        <select id="dubFilterCode" onchange="renderDoublons()"><option value="">Tous pays</option></select>
         <select id="dubFilterSection" onchange="renderDoublons()"><option value="">Toutes sections</option></select>
         <select id="dubFilterType" onchange="renderDoublons()"><option value="">Tous types</option></select>
         <select id="dubFilterGroupe" onchange="renderDoublons()"><option value="">Tous groupes</option></select>
-        <button class="btn btn-export-list" onclick="exportDoublonsText()">📋 Copier liste texte</button>
+        <button class="btn btn-export-list" onclick="exportDoublonsText()">📋 Copier liste</button>
       </div>
       <div class="list-count" id="dubCount"></div>
       <div class="sticker-grid" id="dubGrid"></div>
@@ -143,18 +136,14 @@
       </div>
     </section>
 
-    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-         VUE : STATS
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <!-- ━━━ STATS ━━━ -->
     <section id="tab-stats" class="tab-panel" style="display:none">
       <div class="stats-grid" id="statsGrid"></div>
     </section>
 
   </main>
 
-  <!-- ═══════════════════════════════════════════════
-       NOTIFICATION TOAST
-  ═══════════════════════════════════════════════ -->
+  <!-- Toast -->
   <div id="toast" class="toast" style="display:none"></div>
 
   <script src="app.js"></script>
