@@ -5,30 +5,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Panini FIFA World Cup 2026 — Ma Collection</title>
   <link rel="stylesheet" href="styles.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Climate+Crisis&family=Hanken+Grotesk:wght@400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Climate+Crisis&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
   <!-- ═══════════════════════════════════════════════
-       EN-TÊTE PRINCIPAL
+       EN-TÊTE PRINCIPAL (style Studio)
   ═══════════════════════════════════════════════ -->
   <header class="app-header">
-    <div class="header-stripe stripe-1"></div>
-    <div class="header-stripe stripe-2"></div>
-    <div class="header-stripe stripe-3"></div>
     <div class="header-inner">
-      <div class="header-logo">
-        <span class="logo-panini">PANINI</span>
-        <span class="logo-wc">FIFA WORLD CUP 2026™</span>
-        <span class="logo-sub">Ma Collection</span>
+      <div class="logo-pill">
+        <div class="logo-text">
+          <span class="logo-source">Studio</span>
+          <span class="logo-name">MONDIAL</span>
+        </div>
+        <div class="logo-digits" aria-hidden="true">
+          <div class="digit-bubble d-dark">2</div>
+          <div class="digit-bubble d-red">0</div>
+          <div class="digit-bubble d-blue">2</div>
+          <div class="digit-bubble d-green">6</div>
+        </div>
       </div>
       <div class="header-actions">
-        <button class="btn btn-export" onclick="exportCollectionAsJSON()" title="Exporter ma collection">
-          ↓ Exporter
-        </button>
-        <button class="btn btn-import" onclick="triggerImport()" title="Importer une collection">
-          ↑ Importer
-        </button>
+        <button class="btn btn-export" onclick="exportCollectionAsJSON()">↓ Exporter</button>
+        <button class="btn btn-import" onclick="triggerImport()">↑ Importer</button>
         <input type="file" id="importFileInput" accept=".json" style="display:none" onchange="handleImportFile(event)" />
       </div>
     </div>
@@ -45,21 +45,11 @@
        NAVIGATION PAR ONGLETS
   ═══════════════════════════════════════════════ -->
   <nav class="tab-nav">
-    <button class="tab-btn active" data-tab="album" onclick="switchTab('album')">
-      <span class="tab-icon">📖</span> Album
-    </button>
-    <button class="tab-btn" data-tab="pays" onclick="switchTab('pays')">
-      <span class="tab-icon">🌍</span> Par pays
-    </button>
-    <button class="tab-btn" data-tab="manquantes" onclick="switchTab('manquantes')">
-      <span class="tab-icon">🔍</span> Manquantes
-    </button>
-    <button class="tab-btn" data-tab="doublons" onclick="switchTab('doublons')">
-      <span class="tab-icon">♻️</span> Doublons
-    </button>
-    <button class="tab-btn" data-tab="stats" onclick="switchTab('stats')">
-      <span class="tab-icon">📊</span> Stats
-    </button>
+    <button class="tab-btn active" data-tab="album" onclick="switchTab('album')">📖 Album</button>
+    <button class="tab-btn" data-tab="pays" onclick="switchTab('pays')">🌍 Par pays</button>
+    <button class="tab-btn" data-tab="manquantes" onclick="switchTab('manquantes')">🔍 Manquantes</button>
+    <button class="tab-btn" data-tab="doublons" onclick="switchTab('doublons')">♻️ Doublons</button>
+    <button class="tab-btn" data-tab="stats" onclick="switchTab('stats')">📊 Stats</button>
   </nav>
 
   <!-- ═══════════════════════════════════════════════
@@ -81,14 +71,14 @@
     <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
          VUE : ALBUM PAR PAGE
     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
-    <section id="tab-album" class="tab-panel" style="display:none">
+    <section id="tab-album" class="tab-panel active">
       <div class="album-nav">
-        <button class="btn btn-nav" id="prevPageBtn" onclick="albumPrevPage()">← Précédent</button>
+        <button class="btn" id="prevPageBtn" onclick="albumPrevPage()">← Précédent</button>
         <div class="album-page-select">
           <label for="albumPageSelect">Page :</label>
           <select id="albumPageSelect" onchange="albumGoToPage(this.value)"></select>
         </div>
-        <button class="btn btn-nav" id="nextPageBtn" onclick="albumNextPage()">Suivant →</button>
+        <button class="btn" id="nextPageBtn" onclick="albumNextPage()">Suivant →</button>
       </div>
       <div class="album-page-header" id="albumPageHeader"></div>
       <div class="sticker-grid" id="albumGrid"></div>
@@ -97,7 +87,7 @@
     <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
          VUE : PAR PAYS
     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
-    <section id="tab-pays" class="tab-panel" style="display:none">
+    <section id="tab-pays" class="tab-panel">
       <div class="filter-bar">
         <label for="paysSelect">Pays / Code :</label>
         <select id="paysSelect" onchange="renderPaysView()"></select>
@@ -107,9 +97,9 @@
     </section>
 
     <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-         VUE : MANQUANTES (WANTLIST)
+         VUE : MANQUANTES
     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
-    <section id="tab-manquantes" class="tab-panel" style="display:none">
+    <section id="tab-manquantes" class="tab-panel">
       <div class="filter-bar">
         <select id="wantFilterCode" onchange="renderWantlist()"><option value="">Tous les pays</option></select>
         <select id="wantFilterSection" onchange="renderWantlist()"><option value="">Toutes sections</option></select>
@@ -128,7 +118,7 @@
     <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
          VUE : DOUBLONS
     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
-    <section id="tab-doublons" class="tab-panel" style="display:none">
+    <section id="tab-doublons" class="tab-panel">
       <div class="filter-bar">
         <select id="dubFilterCode" onchange="renderDoublons()"><option value="">Tous les pays</option></select>
         <select id="dubFilterSection" onchange="renderDoublons()"><option value="">Toutes sections</option></select>
@@ -147,14 +137,14 @@
     <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
          VUE : STATS
     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
-    <section id="tab-stats" class="tab-panel" style="display:none">
+    <section id="tab-stats" class="tab-panel">
       <div class="stats-grid" id="statsGrid"></div>
     </section>
 
   </main>
 
   <!-- ═══════════════════════════════════════════════
-       NOTIFICATION TOAST
+       TOAST
   ═══════════════════════════════════════════════ -->
   <div id="toast" class="toast" style="display:none"></div>
 
