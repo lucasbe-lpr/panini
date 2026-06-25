@@ -56,6 +56,7 @@ const LS_KEY = 'panini-wc2026-collection';
  */
 async function loadData() {
   try {
+    console.log('Chargement de stickers.json...');
     const response = await fetch('stickers.json');
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const data = await response.json();
@@ -93,6 +94,8 @@ async function loadData() {
     switchTab('album');
     updateGlobalProgress();
 
+    console.log('Données chargées avec succès.');
+
   } catch (err) {
     document.getElementById('loadingMsg').style.display = 'none';
     const errEl = document.getElementById('errorMsg');
@@ -100,7 +103,7 @@ async function loadData() {
     document.getElementById('errorText').textContent =
       `❌ Impossible de charger les données : ${err.message}. ` +
       `Assurez-vous que stickers.json est bien présent dans le même dossier que index.html.`;
-    console.error(err);
+    console.error('Erreur de chargement :', err);
   }
 }
 
@@ -664,14 +667,12 @@ function onCardAction(id, action) {
   const current = getState(id);
 
   if (action === 'duplicate') {
-    // Incrémenter si déjà doublon, sinon passer à doublon avec count = 1
     if (current.status === 'duplicate') {
       setStatus(id, 'duplicate', 1);
     } else {
       setStatus(id, 'duplicate', 1);
     }
   } else if (action === 'missing') {
-    // Si doublon : décrémenter, puis passer à missing si count = 0
     if (current.status === 'duplicate' && current.count > 1) {
       collectionState[id].count--;
       saveToLocalStorage();
@@ -780,13 +781,6 @@ function populateFilters() {
 
 /**
  * Construit le texte d'export au format demandé :
- *   CODE
- *   num1,num2,...
- * Chaque vignette a un ID de type CODE+num (ex: FWC1, MEX5).
- * Pour les ID sans préfixe numérique on les liste quand même.
- */
-/**
- * Construit le texte d'export au format demandé :
  *   PREFIXE num1,num2,...
  * Chaque vignette a un ID de type PREFIXE+num (ex: FWC1, MEX5).
  * Pour les ID sans préfixe numérique on les liste quand même.
@@ -820,27 +814,6 @@ function buildExportText(items) {
       });
       lines.push(prefix + ' ' + nums.join(','));
     });
-
-  return lines.join('\n');
-}
-
-  const lines = [];
-  Object.entries(byCode).sort((a, b) => a[0].localeCompare(b[0])).forEach(([code, ids]) => {
-    // Tente d'extraire le numéro de chaque ID
-    const nums = ids.map(id => {
-      const match = id.match(/^[A-Za-z]+(\d+)$/);
-      return match ? parseInt(match[1]) : id;
-    });
-    // Trie numériquement les chiffres, et met les non-numériques à la fin
-    nums.sort((a, b) => {
-      if (typeof a === 'number' && typeof b === 'number') return a - b;
-      if (typeof a === 'number') return -1;
-      if (typeof b === 'number') return 1;
-      return String(a).localeCompare(String(b));
-    });
-    lines.push(code);
-    lines.push(nums.join(','));
-  });
 
   return lines.join('\n');
 }
