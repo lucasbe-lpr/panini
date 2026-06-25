@@ -790,19 +790,15 @@ function buildExportText(items) {
   const byCode = {};
   items.forEach(s => {
     const match = s.id.match(/^([A-Za-z]+)(\d+)$/);
-    if (!match) return; // on ignore les IDs sans numéro (ex: LM, JD)
+    if (!match) return;
     const code = match[1];
     const num = parseInt(match[2]);
     if (!byCode[code]) byCode[code] = new Set();
     byCode[code].add(num);
   });
-
   const lines = Object.keys(byCode)
     .sort((a, b) => a.localeCompare(b))
-    .map(code => {
-      const nums = Array.from(byCode[code]).sort((a, b) => a - b);
-      return `${code} ${nums.join(',')}`;
-    });
+    .map(code => `${code} ${Array.from(byCode[code]).sort((a,b)=>a-b).join(',')}`);
   return lines.join('\n');
 }
 
