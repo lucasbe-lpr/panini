@@ -452,7 +452,8 @@ function renderStats() {
   const owned     = stickers.filter(s => getState(s.id).status === 'owned').length;
   const missing   = stickers.filter(s => getState(s.id).status === 'missing').length;
   const duplicate = stickers.filter(s => getState(s.id).status === 'duplicate').length;
-  const pct       = total > 0 ? Math.round((owned / total) * 100) : 0;
+  const possessed = owned + duplicate;
+  const pct       = total > 0 ? Math.round((possessed / total) * 100) : 0;
 
   // ── Bloc global ──
   const globalBlock = document.createElement('div');
@@ -474,16 +475,14 @@ function renderStats() {
           <span class="stat-number-label">doublons</span>
         </div>
       </div>
-      <div class="stat-progress-row">
-        <span class="stat-progress-label">Complétion album</span>
+      <div class="stat-progress-row album-row">
+        <span class="stat-progress-label">Complétion</span>
         <div class="stat-bar-wrap">
           <div class="stat-bar-fill" style="width:${pct}%"></div>
         </div>
         <span class="stat-bar-pct">${pct}%</span>
       </div>
-      <div style="font-size:11px;color:var(--c-sky);text-align:center">
-        ${owned} / ${total} vignettes possédées
-      </div>
+      <div class="stat-total-label">${possessed} / ${total} vignettes possédées (dont ${duplicate} en doublon)</div>
     </div>
   `;
   grid.appendChild(globalBlock);
@@ -496,7 +495,7 @@ function renderStats() {
   stickers.forEach(s => {
     if (!codeMap[s.code]) codeMap[s.code] = { section: s.section, total: 0, owned: 0 };
     codeMap[s.code].total++;
-    if (getState(s.id).status === 'owned') codeMap[s.code].owned++;
+    if (getState(s.id).status === 'owned' || getState(s.id).status === 'duplicate') codeMap[s.code].owned++;
   });
   const sortedCodes = Object.entries(codeMap).sort((a, b) => a[1].section.localeCompare(b[1].section, 'fr'));
   sortedCodes.forEach(([code, info]) => {
@@ -524,7 +523,7 @@ function renderStats() {
   stickers.forEach(s => {
     if (!secMap[s.section]) secMap[s.section] = { total: 0, owned: 0 };
     secMap[s.section].total++;
-    if (getState(s.id).status === 'owned') secMap[s.section].owned++;
+    if (getState(s.id).status === 'owned' || getState(s.id).status === 'duplicate') secMap[s.section].owned++;
   });
   Object.entries(secMap).sort((a, b) => a[0].localeCompare(b[0], 'fr')).forEach(([sec, info]) => {
     const p = info.total > 0 ? Math.round((info.owned / info.total) * 100) : 0;
@@ -779,37 +778,48 @@ function populateFilters() {
 }
 
 /**
- * Construit le texte d'export au format demandé :
- *   CODE
- *   num1,num2,...
- * Chaque vignette a un ID de type CODE+num (ex: FWC1, MEX5).
- * Pour les ID sans préfixe numérique on les liste quand même.
+ * Construit le texte d'export au format :
+ *   CODE 1,2,3,4,...
+ * Groupe par section (nom du pays) pour éviter les bugs de code
+ * mal assigné dans le JSON. Utilise le code de la première vignette
+ * de chaque section comme préfixe.
  */
 function buildExportText(items) {
-  // Groupe par code
-  const byCode = {};
+  // Groupe par section (nom du pays) — plus fiable que s.code
+  const bySection = {};
   items.forEach(s => {
-    if (!byCode[s.code]) byCode[s.code] = [];
-    byCode[s.code].push(s.id);
+    const key = s.section;
+    if (!bySection[key]) bySection[key] = { ids: [], refCode: null };
+    // Le "bon" code d'une vignette est le préfixe de son propre ID
+    const idMatch = s.id.match(/^([A-Za-z]+)\d+$/);
+    if (idMatch && !bySection[key].refCode) {
+      bySection[key].refCode = idMatch[1];
+    } else if (!bySection[key].refCode) {
+      bySection[key].refCode = s.id; // fallback pour IDs sans numéro (LM, JB…)
+    }
+    bySection[key].ids.push(s.id);
   });
 
   const lines = [];
-  Object.entries(byCode).sort((a, b) => a[0].localeCompare(b[0])).forEach(([code, ids]) => {
-    // Tente d'extraire le numéro de chaque ID
-    const nums = ids.map(id => {
-      const match = id.match(/^[A-Za-z]+(\d+)$/);
-      return match ? parseInt(match[1]) : id;
+  Object.entries(bySection)
+    .sort((a, b) => a[0].localeCompare(b[0], 'fr'))
+    .forEach(([, { ids, refCode }]) => {
+      // Extrait les numéros depuis les IDs (ex: BRA12 → 12)
+      const nums = ids.map(id => {
+        const match = id.match(/^[A-Za-z]+(\d+)$/);
+        return match ? parseInt(match[1]) : id;
+      });
+      // Déduplique et trie
+      const unique = [...new Set(nums)];
+      unique.sort((a, b) => {
+        if (typeof a === 'number' && typeof b === 'number') return a - b;
+        if (typeof a === 'number') return -1;
+        if (typeof b === 'number') return 1;
+        return String(a).localeCompare(String(b));
+      });
+      // Tout sur une seule ligne : CODE 1,2,3,...
+      lines.push(`${refCode} ${unique.join(',')}`);
     });
-    // Trie numériquement les chiffres, et met les non-numériques à la fin
-    nums.sort((a, b) => {
-      if (typeof a === 'number' && typeof b === 'number') return a - b;
-      if (typeof a === 'number') return -1;
-      if (typeof b === 'number') return 1;
-      return String(a).localeCompare(String(b));
-    });
-    lines.push(code);
-    lines.push(nums.join(','));
-  });
 
   return lines.join('\n');
 }
@@ -836,9 +846,12 @@ function copyTextarea(textareaId) {
  * Met à jour la barre de progression globale dans le header.
  */
 function updateGlobalProgress() {
-  const total  = stickers.length;
-  const owned  = stickers.filter(s => getState(s.id).status === 'owned').length;
-  const pct    = total > 0 ? Math.round((owned / total) * 100) : 0;
+  const total = stickers.length;
+  const owned = stickers.filter(s => {
+    const st = getState(s.id).status;
+    return st === 'owned' || st === 'duplicate';
+  }).length;
+  const pct = total > 0 ? Math.round((owned / total) * 100) : 0;
 
   const bar   = document.getElementById('globalProgressBar');
   const label = document.getElementById('globalProgressLabel');
