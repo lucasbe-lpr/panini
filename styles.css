@@ -1,12 +1,13 @@
 /* ═══════════════════════════════════════════════════════════
-   PANINI FIFA WORLD CUP 2026 — STYLES v2
-   DA : Bold / Sport / Stadium Energy
-   Palette officielle WC2026
+   PANINI FIFA WORLD CUP 2026 — STYLES v3 (Stadium Energy)
+   DA inspirée de assets v2.html
+   Palette : #1B2789, #375AFE, #8DBAFE, #801211, #DC0203,
+             #FE4502, #025649, #04CF5C, #BAEE06, #FFFFFF
 ═══════════════════════════════════════════════════════════ */
 
-/* ──────────────────────────────────────────────────────────
-   VARIABLES CSS
-────────────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Climate+Crisis&family=Hanken+Grotesk:wght@400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap');
+
+/* ────────── Variables ────────── */
 :root {
   --c-navy:      #1B2789;
   --c-blue:      #375AFE;
@@ -17,30 +18,23 @@
   --c-forest:    #025649;
   --c-green:     #04CF5C;
   --c-lime:      #BAEE06;
-  --c-white:     #FFFFFF;
   --c-dark:      #0D1347;
+  --c-white:     #FFFFFF;
   --c-card-bg:   #151d6b;
 
-  --status-missing:   #DC0203;
-  --status-owned:     #04CF5C;
-  --status-duplicate: #375AFE;
+  --font-display: 'Climate Crisis', cursive;
+  --font-body:    'Hanken Grotesk', sans-serif;
+  --font-mono:    'JetBrains Mono', monospace;
 
-  --font-display: 'Arial Black', 'Helvetica Neue', Impact, sans-serif;
-  --font-body:    'Arial', 'Helvetica Neue', sans-serif;
-
-  --gap: 10px;
   --radius: 6px;
   --radius-lg: 12px;
   --max-w: 1400px;
+  --gap: 10px;
 }
 
-/* ──────────────────────────────────────────────────────────
-   RESET & BASE
-────────────────────────────────────────────────────────── */
+/* ────────── Reset & base ────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 html { scroll-behavior: smooth; }
-
 body {
   font-family: var(--font-body);
   font-size: 14px;
@@ -52,19 +46,25 @@ body {
     radial-gradient(ellipse at 80% 100%, rgba(220,2,3,0.12) 0%, transparent 60%);
 }
 
-/* ──────────────────────────────────────────────────────────
-   EN-TÊTE
-────────────────────────────────────────────────────────── */
+/* ────────── En-tête ────────── */
 .app-header {
   background: var(--c-navy);
-  border-bottom: 4px solid var(--c-lime);
   position: sticky;
   top: 0;
   z-index: 100;
   box-shadow: 0 4px 32px rgba(0,0,0,0.5);
+  border-bottom: 4px solid transparent;
+  position: relative;
+}
+.app-header::after {
+  content: '';
+  position: absolute;
+  bottom: -4px; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--c-red) 0% 33%, var(--c-blue) 33% 66%, var(--c-green) 66% 100%);
+  pointer-events: none;
 }
 
-/* Bandes latérales */
 .header-stripe {
   position: absolute;
   top: 0; bottom: 0;
@@ -92,8 +92,9 @@ body {
 }
 
 .logo-panini {
-  font-family: var(--font-display);
+  font-family: var(--font-mono);
   font-size: 10px;
+  font-weight: 700;
   letter-spacing: 0.5em;
   color: var(--c-sky);
   text-transform: uppercase;
@@ -102,7 +103,7 @@ body {
 .logo-wc {
   font-family: var(--font-display);
   font-size: 20px;
-  font-weight: 900;
+  font-weight: 400;
   color: var(--c-white);
   letter-spacing: 0.03em;
   text-transform: uppercase;
@@ -110,6 +111,7 @@ body {
 }
 
 .logo-sub {
+  font-family: var(--font-mono);
   font-size: 10px;
   color: var(--c-lime);
   letter-spacing: 0.2em;
@@ -124,7 +126,7 @@ body {
   align-items: center;
 }
 
-/* Barre de progression globale */
+/* ── Barre progression ── */
 .header-progress {
   background: rgba(0,0,0,0.35);
   border-top: 1px solid rgba(255,255,255,0.08);
@@ -153,6 +155,7 @@ body {
 }
 
 .progress-label {
+  font-family: var(--font-mono);
   font-size: 11px;
   font-weight: 700;
   color: var(--c-sky);
@@ -160,9 +163,7 @@ body {
   letter-spacing: 0.04em;
 }
 
-/* ──────────────────────────────────────────────────────────
-   NAVIGATION ONGLETS
-────────────────────────────────────────────────────────── */
+/* ────────── Navigation onglets ────────── */
 .tab-nav {
   background: rgba(27,39,137,0.95);
   backdrop-filter: blur(8px);
@@ -175,9 +176,9 @@ body {
 .tab-nav::-webkit-scrollbar { display: none; }
 
 .tab-btn {
-  font-family: var(--font-display);
+  font-family: var(--font-mono);
   font-size: 11px;
-  font-weight: 900;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: rgba(255,255,255,0.5);
@@ -207,9 +208,7 @@ body {
 
 .tab-icon { font-size: 14px; }
 
-/* ──────────────────────────────────────────────────────────
-   ZONE PRINCIPALE
-────────────────────────────────────────────────────────── */
+/* ────────── Zone principale ────────── */
 .app-main {
   max-width: var(--max-w);
   margin: 0 auto;
@@ -223,9 +222,7 @@ body {
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ──────────────────────────────────────────────────────────
-   MESSAGES CHARGEMENT / ERREUR
-────────────────────────────────────────────────────────── */
+/* ────────── Messages ────────── */
 .loading-msg {
   display: flex;
   flex-direction: column;
@@ -257,35 +254,62 @@ body {
   font-size: 15px;
 }
 
-/* ──────────────────────────────────────────────────────────
-   BOUTONS
-────────────────────────────────────────────────────────── */
+/* ────────── Boutons (skew) ────────── */
 .btn {
-  font-family: var(--font-display);
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
   font-size: 10px;
-  font-weight: 900;
+  font-weight: 700;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  color: var(--c-white);
+  background: none;
   border: none;
-  padding: 8px 16px;
-  border-radius: 20px;
+  padding: 8px 18px;
   cursor: pointer;
-  transition: transform 0.1s, opacity 0.15s, box-shadow 0.15s;
-  white-space: nowrap;
+  z-index: 1;
+  transition: color 0.15s, transform 0.1s;
 }
-.btn:hover { opacity: 0.9; transform: translateY(-1px); }
-.btn:active { transform: scale(0.96) translateY(0); }
+.btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--c-blue);
+  border: 2px solid var(--c-blue);
+  border-radius: 4px;
+  transform: skewX(-15deg);
+  z-index: -1;
+  transition: background 0.2s, border-color 0.2s;
+}
+.btn:hover { transform: translateY(-2px); }
+.btn:hover::before {
+  background: var(--c-navy);
+  border-color: var(--c-navy);
+}
+.btn:active { transform: scale(0.97); }
 
-.btn-export  { background: var(--c-lime);   color: var(--c-navy);  box-shadow: 0 2px 12px rgba(186,238,6,0.3); }
-.btn-import  { background: transparent;     color: var(--c-sky);   border: 2px solid var(--c-sky); padding: 6px 14px; border-radius: 20px; }
-.btn-nav     { background: var(--c-blue);   color: var(--c-white); border-radius: var(--radius); }
-.btn-nav:disabled { opacity: 0.25; cursor: default; transform: none; }
-.btn-export-list { background: var(--c-orange); color: var(--c-white); border-radius: 20px; }
-.btn-copy    { background: var(--c-green);  color: var(--c-navy);  border-radius: var(--radius); margin-top: 8px; }
+.btn-export::before { background: var(--c-lime); border-color: var(--c-lime); }
+.btn-export { color: var(--c-navy); }
+.btn-export:hover::before { background: var(--c-green); border-color: var(--c-green); }
 
-/* ──────────────────────────────────────────────────────────
-   FILTRES
-────────────────────────────────────────────────────────── */
+.btn-import::before { background: transparent; border-color: var(--c-sky); }
+.btn-import { color: var(--c-sky); }
+.btn-import:hover::before { background: var(--c-blue); border-color: var(--c-blue); }
+
+.btn-nav::before { background: var(--c-blue); border-color: var(--c-blue); }
+.btn-nav:disabled { opacity: 0.3; pointer-events: none; }
+
+.btn-export-list::before { background: var(--c-orange); border-color: var(--c-orange); }
+.btn-export-list { color: var(--c-white); }
+
+.btn-copy::before { background: var(--c-green); border-color: var(--c-green); }
+.btn-copy { color: var(--c-navy); }
+
+/* ────────── Filtres ────────── */
 .filter-bar {
   display: flex;
   flex-wrap: wrap;
@@ -300,6 +324,7 @@ body {
 }
 
 .filter-bar label {
+  font-family: var(--font-mono);
   font-size: 10px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -318,9 +343,7 @@ body {
 }
 .filter-bar select:focus { outline: none; border-color: var(--c-lime); }
 
-/* ──────────────────────────────────────────────────────────
-   NAVIGATION ALBUM
-────────────────────────────────────────────────────────── */
+/* ────────── Navigation album ────────── */
 .album-nav {
   display: flex;
   align-items: center;
@@ -342,6 +365,7 @@ body {
 }
 
 .album-page-select label {
+  font-family: var(--font-mono);
   font-size: 10px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -364,7 +388,7 @@ body {
 .album-page-header {
   font-family: var(--font-display);
   font-size: 16px;
-  font-weight: 900;
+  font-weight: 400;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--c-white);
@@ -386,7 +410,7 @@ body {
 .pays-header {
   font-family: var(--font-display);
   font-size: 20px;
-  font-weight: 900;
+  font-weight: 400;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--c-white);
@@ -405,6 +429,7 @@ body {
 }
 
 .list-count {
+  font-family: var(--font-mono);
   font-size: 12px;
   font-weight: 700;
   color: var(--c-sky);
@@ -418,47 +443,40 @@ body {
   display: inline-block;
 }
 
-/* ──────────────────────────────────────────────────────────
-   GRILLE DE VIGNETTES
-────────────────────────────────────────────────────────── */
+/* ────────── Grille stickers ────────── */
 .sticker-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
   gap: var(--gap);
 }
 
-/* ──────────────────────────────────────────────────────────
-   CARTE VIGNETTE
-────────────────────────────────────────────────────────── */
+/* ────────── Carte sticker ────────── */
 .sticker-card {
   background: var(--c-card-bg);
   border-radius: var(--radius);
   overflow: hidden;
   position: relative;
-  cursor: pointer;
-  transition: transform 0.15s, box-shadow 0.15s;
   border: 2px solid rgba(55,90,254,0.3);
+  box-shadow: 4px 4px 0 rgba(27,39,137,0.4);
   display: flex;
   flex-direction: column;
-  user-select: none;
+  transition: transform 0.15s, box-shadow 0.15s;
+  cursor: default;
 }
-
 .sticker-card:hover {
   transform: translateY(-4px) scale(1.02);
-  z-index: 2;
+  box-shadow: 6px 6px 0 var(--c-blue);
 }
 
-.sticker-card.owned    { border-color: var(--status-owned); }
+.sticker-card.owned    { border-color: var(--c-green); }
 .sticker-card.missing  { border-color: rgba(220,2,3,0.4); }
-.sticker-card.duplicate { border-color: var(--status-duplicate); }
+.sticker-card.duplicate { border-color: var(--c-blue); }
 
-/* Bandeau de statut en haut */
 .sticker-status-bar { height: 4px; width: 100%; }
-.missing   .sticker-status-bar { background: var(--status-missing); }
-.owned     .sticker-status-bar { background: var(--status-owned); }
-.duplicate .sticker-status-bar { background: var(--status-duplicate); }
+.missing   .sticker-status-bar { background: var(--c-red); }
+.owned     .sticker-status-bar { background: var(--c-green); }
+.duplicate .sticker-status-bar { background: var(--c-blue); }
 
-/* Visuel / drapeau */
 .sticker-img-wrap {
   background: rgba(0,0,0,0.3);
   display: flex;
@@ -478,7 +496,6 @@ body {
 
 .sticker-card.missing .sticker-img-wrap { opacity: 0.35; }
 
-/* Corps de la carte */
 .sticker-body {
   padding: 6px 8px 5px;
   background: rgba(0,0,0,0.25);
@@ -490,16 +507,16 @@ body {
 }
 
 .sticker-id {
-  font-family: var(--font-display);
+  font-family: var(--font-mono);
   font-size: 10px;
-  font-weight: 900;
+  font-weight: 700;
   letter-spacing: 0.12em;
   color: var(--c-lime);
 }
 
 .sticker-nom {
   font-size: 10px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--c-white);
   line-height: 1.2;
   display: -webkit-box;
@@ -515,11 +532,11 @@ body {
   opacity: 0.7;
 }
 
-/* Type badges */
 .sticker-type {
   display: inline-block;
+  font-family: var(--font-mono);
   font-size: 8px;
-  font-weight: 900;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   padding: 1px 5px;
@@ -531,7 +548,6 @@ body {
 .type-classique { background: rgba(55,90,254,0.6); color: var(--c-white); }
 .type-extra     { background: var(--c-lime); color: var(--c-navy); }
 
-/* Footer de la carte : actions */
 .sticker-footer {
   display: flex;
   border-top: 1px solid rgba(255,255,255,0.08);
@@ -544,7 +560,7 @@ body {
   background: transparent;
   padding: 6px 2px;
   font-size: 11px;
-  font-weight: 900;
+  font-weight: 700;
   cursor: pointer;
   transition: background 0.1s;
   color: rgba(255,255,255,0.5);
@@ -552,39 +568,36 @@ body {
 .sticker-btn:not(:last-child) { border-right: 1px solid rgba(255,255,255,0.08); }
 .sticker-btn:hover { background: rgba(255,255,255,0.08); }
 
-.sticker-btn.btn-miss:hover { color: var(--status-missing); }
-.sticker-btn.btn-own:hover  { color: var(--status-owned); }
-.sticker-btn.btn-dup:hover  { color: var(--status-duplicate); }
+.sticker-btn.btn-miss:hover { color: var(--c-red); }
+.sticker-btn.btn-own:hover  { color: var(--c-green); }
+.sticker-btn.btn-dup:hover  { color: var(--c-blue); }
 
-.sticker-btn.btn-miss { color: var(--status-missing); opacity: 0.7; }
-.sticker-btn.btn-own  { color: var(--status-owned); opacity: 0.7; }
+.sticker-btn.btn-miss { color: var(--c-red); opacity: 0.7; }
+.sticker-btn.btn-own  { color: var(--c-green); opacity: 0.7; }
 .sticker-btn.btn-dup  { color: var(--c-sky); opacity: 0.7; }
 
-/* Pour les cartes actives, bouton actif plein */
 .sticker-card.owned .btn-own,
 .sticker-card.missing .btn-miss,
 .sticker-card.duplicate .btn-dup {
   opacity: 1;
 }
 
-/* Badge compteur doublon */
 .sticker-dup-badge {
   position: absolute;
   top: 6px;
   right: 6px;
   background: var(--c-blue);
   color: var(--c-white);
+  font-family: var(--font-mono);
   font-size: 9px;
-  font-weight: 900;
+  font-weight: 700;
   border-radius: 10px;
   padding: 1px 6px;
   letter-spacing: 0.04em;
   box-shadow: 0 2px 6px rgba(0,0,0,0.4);
 }
 
-/* ──────────────────────────────────────────────────────────
-   STATS
-────────────────────────────────────────────────────────── */
+/* ────────── Stats ────────── */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -597,12 +610,13 @@ body {
   border-radius: var(--radius-lg);
   overflow: hidden;
   backdrop-filter: blur(4px);
+  box-shadow: 4px 4px 0 rgba(27,39,137,0.3);
 }
 
 .stats-block-header {
-  font-family: var(--font-display);
+  font-family: var(--font-mono);
   font-size: 11px;
-  font-weight: 900;
+  font-weight: 700;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   padding: 10px 16px;
@@ -621,7 +635,6 @@ body {
   gap: 10px;
 }
 
-/* Résumé global */
 .stat-global-numbers {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -640,15 +653,16 @@ body {
 .stat-number {
   font-family: var(--font-display);
   font-size: 32px;
-  font-weight: 900;
+  font-weight: 400;
   line-height: 1;
   display: block;
 }
-.stat-number.s-owned     { color: var(--status-owned); }
-.stat-number.s-missing   { color: var(--status-missing); }
+.stat-number.s-owned     { color: var(--c-green); }
+.stat-number.s-missing   { color: var(--c-red); }
 .stat-number.s-duplicate { color: var(--c-sky); }
 
 .stat-number-label {
+  font-family: var(--font-mono);
   font-size: 9px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -657,7 +671,6 @@ body {
   display: block;
 }
 
-/* Barre de complétion */
 .stat-progress-row {
   display: flex;
   align-items: center;
@@ -692,6 +705,7 @@ body {
 }
 
 .stat-bar-pct {
+  font-family: var(--font-mono);
   font-size: 11px;
   font-weight: 700;
   color: var(--c-lime);
@@ -700,7 +714,6 @@ body {
   flex-shrink: 0;
 }
 
-/* Barre d'album complétion dans le bloc global */
 .stat-progress-row.album-row .stat-bar-fill {
   background: linear-gradient(90deg, var(--c-green), var(--c-lime));
 }
@@ -711,9 +724,7 @@ body {
   opacity: 0.75;
 }
 
-/* ──────────────────────────────────────────────────────────
-   EXPORT TEXTAREA
-────────────────────────────────────────────────────────── */
+/* ────────── Export textarea ────────── */
 .export-textarea-wrap {
   margin-top: 20px;
   background: rgba(0,0,0,0.35);
@@ -727,7 +738,7 @@ body {
   height: 200px;
   background: rgba(13,19,71,0.9);
   color: var(--c-lime);
-  font-family: 'Courier New', monospace;
+  font-family: var(--font-mono);
   font-size: 13px;
   line-height: 1.6;
   border: 1px solid rgba(55,90,254,0.4);
@@ -736,9 +747,7 @@ body {
   resize: vertical;
 }
 
-/* ──────────────────────────────────────────────────────────
-   TOAST NOTIFICATION
-────────────────────────────────────────────────────────── */
+/* ────────── Toast ────────── */
 .toast {
   position: fixed;
   bottom: 28px;
@@ -746,9 +755,9 @@ body {
   transform: translateX(-50%);
   background: var(--c-lime);
   color: var(--c-navy);
-  font-family: var(--font-display);
+  font-family: var(--font-mono);
   font-size: 12px;
-  font-weight: 900;
+  font-weight: 700;
   letter-spacing: 0.08em;
   padding: 12px 28px;
   border-radius: 30px;
@@ -769,17 +778,13 @@ body {
   to   { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 
-/* ──────────────────────────────────────────────────────────
-   SCROLLBAR
-────────────────────────────────────────────────────────── */
+/* ────────── Scrollbar ────────── */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: var(--c-dark); }
 ::-webkit-scrollbar-thumb { background: rgba(55,90,254,0.5); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--c-blue); }
 
-/* ──────────────────────────────────────────────────────────
-   RESPONSIVE
-────────────────────────────────────────────────────────── */
+/* ────────── Responsive ────────── */
 @media (max-width: 768px) {
   .header-inner { padding: 10px 12px 8px 26px; gap: 10px; }
   .logo-wc { font-size: 16px; }
