@@ -1,217 +1,757 @@
+/* ═══════════════════════════════════════════════════════════
+   PANINI FIFA WORLD CUP 2026 — STYLES
+   DA : 70s Op-Art / Kinetic Art / Rétro-futuriste
+   Palette officielle WC2026, aplats, zéro dégradé
+═══════════════════════════════════════════════════════════ */
+
+/* ──────────────────────────────────────────────────────────
+   VARIABLES CSS
+────────────────────────────────────────────────────────── */
 :root {
-    /* Palette imposée */
-    --color-dark-blue: #1B2789;
-    --color-blue: #375AFE;
-    --color-light-blue: #8DBAFE;
-    --color-dark-red: #801211;
-    --color-red: #DC0203;
-    --color-orange: #FE4502;
-    --color-dark-green: #025649;
-    --color-green: #04CF5C;
-    --color-lime: #BAEE06;
-    --color-white: #FFFFFF;
-    
-    /* Variables structurelles */
-    --border-thick: 4px solid var(--color-dark-blue);
-    --border-thin: 2px solid var(--color-dark-blue);
+  /* Palette WC2026 */
+  --c-navy:      #1B2789;
+  --c-blue:      #375AFE;
+  --c-sky:       #8DBAFE;
+  --c-maroon:    #801211;
+  --c-red:       #DC0203;
+  --c-orange:    #FE4502;
+  --c-forest:    #025649;
+  --c-green:     #04CF5C;
+  --c-lime:      #BAEE06;
+  --c-white:     #FFFFFF;
+
+  /* Couleurs fonctionnelles */
+  --status-missing:   #DC0203;    /* rouge */
+  --status-owned:     #04CF5C;    /* vert */
+  --status-duplicate: #375AFE;    /* bleu */
+
+  /* Typographie */
+  --font-display: 'Arial Black', 'Helvetica Neue', Impact, sans-serif;
+  --font-body:    'Arial', 'Helvetica Neue', sans-serif;
+
+  /* Espacement */
+  --gap: 12px;
+  --radius: 4px;
+
+  /* Largeur max */
+  --max-w: 1400px;
 }
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
+/* ──────────────────────────────────────────────────────────
+   RESET & BASE
+────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-    font-family: 'Helvetica Neue', Arial, sans-serif;
-    background-color: var(--color-light-blue);
-    color: var(--color-dark-blue);
-    /* Motif Op-Art basique : rayures plates très larges en fond */
-    background-image: repeating-linear-gradient(
-        45deg,
-        var(--color-light-blue),
-        var(--color-light-blue) 40px,
-        #7AAAF5 40px,
-        #7AAAF5 80px
+  font-family: var(--font-body);
+  font-size: 14px;
+  background-color: var(--c-navy);
+  color: var(--c-white);
+  min-height: 100vh;
+  /* Motif Op-Art : bandes obliques en arrière-plan */
+  background-image:
+    repeating-linear-gradient(
+      -45deg,
+      transparent 0px,
+      transparent 18px,
+      rgba(55,90,254,0.12) 18px,
+      rgba(55,90,254,0.12) 20px
     );
-    min-height: 100vh;
 }
 
-/* Header */
-.main-header {
-    background-color: var(--color-dark-blue);
-    color: var(--color-white);
-    padding: 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 8px solid var(--color-lime);
+/* ──────────────────────────────────────────────────────────
+   EN-TÊTE
+────────────────────────────────────────────────────────── */
+.app-header {
+  background: var(--c-navy);
+  border-bottom: 6px solid var(--c-lime);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  overflow: hidden;
 }
 
-.header-title h1 {
-    font-size: 2rem;
-    text-transform: uppercase;
-    letter-spacing: 2px;
+/* Bandes déco Op-Art dans le header */
+.header-stripe {
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 8px;
+  opacity: 0.6;
+}
+.stripe-1 { left: 0;   background: var(--c-red); }
+.stripe-2 { left: 8px; background: var(--c-orange); }
+.stripe-3 { left: 16px; background: var(--c-lime); }
+
+.header-inner {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 14px 24px 10px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
-.header-title span {
-    color: var(--color-lime);
+.header-logo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-/* Boutons */
+.logo-panini {
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 0.35em;
+  color: var(--c-sky);
+  text-transform: uppercase;
+}
+
+.logo-wc {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--c-white);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.logo-sub {
+  font-size: 11px;
+  color: var(--c-lime);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.header-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Barre de progression globale */
+.header-progress {
+  background: var(--c-maroon);
+  padding: 6px 24px 6px 40px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.progress-bar-wrap {
+  flex: 1;
+  height: 8px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 4px;
+  overflow: hidden;
+  max-width: 400px;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--c-lime);
+  transition: width 0.4s ease;
+  border-radius: 4px;
+}
+
+.progress-label {
+  font-size: 11px;
+  color: var(--c-sky);
+  white-space: nowrap;
+  letter-spacing: 0.05em;
+}
+
+/* ──────────────────────────────────────────────────────────
+   NAVIGATION ONGLETS
+────────────────────────────────────────────────────────── */
+.tab-nav {
+  background: var(--c-maroon);
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  border-bottom: 4px solid var(--c-red);
+}
+.tab-nav::-webkit-scrollbar { display: none; }
+
+.tab-btn {
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.6);
+  background: transparent;
+  border: none;
+  border-right: 2px solid rgba(255,255,255,0.1);
+  padding: 14px 22px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tab-btn:hover {
+  background: rgba(220,2,3,0.4);
+  color: var(--c-white);
+}
+
+.tab-btn.active {
+  background: var(--c-red);
+  color: var(--c-white);
+  border-bottom: 4px solid var(--c-lime);
+  margin-bottom: -4px;
+}
+
+.tab-icon { font-size: 14px; }
+
+/* ──────────────────────────────────────────────────────────
+   ZONE PRINCIPALE
+────────────────────────────────────────────────────────── */
+.app-main {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 24px 16px 60px;
+}
+
+.tab-panel { animation: fadeIn 0.2s ease; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ──────────────────────────────────────────────────────────
+   MESSAGES CHARGEMENT / ERREUR
+────────────────────────────────────────────────────────── */
+.loading-msg {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 60px 20px;
+  color: var(--c-sky);
+  font-size: 16px;
+}
+
+.loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 5px solid rgba(141,186,254,0.2);
+  border-top-color: var(--c-lime);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.error-msg {
+  background: var(--c-maroon);
+  border: 3px solid var(--c-red);
+  padding: 20px;
+  border-radius: var(--radius);
+  color: var(--c-white);
+  text-align: center;
+  font-size: 15px;
+}
+
+/* ──────────────────────────────────────────────────────────
+   BOUTONS
+────────────────────────────────────────────────────────── */
 .btn {
-    padding: 10px 15px;
-    font-weight: bold;
-    text-transform: uppercase;
-    cursor: pointer;
-    border: var(--border-thick);
-    transition: transform 0.1s;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border: none;
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: transform 0.1s, opacity 0.15s;
 }
-.btn:active { transform: scale(0.95); }
+.btn:active { transform: scale(0.96); }
 
-.btn-primary { background-color: var(--color-lime); color: var(--color-dark-blue); }
-.btn-secondary { background-color: var(--color-orange); color: var(--color-white); }
-.btn-action { background-color: var(--color-white); border: var(--border-thin); padding: 5px 10px; }
+.btn-export   { background: var(--c-lime);   color: var(--c-navy); }
+.btn-import   { background: var(--c-sky);    color: var(--c-navy); }
+.btn-nav      { background: var(--c-blue);   color: var(--c-white); }
+.btn-nav:disabled { opacity: 0.3; cursor: default; }
+.btn-export-list { background: var(--c-orange); color: var(--c-white); }
+.btn-copy     { background: var(--c-green);  color: var(--c-navy); margin-top: 8px; }
 
-/* Navigation */
-.main-nav {
-    display: flex;
-    background-color: var(--color-blue);
-    border-bottom: var(--border-thick);
-    overflow-x: auto;
-}
-
-.nav-btn {
-    flex: 1;
-    padding: 15px;
-    background: none;
-    border: none;
-    border-right: var(--border-thick);
-    color: var(--color-white);
-    font-weight: bold;
-    font-size: 1.1rem;
-    cursor: pointer;
-    text-transform: uppercase;
-}
-
-.nav-btn.active, .nav-btn:hover {
-    background-color: var(--color-red);
-    color: var(--color-white);
+/* ──────────────────────────────────────────────────────────
+   FILTRES
+────────────────────────────────────────────────────────── */
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 20px;
+  background: rgba(0,0,0,0.25);
+  border: 2px solid var(--c-blue);
+  border-radius: var(--radius);
+  padding: 12px 16px;
 }
 
-/* Conteneur principal */
-#app-content {
-    max-width: 1200px;
-    margin: 20px auto;
-    background-color: var(--color-white);
-    border: var(--border-thick);
-    padding: 20px;
-    box-shadow: 10px 10px 0px var(--color-dark-blue);
+.filter-bar label {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--c-sky);
+  font-weight: 700;
 }
 
-/* Vues : Album / Grilles */
-.controls-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    padding: 10px;
-    background-color: var(--color-blue);
-    color: white;
-    border: var(--border-thick);
+.filter-bar select {
+  background: var(--c-navy);
+  color: var(--c-white);
+  border: 2px solid var(--c-blue);
+  border-radius: var(--radius);
+  padding: 6px 10px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.filter-bar select:focus { outline: none; border-color: var(--c-lime); }
+
+/* ──────────────────────────────────────────────────────────
+   NAVIGATION ALBUM
+────────────────────────────────────────────────────────── */
+.album-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
 }
 
-.grid-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 15px;
+.album-page-select {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  justify-content: center;
 }
 
-/* Carte Vignette */
+.album-page-select label {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--c-sky);
+}
+
+.album-page-select select {
+  background: var(--c-navy);
+  color: var(--c-white);
+  border: 2px solid var(--c-lime);
+  border-radius: var(--radius);
+  padding: 6px 12px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.album-page-header {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--c-lime);
+  text-align: center;
+  margin-bottom: 16px;
+  padding: 8px 0;
+  border-top: 3px solid var(--c-blue);
+  border-bottom: 3px solid var(--c-blue);
+}
+
+.pays-header {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--c-lime);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pays-header img {
+  width: 32px;
+  height: auto;
+  border: 2px solid var(--c-blue);
+}
+
+.list-count {
+  font-size: 12px;
+  color: var(--c-sky);
+  letter-spacing: 0.08em;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+}
+
+/* ──────────────────────────────────────────────────────────
+   GRILLE DE VIGNETTES
+────────────────────────────────────────────────────────── */
+.sticker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: var(--gap);
+}
+
+/* ──────────────────────────────────────────────────────────
+   CARTE VIGNETTE
+────────────────────────────────────────────────────────── */
 .sticker-card {
-    border: var(--border-thick);
-    background-color: var(--color-white);
-    display: flex;
-    flex-direction: column;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
+  background: var(--c-white);
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  /* Bordure épaisse selon statut, via box-shadow */
+  box-shadow: 0 0 0 4px var(--status-missing);
+  display: flex;
+  flex-direction: column;
+  user-select: none;
 }
 
-.sticker-header {
-    background-color: var(--color-dark-blue);
-    color: var(--color-white);
-    padding: 5px;
-    font-weight: bold;
-    font-size: 1.2rem;
-    border-bottom: var(--border-thin);
+.sticker-card:hover {
+  transform: translateY(-3px) scale(1.02);
+  z-index: 2;
 }
 
-.sticker-visual {
-    height: 100px;
-    background-color: #f0f0f0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-bottom: var(--border-thin);
-}
-.sticker-visual img { max-height: 80px; max-width: 80px; }
+.sticker-card.owned    { box-shadow: 0 0 0 4px var(--status-owned); }
+.sticker-card.missing  { box-shadow: 0 0 0 4px var(--status-missing); }
+.sticker-card.duplicate { box-shadow: 0 0 0 4px var(--status-duplicate); }
 
-.sticker-info {
-    padding: 10px 5px;
-    font-size: 0.9rem;
-    flex-grow: 1;
+/* Bandeau de statut en haut de la carte */
+.sticker-status-bar {
+  height: 6px;
+  width: 100%;
 }
+.missing  .sticker-status-bar { background: var(--status-missing); }
+.owned    .sticker-status-bar { background: var(--status-owned); }
+.duplicate .sticker-status-bar { background: var(--status-duplicate); }
 
-.sticker-actions {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px;
-    background-color: #eee;
-    border-top: var(--border-thin);
+/* Visuel / drapeau */
+.sticker-img-wrap {
+  background: var(--c-navy);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  height: 64px;
 }
 
-/* Status Colors */
-.status-missing { border-color: var(--color-red); }
-.status-missing .sticker-header { background-color: var(--color-red); }
-
-.status-owned { border-color: var(--color-green); }
-.status-owned .sticker-header { background-color: var(--color-dark-green); }
-
-.status-duplicate { border-color: var(--color-orange); }
-.status-duplicate .sticker-header { background-color: var(--color-orange); color: var(--color-dark-blue); }
-
-.count-badge {
-    font-weight: bold;
-    font-size: 1.2rem;
-    width: 30px;
-    text-align: center;
+.sticker-flag {
+  max-height: 44px;
+  max-width: 80px;
+  object-fit: contain;
 }
 
-/* Stats */
-.stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; text-align: center; margin-bottom: 30px;}
-.stat-box { border: var(--border-thick); padding: 20px; background-color: var(--color-lime); }
-.stat-box h3 { font-size: 1.2rem; margin-bottom: 10px; text-transform: uppercase;}
-.stat-box p { font-size: 2.5rem; font-weight: bold; color: var(--color-dark-blue); }
-
-/* Modal */
-.modal {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(27, 39, 137, 0.8);
-    display: flex; justify-content: center; align-items: center;
-    z-index: 1000;
-}
-.modal.hidden { display: none; }
-.modal-content {
-    background: var(--color-white); padding: 20px; border: var(--border-thick);
-    width: 80%; max-width: 600px;
-    box-shadow: 10px 10px 0px var(--color-lime);
-}
-.modal-content textarea {
-    width: 100%; margin: 15px 0; padding: 10px;
-    border: var(--border-thin); font-family: monospace; resize: vertical;
+/* Corps de la carte */
+.sticker-body {
+  padding: 6px 8px;
+  background: var(--c-white);
+  color: var(--c-navy);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-/* Utilitaires */
-select.btn { background-color: var(--color-white); }
+.sticker-id {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  color: var(--c-red);
+}
+
+.sticker-nom {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--c-navy);
+  line-height: 1.2;
+  /* tronquer au-delà de 2 lignes */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.sticker-section {
+  font-size: 9px;
+  color: #666;
+  letter-spacing: 0.04em;
+}
+
+/* Type badges */
+.sticker-type {
+  display: inline-block;
+  font-size: 8px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 1px 5px;
+  border-radius: 2px;
+  margin-top: 2px;
+  width: fit-content;
+}
+.type-special   { background: var(--c-orange); color: var(--c-white); }
+.type-classique { background: var(--c-blue);   color: var(--c-white); }
+.type-extra     { background: var(--c-lime);   color: var(--c-navy); }
+
+/* Footer de la carte : actions */
+.sticker-footer {
+  display: flex;
+  border-top: 2px solid #eee;
+}
+
+.sticker-btn {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 5px 2px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background 0.12s;
+  color: var(--c-navy);
+}
+.sticker-btn:not(:last-child) { border-right: 1px solid #ddd; }
+.sticker-btn:hover { opacity: 0.75; }
+
+.sticker-btn.btn-miss { color: var(--status-missing); }
+.sticker-btn.btn-own  { color: var(--status-owned); }
+.sticker-btn.btn-dup  { color: var(--status-duplicate); }
+
+/* Badge de compteur doublon */
+.sticker-dup-badge {
+  position: absolute;
+  top: 8px;
+  right: 6px;
+  background: var(--status-duplicate);
+  color: var(--c-white);
+  font-size: 9px;
+  font-weight: 900;
+  border-radius: 10px;
+  padding: 1px 6px;
+  letter-spacing: 0.04em;
+}
+
+/* Overlay pour vignette manquante : teinte rouge légère */
+.sticker-card.missing .sticker-img-wrap {
+  opacity: 0.45;
+}
+
+/* ──────────────────────────────────────────────────────────
+   STATS
+────────────────────────────────────────────────────────── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.stats-block {
+  background: rgba(0,0,0,0.3);
+  border: 3px solid var(--c-blue);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.stats-block-header {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 8px 14px;
+  background: var(--c-blue);
+  color: var(--c-white);
+}
+
+.stats-block-content {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.stat-global-numbers {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  text-align: center;
+}
+
+.stat-number-block {
+  background: rgba(0,0,0,0.25);
+  border-radius: var(--radius);
+  padding: 10px 6px;
+}
+
+.stat-number {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 900;
+  line-height: 1;
+  display: block;
+}
+.stat-number.s-owned    { color: var(--status-owned); }
+.stat-number.s-missing  { color: var(--status-missing); }
+.stat-number.s-duplicate { color: var(--status-duplicate); }
+
+.stat-number-label {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--c-sky);
+  margin-top: 4px;
+  display: block;
+}
+
+/* Barre de complétion */
+.stat-progress-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.stat-progress-label {
+  width: 100px;
+  color: var(--c-sky);
+  font-size: 11px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stat-bar-wrap {
+  flex: 1;
+  height: 10px;
+  background: rgba(255,255,255,0.12);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.stat-bar-fill {
+  height: 100%;
+  background: var(--c-lime);
+  border-radius: 5px;
+  transition: width 0.3s;
+}
+
+.stat-bar-pct {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--c-lime);
+  min-width: 36px;
+  text-align: right;
+}
+
+/* ──────────────────────────────────────────────────────────
+   EXPORT TEXTAREA
+────────────────────────────────────────────────────────── */
+.export-textarea-wrap {
+  margin-top: 20px;
+  background: rgba(0,0,0,0.35);
+  border: 2px solid var(--c-lime);
+  border-radius: var(--radius);
+  padding: 14px;
+}
+
+.export-textarea {
+  width: 100%;
+  height: 200px;
+  background: var(--c-navy);
+  color: var(--c-lime);
+  font-family: monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  border: 1px solid var(--c-blue);
+  border-radius: var(--radius);
+  padding: 10px;
+  resize: vertical;
+}
+
+/* ──────────────────────────────────────────────────────────
+   TOAST NOTIFICATION
+────────────────────────────────────────────────────────── */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--c-lime);
+  color: var(--c-navy);
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  padding: 12px 28px;
+  border-radius: 30px;
+  z-index: 999;
+  animation: toastIn 0.25s ease;
+  white-space: nowrap;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+}
+
+.toast.toast-error {
+  background: var(--c-red);
+  color: var(--c-white);
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(16px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* ──────────────────────────────────────────────────────────
+   DÉCORATION OP-ART : bande de couleurs verticale gauche
+────────────────────────────────────────────────────────── */
+body::before {
+  content: '';
+  position: fixed;
+  left: 0; top: 0; bottom: 0;
+  width: 6px;
+  background:
+    linear-gradient(
+      to bottom,
+      var(--c-red)    0%   16%,
+      var(--c-orange) 16%  33%,
+      var(--c-lime)   33%  50%,
+      var(--c-green)  50%  66%,
+      var(--c-blue)   66%  83%,
+      var(--c-navy)   83%  100%
+    );
+  z-index: 200;
+  pointer-events: none;
+}
+
+/* ──────────────────────────────────────────────────────────
+   RESPONSIVE
+────────────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .sticker-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 8px;
+  }
+  .logo-wc { font-size: 16px; }
+  .header-inner { padding: 12px 12px 8px 30px; }
+  .app-main { padding: 16px 8px 60px; }
+  .tab-btn { padding: 12px 14px; font-size: 10px; }
+}
+
+/* Scrollbar custom */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--c-navy); }
+::-webkit-scrollbar-thumb { background: var(--c-blue); border-radius: 3px; }
