@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panini World Cup 2026 — Ma Collection</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════
+       BACKGROUND CINÉTIQUE OP-ART
+  ═══════════════════════════════════════════ -->
+  <div class="bg-kinetic" aria-hidden="true">
+    <svg id="bg-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
+      <!-- Les rubans sont générés par JS -->
+    </svg>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       HEADER
+  ═══════════════════════════════════════════ -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="header-logo">
+        <span class="logo-ball">⚽</span>
+        <div class="header-titles">
+          <span class="header-title">PANINI</span>
+          <span class="header-subtitle">WORLD CUP 2026 — MA COLLECTION</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-export" id="btn-export" title="Exporter ma collection">
+          ↓ EXPORTER
+        </button>
+        <label class="btn btn-import" title="Importer une collection">
+          ↑ IMPORTER
+          <input type="file" id="file-import" accept=".json" style="display:none" />
+        </label>
+      </div>
+    </div>
+    <!-- Barre de progression globale -->
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="global-progress-bar"></div>
+      </div>
+      <span class="progress-bar-label" id="global-progress-label">0 / 1000 (0%)</span>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════
+       NAVIGATION (onglets)
+  ═══════════════════════════════════════════ -->
+  <nav class="app-nav" role="navigation" aria-label="Vues">
+    <button class="nav-tab active" data-view="album">📖 Album</button>
+    <button class="nav-tab" data-view="pays">🌍 Par pays</button>
+    <button class="nav-tab" data-view="manquantes">❌ Manquantes</button>
+    <button class="nav-tab" data-view="doublons">♻️ Doublons</button>
+    <button class="nav-tab" data-view="stats">📊 Stats</button>
+  </nav>
+
+  <!-- ═══════════════════════════════════════════
+       TOAST notification
+  ═══════════════════════════════════════════ -->
+  <div id="toast" class="toast" role="alert" aria-live="polite"></div>
+
+  <!-- ═══════════════════════════════════════════
+       ZONE DE CONTENU PRINCIPAL
+  ═══════════════════════════════════════════ -->
+  <main class="app-main">
+
+    <!-- ─── VUE ALBUM ─────────────────────────── -->
+    <section id="view-album" class="view active">
+      <div class="album-nav">
+        <button class="btn btn-nav" id="album-prev">◀ Préc.</button>
+        <div class="album-page-indicator">
+          <span>Page album</span>
+          <select id="album-page-select"></select>
+        </div>
+        <button class="btn btn-nav" id="album-next">Suiv. ▶</button>
+      </div>
+      <div class="album-page-title" id="album-page-title"></div>
+      <div class="sticker-grid" id="album-grid"></div>
+    </section>
+
+    <!-- ─── VUE PAR PAYS ──────────────────────── -->
+    <section id="view-pays" class="view">
+      <div class="filter-bar">
+        <label for="pays-select">🌍 Pays / Code :</label>
+        <select id="pays-select"></select>
+      </div>
+      <div class="sticker-grid" id="pays-grid"></div>
+    </section>
+
+    <!-- ─── VUE MANQUANTES ────────────────────── -->
+    <section id="view-manquantes" class="view">
+      <div class="filter-bar">
+        <select id="manq-pays"><option value="">Tous les pays</option></select>
+        <select id="manq-section"><option value="">Toutes sections</option></select>
+        <select id="manq-type"><option value="">Tous types</option></select>
+        <select id="manq-groupe"><option value="">Tous groupes</option></select>
+        <button class="btn btn-secondary" id="manq-apply">Filtrer</button>
+        <button class="btn btn-export" id="manq-export">↓ Exporter liste</button>
+      </div>
+      <div class="list-count" id="manq-count"></div>
+      <div class="sticker-list" id="manq-list"></div>
+      <div class="export-area-wrap" id="manq-export-area" style="display:none">
+        <textarea class="export-textarea" id="manq-textarea" readonly></textarea>
+        <button class="btn btn-secondary" id="manq-copy">Copier</button>
+      </div>
+    </section>
+
+    <!-- ─── VUE DOUBLONS ─────────────────────── -->
+    <section id="view-doublons" class="view">
+      <div class="filter-bar">
+        <select id="dbl-pays"><option value="">Tous les pays</option></select>
+        <select id="dbl-section"><option value="">Toutes sections</option></select>
+        <select id="dbl-type"><option value="">Tous types</option></select>
+        <select id="dbl-groupe"><option value="">Tous groupes</option></select>
+        <button class="btn btn-secondary" id="dbl-apply">Filtrer</button>
+        <button class="btn btn-export" id="dbl-export">↓ Exporter liste</button>
+      </div>
+      <div class="list-count" id="dbl-count"></div>
+      <div class="sticker-list" id="dbl-list"></div>
+      <div class="export-area-wrap" id="dbl-export-area" style="display:none">
+        <textarea class="export-textarea" id="dbl-textarea" readonly></textarea>
+        <button class="btn btn-secondary" id="dbl-copy">Copier</button>
+      </div>
+    </section>
+
+    <!-- ─── VUE STATS ──────────────────────────── -->
+    <section id="view-stats" class="view">
+      <div class="stats-cards" id="stats-cards"></div>
+      <div class="stats-section-title">Complétion par pays / section</div>
+      <div class="stats-breakdown" id="stats-breakdown"></div>
+    </section>
+
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
