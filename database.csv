@@ -1,0 +1,1001 @@
+Page (album),ID,Nom,Section,Type,Groupe,Code,Drapeau
+1,00,Logo Panini,Panini,Spécial,,00,https://ep01.epimg.net/estaticos/arc/2021/12/laliga-panini/images/futbolista.png
+1,FWC1,Emblème officiel (1),Coupe du monde 2026,Spécial,,FWC,https://upload.wikimedia.org/wikipedia/commons/1/10/Flag_of_FIFA.svg
+1,FWC2,Emblème officiel (2),Coupe du monde 2026,Spécial,,FWC,https://upload.wikimedia.org/wikipedia/commons/1/10/Flag_of_FIFA.svg
+1,FWC3,Mascottes officielles,Coupe du monde 2026,Spécial,,FWC,https://upload.wikimedia.org/wikipedia/commons/1/10/Flag_of_FIFA.svg
+1,FWC4,Slogan officiel,Coupe du monde 2026,Spécial,,FWC,https://upload.wikimedia.org/wikipedia/commons/1/10/Flag_of_FIFA.svg
+1,FWC5,Ballon officiel,Coupe du monde 2026,Spécial,,FWC,https://upload.wikimedia.org/wikipedia/commons/1/10/Flag_of_FIFA.svg
+1,FWC6,Pays hôte (Canada),Pays hôtes,Spécial,,FWC,https://upload.wikimedia.org/wikipedia/commons/1/10/Flag_of_FIFA.svg
+1,FWC7,Pays hôte (Mexique),Pays hôtes,Spécial,,FWC,https://upload.wikimedia.org/wikipedia/commons/1/10/Flag_of_FIFA.svg
+1,FWC8,Pays hôte (États-Unis),Pays hôtes,Spécial,,FWC,https://upload.wikimedia.org/wikipedia/commons/1/10/Flag_of_FIFA.svg
+8,MEX1,Écusson,Mexique,Spécial,A,MEX,https://flagcdn.com/w160/mx.png
+8,MEX2,Luis Malagón,Mexique,Classique,A,MEX,https://flagcdn.com/w160/mx.png
+8,MEX3,Johan Vasquez,Mexique,Classique,A,MEX,https://flagcdn.com/w160/mx.png
+8,MEX4,Jorge Sánchez,Mexique,Classique,A,MEX,https://flagcdn.com/w160/mx.png
+8,MEX5,Cesar Montes,Mexique,Classique,A,MEX,https://flagcdn.com/w160/mx.png
+8,MEX6,Jesus Gallardo,Mexique,Classique,A,MEX,https://flagcdn.com/w160/mx.png
+8,MEX7,Israel Reyes,Mexique,Classique,A,MEX,https://flagcdn.com/w160/mx.png
+8,MEX8,Diego Lainez,Mexique,Classique,A,MEX,https://flagcdn.com/w160/mx.png
+8,MEX9,Carlos Rodriguez,Mexique,Classique,A,MEX,https://flagcdn.com/w160/mx.png
+8,MEX10,Edson Alvarez,Mexique,Classique,A,MEX,https://flagcdn.com/w160/mx.png
+8,MEX11,Orbelin Pineda,Mexique,Classique,A,MEX,https://flagcdn.com/w160/mx.png
+8,MEX12,Marcel Ruiz,Mexique,Classique,A,MEX,https://flagcdn.com/w160/mx.png
+8,MEX13,Photo d'équipe,Mexique,Classique,A,MEX,https://flagcdn.com/w160/mx.png
+8,MEX14,Érick Sánchez,Mexique,Classique,A,MEX,https://flagcdn.com/w160/mx.png
+8,MEX15,Hirving Lozano,Mexique,Classique,A,MEX,https://flagcdn.com/w160/mx.png
+8,MEX16,Santiago Giménez,Mexique,Classique,A,MEX,https://flagcdn.com/w160/mx.png
+8,MEX17,Raúl Jiménez,Mexique,Classique,A,MEX,https://flagcdn.com/w160/mx.png
+8,MEX18,Alexis Vega,Mexique,Classique,A,MEX,https://flagcdn.com/w160/mx.png
+8,MEX19,Roberto Alvarado,Mexique,Classique,A,MEX,https://flagcdn.com/w160/mx.png
+8,MEX20,Cesar Huerta,Mexique,Classique,A,MEX,https://flagcdn.com/w160/mx.png
+10,RSA1,Écusson,Afrique du Sud,Spécial,A,RSA,https://flagcdn.com/w160/za.png
+10,RSA2,Ronwen Williams,Afrique du Sud,Classique,A,RSA,https://flagcdn.com/w160/za.png
+10,RSA3,Sipho Chaine,Afrique du Sud,Classique,A,RSA,https://flagcdn.com/w160/za.png
+10,RSA4,Aubrey Modiba,Afrique du Sud,Classique,A,RSA,https://flagcdn.com/w160/za.png
+10,RSA5,Samukele Kabini,Afrique du Sud,Classique,A,RSA,https://flagcdn.com/w160/za.png
+10,RSA6,Mbekezeli Mbokazi,Afrique du Sud,Classique,A,RSA,https://flagcdn.com/w160/za.png
+10,RSA7,Khulumani Ndamane,Afrique du Sud,Classique,A,RSA,https://flagcdn.com/w160/za.png
+10,RSA8,Siyabonga Ngezana,Afrique du Sud,Classique,A,RSA,https://flagcdn.com/w160/za.png
+10,RSA9,Khuliso Mudau,Afrique du Sud,Classique,A,RSA,https://flagcdn.com/w160/za.png
+10,RSA10,Nkosinathi Sibisi,Afrique du Sud,Classique,A,RSA,https://flagcdn.com/w160/za.png
+10,RSA11,Teboho Mokoena,Afrique du Sud,Classique,A,RSA,https://flagcdn.com/w160/za.png
+10,RSA12,Thalente Mbatha,Afrique du Sud,Classique,A,RSA,https://flagcdn.com/w160/za.png
+10,RSA13,Photo d'équipe,Afrique du Sud,Classique,A,RSA,https://flagcdn.com/w160/za.png
+10,RSA14,Bathusi Aubaas,Afrique du Sud,Classique,A,RSA,https://flagcdn.com/w160/za.png
+10,RSA15,Yaya Sithole,Afrique du Sud,Classique,A,RSA,https://flagcdn.com/w160/za.png
+10,RSA16,Sipho Mbule,Afrique du Sud,Classique,A,RSA,https://flagcdn.com/w160/za.png
+10,RSA17,Lyle Foster,Afrique du Sud,Classique,A,RSA,https://flagcdn.com/w160/za.png
+10,RSA18,Iqraam Rayners,Afrique du Sud,Classique,A,RSA,https://flagcdn.com/w160/za.png
+10,RSA19,Mohau Nkota,Afrique du Sud,Classique,A,RSA,https://flagcdn.com/w160/za.png
+10,RSA20,Oswin Appollis,Afrique du Sud,Classique,A,RSA,https://flagcdn.com/w160/za.png
+12,KOR1,Écusson,Corée du Sud,Spécial,A,KOR,https://flagcdn.com/w160/kr.png
+12,KOR2,Hyeon-woo Jo,Corée du Sud,Classique,A,KOR,https://flagcdn.com/w160/kr.png
+12,KOR3,Seung-Gyu Kim,Corée du Sud,Classique,A,KOR,https://flagcdn.com/w160/kr.png
+12,KOR4,Min-jae Kim,Corée du Sud,Classique,A,KOR,https://flagcdn.com/w160/kr.png
+12,KOR5,Yu-min Cho,Corée du Sud,Classique,A,KOR,https://flagcdn.com/w160/kr.png
+12,KOR6,Young-woo Seol,Corée du Sud,Classique,A,KOR,https://flagcdn.com/w160/kr.png
+12,KOR7,Han-beom Lee,Corée du Sud,Classique,A,KOR,https://flagcdn.com/w160/kr.png
+12,KOR8,Tae-seok Lee,Corée du Sud,Classique,A,KOR,https://flagcdn.com/w160/kr.png
+12,KOR9,Myung-jae Lee,Corée du Sud,Classique,A,KOR,https://flagcdn.com/w160/kr.png
+12,KOR10,Jae-sung Lee,Corée du Sud,Classique,A,KOR,https://flagcdn.com/w160/kr.png
+12,KOR11,In-beom Hwang,Corée du Sud,Classique,A,KOR,https://flagcdn.com/w160/kr.png
+12,KOR12,Kang-in Lee,Corée du Sud,Classique,A,KOR,https://flagcdn.com/w160/kr.png
+12,KOR13,Photo d'équipe,Corée du Sud,Classique,A,KOR,https://flagcdn.com/w160/kr.png
+12,KOR14,Seung-ho Paik,Corée du Sud,Classique,A,KOR,https://flagcdn.com/w160/kr.png
+12,KOR15,Jens Castrop,Corée du Sud,Classique,A,KOR,https://flagcdn.com/w160/kr.png
+12,KOR16,Dongg-yeong Lee,Corée du Sud,Classique,A,KOR,https://flagcdn.com/w160/kr.png
+12,KOR17,Gue-sung Cho,Corée du Sud,Classique,A,KOR,https://flagcdn.com/w160/kr.png
+12,KOR18,Heung-min Son,Corée du Sud,Classique,A,KOR,https://flagcdn.com/w160/kr.png
+12,KOR19,Hee-chan Hwang,Corée du Sud,Classique,A,KOR,https://flagcdn.com/w160/kr.png
+12,KOR20,Hyeon-Gyu Oh,Corée du Sud,Classique,A,KOR,https://flagcdn.com/w160/kr.png
+14,CZE1,Écusson,Tchéquie,Spécial,A,CZE,https://flagcdn.com/w160/cz.png
+14,CZE2,Matej Kovar,Tchéquie,Classique,A,CZE,https://flagcdn.com/w160/cz.png
+14,CZE3,Jindrich Stanek,Tchéquie,Classique,A,CZE,https://flagcdn.com/w160/cz.png
+14,CZE4,Ladislav Krejci,Tchéquie,Classique,A,CZE,https://flagcdn.com/w160/cz.png
+14,CZE5,Vladimir Coufal,Tchéquie,Classique,A,CZE,https://flagcdn.com/w160/cz.png
+14,CZE6,Jaroslav Zeleny,Tchéquie,Classique,A,CZE,https://flagcdn.com/w160/cz.png
+14,CZE7,Tomas Holes,Tchéquie,Classique,A,CZE,https://flagcdn.com/w160/cz.png
+14,CZE8,David Zima,Tchéquie,Classique,A,CZE,https://flagcdn.com/w160/cz.png
+14,CZE9,Michal Sadilek,Tchéquie,Classique,A,CZE,https://flagcdn.com/w160/cz.png
+14,CZE10,Lukas Provod,Tchéquie,Classique,A,CZE,https://flagcdn.com/w160/cz.png
+14,CZE11,Lukas Cerv,Tchéquie,Classique,A,CZE,https://flagcdn.com/w160/cz.png
+14,CZE12,Tomas Soucek,Tchéquie,Classique,A,CZE,https://flagcdn.com/w160/cz.png
+14,CZE13,Photo d'équipe,Tchéquie,Classique,A,CZE,https://flagcdn.com/w160/cz.png
+14,CZE14,Pavel Sulc,Tchéquie,Classique,A,CZE,https://flagcdn.com/w160/cz.png
+14,CZE15,Matej Vydra,Tchéquie,Classique,A,CZE,https://flagcdn.com/w160/cz.png
+14,CZE16,Vasil Kusej,Tchéquie,Classique,A,CZE,https://flagcdn.com/w160/cz.png
+14,CZE17,Tomas Chory,Tchéquie,Classique,A,CZE,https://flagcdn.com/w160/cz.png
+14,CZE18,Vaclav Cerny,Tchéquie,Classique,A,CZE,https://flagcdn.com/w160/cz.png
+14,CZE19,Adam Hlozek,Tchéquie,Classique,A,CZE,https://flagcdn.com/w160/cz.png
+14,CZE20,Patrik Schick,Tchéquie,Classique,A,CZE,https://flagcdn.com/w160/cz.png
+16,CAN1,Écusson,Canada,Spécial,B,CAN,https://flagcdn.com/w160/ca.png
+16,CAN2,Dayne St.Clair,Canada,Classique,B,CAN,https://flagcdn.com/w160/ca.png
+16,CAN3,Alphonso Davies,Canada,Classique,B,CAN,https://flagcdn.com/w160/ca.png
+16,CAN4,Alistair Johnston,Canada,Classique,B,CAN,https://flagcdn.com/w160/ca.png
+16,CAN5,Samuel Adekugbe,Canada,Classique,B,CAN,https://flagcdn.com/w160/ca.png
+16,CAN6,Richie Laryea,Canada,Classique,B,CAN,https://flagcdn.com/w160/ca.png
+16,CAN7,Derek Cornelius,Canada,Classique,B,CAN,https://flagcdn.com/w160/ca.png
+16,CAN8,Moïse Bombito,Canada,Classique,B,CAN,https://flagcdn.com/w160/ca.png
+16,CAN9,Kamal Miller,Canada,Classique,B,CAN,https://flagcdn.com/w160/ca.png
+16,CAN10,Stephen Eustáquio,Canada,Classique,B,CAN,https://flagcdn.com/w160/ca.png
+16,CAN11,Ismaël Koné,Canada,Classique,B,CAN,https://flagcdn.com/w160/ca.png
+16,CAN12,Jonathan Osorio,Canada,Classique,B,CAN,https://flagcdn.com/w160/ca.png
+16,CAN13,Photo d'équipe,Canada,Classique,B,CAN,https://flagcdn.com/w160/ca.png
+16,CAN14,Jacob Shaffelburg,Canada,Classique,B,CAN,https://flagcdn.com/w160/ca.png
+16,CAN15,Mathieu Choinière,Canada,Classique,B,CAN,https://flagcdn.com/w160/ca.png
+16,CAN16,Niko Sigur,Canada,Classique,B,CAN,https://flagcdn.com/w160/ca.png
+16,CAN17,Tajon Buchanan,Canada,Classique,B,CAN,https://flagcdn.com/w160/ca.png
+16,CAN18,Liam Millar,Canada,Classique,B,CAN,https://flagcdn.com/w160/ca.png
+16,CAN19,Cyle Larin,Canada,Classique,B,CAN,https://flagcdn.com/w160/ca.png
+16,CAN20,Jonathan David,Canada,Classique,B,CAN,https://flagcdn.com/w160/ca.png
+18,BIH1,Écusson,Bosnie-Herzégovine,Spécial,B,BIH,https://flagcdn.com/w160/ba.png
+18,BIH2,Nikola Vasilj,Bosnie-Herzégovine,Classique,B,BIH,https://flagcdn.com/w160/ba.png
+18,BIH3,Amer Dedic,Bosnie-Herzégovine,Classique,B,BIH,https://flagcdn.com/w160/ba.png
+18,BIH4,Sead Kolasinac,Bosnie-Herzégovine,Classique,B,BIH,https://flagcdn.com/w160/ba.png
+18,BIH5,Tarik Muharemovic,Bosnie-Herzégovine,Classique,B,BIH,https://flagcdn.com/w160/ba.png
+18,BIH6,Nihad Mujakic,Bosnie-Herzégovine,Classique,B,BIH,https://flagcdn.com/w160/ba.png
+18,BIH7,Nikola Katic,Bosnie-Herzégovine,Classique,B,BIH,https://flagcdn.com/w160/ba.png
+18,BIH8,Amir Hadziahmetovic,Bosnie-Herzégovine,Classique,B,BIH,https://flagcdn.com/w160/ba.png
+18,BIH9,Benjamin Tahirovic,Bosnie-Herzégovine,Classique,B,BIH,https://flagcdn.com/w160/ba.png
+18,BIH10,Armin Gigovic,Bosnie-Herzégovine,Classique,B,BIH,https://flagcdn.com/w160/ba.png
+18,BIH11,Ivan Sunjic,Bosnie-Herzégovine,Classique,B,BIH,https://flagcdn.com/w160/ba.png
+18,BIH12,Ivan Basic,Bosnie-Herzégovine,Classique,B,BIH,https://flagcdn.com/w160/ba.png
+18,BIH13,Photo d'équipe,Bosnie-Herzégovine,Classique,B,BIH,https://flagcdn.com/w160/ba.png
+18,BIH14,Dzenis Burnic,Bosnie-Herzégovine,Classique,B,BIH,https://flagcdn.com/w160/ba.png
+18,BIH15,Esmir Bajraktarevic,Bosnie-Herzégovine,Classique,B,BIH,https://flagcdn.com/w160/ba.png
+18,BIH16,Amar Memic,Bosnie-Herzégovine,Classique,B,BIH,https://flagcdn.com/w160/ba.png
+18,BIH17,Ermedin Demirovic,Bosnie-Herzégovine,Classique,B,BIH,https://flagcdn.com/w160/ba.png
+18,BIH18,Edin Dzeko,Bosnie-Herzégovine,Classique,B,BIH,https://flagcdn.com/w160/ba.png
+18,BIH19,Samed Bazdar,Bosnie-Herzégovine,Classique,B,BIH,https://flagcdn.com/w160/ba.png
+18,BIH20,Haris Tabakovic,Bosnie-Herzégovine,Classique,B,BIH,https://flagcdn.com/w160/ba.png
+20,QAT1,Écusson,Qatar,Spécial,B,QAT,https://flagcdn.com/w160/qa.png
+20,QAT2,Meshaal Barsham,Qatar,Classique,B,QAT,https://flagcdn.com/w160/qa.png
+20,QAT3,Sultan Albrake,Qatar,Classique,B,QAT,https://flagcdn.com/w160/qa.png
+20,QAT4,Lucas Mendes,Qatar,Classique,B,QAT,https://flagcdn.com/w160/qa.png
+20,QAT5,Homam Ahmed,Qatar,Classique,B,QAT,https://flagcdn.com/w160/qa.png
+20,QAT6,Boualem Khoukhi,Qatar,Classique,B,QAT,https://flagcdn.com/w160/qa.png
+20,QAT7,Pedro Miguel,Qatar,Classique,B,QAT,https://flagcdn.com/w160/qa.png
+20,QAT8,Tarek Salman,Qatar,Classique,B,QAT,https://flagcdn.com/w160/qa.png
+20,QAT9,Mohamed Al-Mannai,Qatar,Classique,B,QAT,https://flagcdn.com/w160/qa.png
+20,QAT10,Karim Boudiaf,Qatar,Classique,B,QAT,https://flagcdn.com/w160/qa.png
+20,QAT11,Assim Madibo,Qatar,Classique,B,QAT,https://flagcdn.com/w160/qa.png
+20,QAT12,Ahmed Fatehi,Qatar,Classique,B,QAT,https://flagcdn.com/w160/qa.png
+20,QAT13,Photo d'équipe,Qatar,Classique,B,QAT,https://flagcdn.com/w160/qa.png
+20,QAT14,Mohammed Waad,Qatar,Classique,B,QAT,https://flagcdn.com/w160/qa.png
+20,QAT15,Abdulaziz Hatem,Qatar,Classique,B,QAT,https://flagcdn.com/w160/qa.png
+20,QAT16,Hassan Al-Haydos,Qatar,Classique,B,QAT,https://flagcdn.com/w160/qa.png
+20,QAT17,Edmilson Junior,Qatar,Classique,B,QAT,https://flagcdn.com/w160/qa.png
+20,QAT18,Akram Hassan Afif,Qatar,Classique,B,QAT,https://flagcdn.com/w160/qa.png
+20,QAT19,Ahmed Al Ganehi,Qatar,Classique,B,QAT,https://flagcdn.com/w160/qa.png
+20,QAT20,Almoez Ali,Qatar,Classique,B,QAT,https://flagcdn.com/w160/qa.png
+22,SUI1,Écusson,Suisse,Spécial,B,SUI,https://flagcdn.com/w160/ch.png
+22,SUI2,Gregor Kobel,Suisse,Classique,B,SUI,https://flagcdn.com/w160/ch.png
+22,SUI3,Yvon Mvogo,Suisse,Classique,B,SUI,https://flagcdn.com/w160/ch.png
+22,SUI4,Manuel Akanji,Suisse,Classique,B,SUI,https://flagcdn.com/w160/ch.png
+22,SUI5,Ricardo Rodriguez,Suisse,Classique,B,SUI,https://flagcdn.com/w160/ch.png
+22,SUI6,Nico Elvedi,Suisse,Classique,B,SUI,https://flagcdn.com/w160/ch.png
+22,SUI7,Aurèle Amenda,Suisse,Classique,B,SUI,https://flagcdn.com/w160/ch.png
+22,SUI8,Silvan Widmer,Suisse,Classique,B,SUI,https://flagcdn.com/w160/ch.png
+22,SUI9,Granit Xhaka,Suisse,Classique,B,SUI,https://flagcdn.com/w160/ch.png
+22,SUI10,Denis Zakaria,Suisse,Classique,B,SUI,https://flagcdn.com/w160/ch.png
+22,SUI11,Remo Freuler,Suisse,Classique,B,SUI,https://flagcdn.com/w160/ch.png
+22,SUI12,Fabian Rieder,Suisse,Classique,B,SUI,https://flagcdn.com/w160/ch.png
+22,SUI13,Photo d'équipe,Suisse,Classique,B,SUI,https://flagcdn.com/w160/ch.png
+22,SUI14,Ardon Jashari,Suisse,Classique,B,SUI,https://flagcdn.com/w160/ch.png
+22,SUI15,Johan Manzambi,Suisse,Classique,B,SUI,https://flagcdn.com/w160/ch.png
+22,SUI16,Michel Aebischer,Suisse,Classique,B,SUI,https://flagcdn.com/w160/ch.png
+22,SUI17,Breel Embolo,Suisse,Classique,B,SUI,https://flagcdn.com/w160/ch.png
+22,SUI18,Ruben Vargas,Suisse,Classique,B,SUI,https://flagcdn.com/w160/ch.png
+22,SUI19,Dan Ndoye,Suisse,Classique,B,SUI,https://flagcdn.com/w160/ch.png
+22,SUI20,Zeki Amdouni,Suisse,Classique,B,SUI,https://flagcdn.com/w160/ch.png
+24,BRA1,Écusson,Brésil,Spécial,C,BRA,https://flagcdn.com/w160/br.png
+24,BRA2,Alisson,Brésil,Classique,C,BRA,https://flagcdn.com/w160/br.png
+24,BRA3,Bento,Brésil,Classique,C,BRA,https://flagcdn.com/w160/br.png
+24,BRA4,Marquinhos,Brésil,Classique,C,BRA,https://flagcdn.com/w160/br.png
+24,BRA5,Éder Militão,Brésil,Classique,C,BRA,https://flagcdn.com/w160/br.png
+24,BRA6,Gabriel Magalhães,Brésil,Classique,C,BRA,https://flagcdn.com/w160/br.png
+24,BRA7,Danilo,Brésil,Classique,C,BRA,https://flagcdn.com/w160/br.png
+24,BRA8,Wesley,Brésil,Classique,C,BRA,https://flagcdn.com/w160/br.png
+24,BRA9,Lucas Paquetá,Brésil,Classique,C,BRA,https://flagcdn.com/w160/br.png
+24,BRA10,Casemiro,Brésil,Classique,C,BRA,https://flagcdn.com/w160/br.png
+24,BRA11,Bruno Guimarães,Brésil,Classique,C,BRA,https://flagcdn.com/w160/br.png
+24,BRA12,Luiz Henrique,Brésil,Classique,C,BRA,https://flagcdn.com/w160/br.png
+24,BRA13,Photo d'équipe,Brésil,Classique,C,BRA,https://flagcdn.com/w160/br.png
+24,BRA14,Vinicius Júnior,Brésil,Classique,C,BRA,https://flagcdn.com/w160/br.png
+24,BRA15,Rodrygo,Brésil,Classique,C,BRA,https://flagcdn.com/w160/br.png
+24,BRA16,João Pedro,Brésil,Classique,C,BRA,https://flagcdn.com/w160/br.png
+24,BRA17,Matheus Cunha,Brésil,Classique,C,BRA,https://flagcdn.com/w160/br.png
+24,BRA18,Gabriel Martinelli,Brésil,Classique,C,BRA,https://flagcdn.com/w160/br.png
+24,BRA19,Raphinha,Brésil,Classique,C,BRA,https://flagcdn.com/w160/br.png
+24,BRA20,Estévão,Brésil,Classique,C,BRA,https://flagcdn.com/w160/br.png
+26,MAR1,Écusson,Maroc,Spécial,C,MAR,https://flagcdn.com/w160/ma.png
+26,MAR2,Yassine Bounou,Maroc,Classique,C,MAR,https://flagcdn.com/w160/ma.png
+26,MAR3,Munir El Kajoui,Maroc,Classique,C,MAR,https://flagcdn.com/w160/ma.png
+26,MAR4,Achraf Hakimi,Maroc,Classique,C,MAR,https://flagcdn.com/w160/ma.png
+26,MAR5,Noussair Mazraoui,Maroc,Classique,C,MAR,https://flagcdn.com/w160/ma.png
+26,MAR6,Nayef Aguerd,Maroc,Classique,C,MAR,https://flagcdn.com/w160/ma.png
+26,MAR7,Romain Saïss,Maroc,Classique,C,MAR,https://flagcdn.com/w160/ma.png
+26,MAR8,Jawad El Yamiq,Maroc,Classique,C,MAR,https://flagcdn.com/w160/ma.png
+26,MAR9,Adam Masina,Maroc,Classique,C,MAR,https://flagcdn.com/w160/ma.png
+26,MAR10,Sofyan Amrabat,Maroc,Classique,C,MAR,https://flagcdn.com/w160/ma.png
+26,MAR11,Azzedine Ounahi,Maroc,Classique,C,MAR,https://flagcdn.com/w160/ma.png
+26,MAR12,Eliesse Ben Seghir,Maroc,Classique,C,MAR,https://flagcdn.com/w160/ma.png
+26,MAR13,Photo d'équipe,Maroc,Classique,C,MAR,https://flagcdn.com/w160/ma.png
+26,MAR14,Bilal El Khannouss,Maroc,Classique,C,MAR,https://flagcdn.com/w160/ma.png
+26,MAR15,Ismael Saibari,Maroc,Classique,C,MAR,https://flagcdn.com/w160/ma.png
+26,MAR16,Youssef En-Nesyri,Maroc,Classique,C,MAR,https://flagcdn.com/w160/ma.png
+26,MAR17,Abde Ezzalzouli,Maroc,Classique,C,MAR,https://flagcdn.com/w160/ma.png
+26,MAR18,Soufiane Rahimi,Maroc,Classique,C,MAR,https://flagcdn.com/w160/ma.png
+26,MAR19,Brahim Diaz,Maroc,Classique,C,MAR,https://flagcdn.com/w160/ma.png
+26,MAR20,Ayoub El Kaabi,Maroc,Classique,C,MAR,https://flagcdn.com/w160/ma.png
+28,HAI1,Écusson,Haïti,Spécial,C,HAI,https://flagcdn.com/w160/ht.png
+28,HAI2,Johny Placide,Haïti,Classique,C,HAI,https://flagcdn.com/w160/ht.png
+28,HAI3,Carlens Arcus,Haïti,Classique,C,HAI,https://flagcdn.com/w160/ht.png
+28,HAI4,Martin Expérience,Haïti,Classique,C,HAI,https://flagcdn.com/w160/ht.png
+28,HAI5,Jean-Kevin Duverne,Haïti,Classique,C,HAI,https://flagcdn.com/w160/ht.png
+28,HAI6,Ricardo Adé,Haïti,Classique,C,HAI,https://flagcdn.com/w160/ht.png
+28,HAI7,Duke Lacroix,Haïti,Classique,C,HAI,https://flagcdn.com/w160/ht.png
+28,HAI8,Garven Metusala,Haïti,Classique,C,HAI,https://flagcdn.com/w160/ht.png
+28,HAI9,Hannes Delcroix,Haïti,Classique,C,HAI,https://flagcdn.com/w160/ht.png
+28,HAI10,Leverton Pierre,Haïti,Classique,C,HAI,https://flagcdn.com/w160/ht.png
+28,HAI11,Danley Jean Jacques,Haïti,Classique,C,HAI,https://flagcdn.com/w160/ht.png
+28,HAI12,Jean-Ricner Bellegarde,Haïti,Classique,C,HAI,https://flagcdn.com/w160/ht.png
+28,HAI13,Photo d'équipe,Haïti,Classique,C,HAI,https://flagcdn.com/w160/ht.png
+28,HAI14,Christopher Attys,Haïti,Classique,C,HAI,https://flagcdn.com/w160/ht.png
+28,HAI15,Derrick Etienne Jr,Haïti,Classique,C,HAI,https://flagcdn.com/w160/ht.png
+28,HAI16,Josue Casimir,Haïti,Classique,C,HAI,https://flagcdn.com/w160/ht.png
+28,HAI17,Ruben Providence,Haïti,Classique,C,HAI,https://flagcdn.com/w160/ht.png
+28,HAI18,Duckens Nazon,Haïti,Classique,C,HAI,https://flagcdn.com/w160/ht.png
+28,HAI19,Louicius Deedson,Haïti,Classique,C,HAI,https://flagcdn.com/w160/ht.png
+28,HAI20,Frantzdy Pierrot,Haïti,Classique,C,HAI,https://flagcdn.com/w160/ht.png
+30,SCO1,Écusson,Écosse,Spécial,C,SCO,https://flagcdn.com/w160/gb-sct.png
+30,SCO2,Angus Gunn,Écosse,Classique,C,SCO,https://flagcdn.com/w160/gb-sct.png
+30,SCO3,Jack Hendry,Écosse,Classique,C,SCO,https://flagcdn.com/w160/gb-sct.png
+30,SCO4,Kieran Tierney,Écosse,Classique,C,SCO,https://flagcdn.com/w160/gb-sct.png
+30,SCO5,Aaron Hickey,Écosse,Classique,C,SCO,https://flagcdn.com/w160/gb-sct.png
+30,SCO6,Andrew Robertson,Écosse,Classique,C,SCO,https://flagcdn.com/w160/gb-sct.png
+30,SCO7,Scott McKenna,Écosse,Classique,C,SCO,https://flagcdn.com/w160/gb-sct.png
+30,SCO8,John Souttar,Écosse,Classique,C,SCO,https://flagcdn.com/w160/gb-sct.png
+30,SCO9,Anthony Ralston,Écosse,Classique,C,SCO,https://flagcdn.com/w160/gb-sct.png
+30,SCO10,Grant Hanley,Écosse,Classique,C,SCO,https://flagcdn.com/w160/gb-sct.png
+30,SCO11,Scott McTominay,Écosse,Classique,C,SCO,https://flagcdn.com/w160/gb-sct.png
+30,SCO12,Billy Gilmour,Écosse,Classique,C,SCO,https://flagcdn.com/w160/gb-sct.png
+30,SCO13,Photo d'équipe,Écosse,Classique,C,SCO,https://flagcdn.com/w160/gb-sct.png
+30,SCO14,Lewis Ferguson,Écosse,Classique,C,SCO,https://flagcdn.com/w160/gb-sct.png
+30,SCO15,Ryan Christie,Écosse,Classique,C,SCO,https://flagcdn.com/w160/gb-sct.png
+30,SCO16,Kenny McLean,Écosse,Classique,C,SCO,https://flagcdn.com/w160/gb-sct.png
+30,SCO17,John McGinn,Écosse,Classique,C,SCO,https://flagcdn.com/w160/gb-sct.png
+30,SCO18,Lyndon Dykes,Écosse,Classique,C,SCO,https://flagcdn.com/w160/gb-sct.png
+30,SCO19,Che Adams,Écosse,Classique,C,SCO,https://flagcdn.com/w160/gb-sct.png
+30,SCO20,Ben Gannon-Doak,Écosse,Classique,C,SCO,https://flagcdn.com/w160/gb-sct.png
+32,USA1,Écusson,États-Unis,Spécial,D,USA,https://flagcdn.com/w160/us.png
+32,USA2,Matt Freese,États-Unis,Classique,D,USA,https://flagcdn.com/w160/us.png
+32,USA3,Chris Richards,États-Unis,Classique,D,USA,https://flagcdn.com/w160/us.png
+32,USA4,Tim Ream,États-Unis,Classique,D,USA,https://flagcdn.com/w160/us.png
+32,USA5,Mark McKenzie,États-Unis,Classique,D,USA,https://flagcdn.com/w160/us.png
+32,USA6,Alex Freeman,États-Unis,Classique,D,USA,https://flagcdn.com/w160/us.png
+32,USA7,Antonee Robinson,États-Unis,Classique,D,USA,https://flagcdn.com/w160/us.png
+32,USA8,Tyler Adams,États-Unis,Classique,D,USA,https://flagcdn.com/w160/us.png
+32,USA9,Tanner Tessmann,États-Unis,Classique,D,USA,https://flagcdn.com/w160/us.png
+32,USA10,Weston McKenny,États-Unis,Classique,D,USA,https://flagcdn.com/w160/us.png
+32,USA11,Christian Roldan,États-Unis,Classique,D,USA,https://flagcdn.com/w160/us.png
+32,USA12,Timothy Weah,États-Unis,Classique,D,USA,https://flagcdn.com/w160/us.png
+32,USA13,Photo d'équipe,États-Unis,Classique,D,USA,https://flagcdn.com/w160/us.png
+32,USA14,Diego Luna,États-Unis,Classique,D,USA,https://flagcdn.com/w160/us.png
+32,USA15,Malik Tillman,États-Unis,Classique,D,USA,https://flagcdn.com/w160/us.png
+32,USA16,Christian Pulisic,États-Unis,Classique,D,USA,https://flagcdn.com/w160/us.png
+32,USA17,Brenden Aaronson,États-Unis,Classique,D,USA,https://flagcdn.com/w160/us.png
+32,USA18,Ricardo Pepi,États-Unis,Classique,D,USA,https://flagcdn.com/w160/us.png
+32,USA19,Haji Wright,États-Unis,Classique,D,USA,https://flagcdn.com/w160/us.png
+32,USA20,Folarin Balogun,États-Unis,Classique,D,USA,https://flagcdn.com/w160/us.png
+34,PAR1,Écusson,Paraguay,Spécial,D,PAR,https://flagcdn.com/w160/py.png
+34,PAR2,Roberto Fernandez,Paraguay,Classique,D,PAR,https://flagcdn.com/w160/py.png
+34,PAR3,Orlando Gill,Paraguay,Classique,D,PAR,https://flagcdn.com/w160/py.png
+34,PAR4,Gustavo Gomez,Paraguay,Classique,D,PAR,https://flagcdn.com/w160/py.png
+34,PAR5,Fabián Balbuena,Paraguay,Classique,D,PAR,https://flagcdn.com/w160/py.png
+34,PAR6,Juan José Cáceres,Paraguay,Classique,D,PAR,https://flagcdn.com/w160/py.png
+34,PAR7,Omar Alderete,Paraguay,Classique,D,PAR,https://flagcdn.com/w160/py.png
+34,PAR8,Junior Alonso,Paraguay,Classique,D,PAR,https://flagcdn.com/w160/py.png
+34,PAR9,Mathías Villasanti,Paraguay,Classique,D,PAR,https://flagcdn.com/w160/py.png
+34,PAR10,Diego Gomez,Paraguay,Classique,D,PAR,https://flagcdn.com/w160/py.png
+34,PAR11,Damián Bobadilla,Paraguay,Classique,D,PAR,https://flagcdn.com/w160/py.png
+34,PAR12,Andres Cubas,Paraguay,Classique,D,PAR,https://flagcdn.com/w160/py.png
+34,PAR13,Photo d'équipe,Paraguay,Classique,D,PAR,https://flagcdn.com/w160/py.png
+34,PAR14,Matias Galarza Fonda,Paraguay,Classique,D,PAR,https://flagcdn.com/w160/py.png
+34,PAR15,Julio Enciso,Paraguay,Classique,D,PAR,https://flagcdn.com/w160/py.png
+34,PAR16,Alejandro Romero Gamarra,Paraguay,Classique,D,PAR,https://flagcdn.com/w160/py.png
+34,PAR17,Miguel Almirón,Paraguay,Classique,D,PAR,https://flagcdn.com/w160/py.png
+34,PAR18,Ramon Sosa,Paraguay,Classique,D,PAR,https://flagcdn.com/w160/py.png
+34,PAR19,Angel Romero,Paraguay,Classique,D,PAR,https://flagcdn.com/w160/py.png
+34,PAR20,Antonio Sanabria,Paraguay,Classique,D,PAR,https://flagcdn.com/w160/py.png
+36,AUS1,Écusson,Australie,Spécial,D,AUS,https://flagcdn.com/w160/au.png
+36,AUS2,Mathew Ryan,Australie,Classique,D,AUS,https://flagcdn.com/w160/au.png
+36,AUS3,Joe Gauci,Australie,Classique,D,AUS,https://flagcdn.com/w160/au.png
+36,AUS4,Harry Souttar,Australie,Classique,D,AUS,https://flagcdn.com/w160/au.png
+36,AUS5,Alessandro Circati,Australie,Classique,D,AUS,https://flagcdn.com/w160/au.png
+36,AUS6,Jordan Bos,Australie,Classique,D,AUS,https://flagcdn.com/w160/au.png
+36,AUS7,Aziz Behich,Australie,Classique,D,AUS,https://flagcdn.com/w160/au.png
+36,AUS8,Cameron Burgess,Australie,Classique,D,AUS,https://flagcdn.com/w160/au.png
+36,AUS9,Lewis Miller,Australie,Classique,D,AUS,https://flagcdn.com/w160/au.png
+36,AUS10,Milos Degenek,Australie,Classique,D,AUS,https://flagcdn.com/w160/au.png
+36,AUS11,Jackson Irvine,Australie,Classique,D,AUS,https://flagcdn.com/w160/au.png
+36,AUS12,Riley McGree,Australie,Classique,D,AUS,https://flagcdn.com/w160/au.png
+36,AUS13,Photo d'équipe,Australie,Classique,D,AUS,https://flagcdn.com/w160/au.png
+36,AUS14,Aiden O'Neill,Australie,Classique,D,AUS,https://flagcdn.com/w160/au.png
+36,AUS15,Connor Metcalfe,Australie,Classique,D,AUS,https://flagcdn.com/w160/au.png
+36,AUS16,Patrick Yazbek,Australie,Classique,D,AUS,https://flagcdn.com/w160/au.png
+36,AUS17,Craig Goodwin,Australie,Classique,D,AUS,https://flagcdn.com/w160/au.png
+36,AUS18,Kusini Yengi,Australie,Classique,D,AUS,https://flagcdn.com/w160/au.png
+36,AUS19,Nestory Irankunda,Australie,Classique,D,AUS,https://flagcdn.com/w160/au.png
+36,AUS20,Mohamed Touré,Australie,Classique,D,AUS,https://flagcdn.com/w160/au.png
+38,TUR1,Écusson,Turquie,Spécial,D,TUR,https://flagcdn.com/w160/tr.png
+38,TUR2,Ugurcan Cakir,Turquie,Classique,D,TUR,https://flagcdn.com/w160/tr.png
+38,TUR3,Mert Muldur,Turquie,Classique,D,TUR,https://flagcdn.com/w160/tr.png
+38,TUR4,Zeki Celik,Turquie,Classique,D,TUR,https://flagcdn.com/w160/tr.png
+38,TUR5,Abdulkerim Bardakci,Turquie,Classique,D,TUR,https://flagcdn.com/w160/tr.png
+38,TUR6,Caglar Soyuncu,Turquie,Classique,D,TUR,https://flagcdn.com/w160/tr.png
+38,TUR7,Merih Demiral,Turquie,Classique,D,TUR,https://flagcdn.com/w160/tr.png
+38,TUR8,Ferdi Kadioglu,Turquie,Classique,D,TUR,https://flagcdn.com/w160/tr.png
+38,TUR9,Kaan Ayhan,Turquie,Classique,D,TUR,https://flagcdn.com/w160/tr.png
+38,TUR10,Ismail Yuksek,Turquie,Classique,D,TUR,https://flagcdn.com/w160/tr.png
+38,TUR11,Hakan Calhanoglu,Turquie,Classique,D,TUR,https://flagcdn.com/w160/tr.png
+38,TUR12,Orkun Kokcu,Turquie,Classique,D,TUR,https://flagcdn.com/w160/tr.png
+38,TUR13,Photo d'équipe,Turquie,Classique,D,TUR,https://flagcdn.com/w160/tr.png
+38,TUR14,Arda Guler,Turquie,Classique,D,TUR,https://flagcdn.com/w160/tr.png
+38,TUR15,Irfan Can Kahveci,Turquie,Classique,D,TUR,https://flagcdn.com/w160/tr.png
+38,TUR16,Yunus Akgun,Turquie,Classique,D,TUR,https://flagcdn.com/w160/tr.png
+38,TUR17,Can Uzun,Turquie,Classique,D,TUR,https://flagcdn.com/w160/tr.png
+38,TUR18,Baris Alper Yilmaz,Turquie,Classique,D,TUR,https://flagcdn.com/w160/tr.png
+38,TUR19,Kerem Akturkoglu,Turquie,Classique,D,TUR,https://flagcdn.com/w160/tr.png
+38,TUR20,Kenan Yildiz,Turquie,Classique,D,TUR,https://flagcdn.com/w160/tr.png
+40,GER1,Écusson,Allemagne,Spécial,E,GER,https://flagcdn.com/w160/de.png
+40,GER2,Marc-André ter Stegen,Allemagne,Classique,E,GER,https://flagcdn.com/w160/de.png
+40,GER3,Jonathan Tah,Allemagne,Classique,E,GER,https://flagcdn.com/w160/de.png
+40,GER4,David Raum,Allemagne,Classique,E,GER,https://flagcdn.com/w160/de.png
+40,GER5,Nico Schlotterbeck,Allemagne,Classique,E,GER,https://flagcdn.com/w160/de.png
+40,GER6,Antonio Rüdiger,Allemagne,Classique,E,GER,https://flagcdn.com/w160/de.png
+40,GER7,Waldemar Anton,Allemagne,Classique,E,GER,https://flagcdn.com/w160/de.png
+40,GER8,Ridle Baku,Allemagne,Classique,E,GER,https://flagcdn.com/w160/de.png
+40,GER9,Maximilian Mittelstadt,Allemagne,Classique,E,GER,https://flagcdn.com/w160/de.png
+40,GER10,Joshua Kimmich,Allemagne,Classique,E,GER,https://flagcdn.com/w160/de.png
+40,GER11,Florian Wirtz,Allemagne,Classique,E,GER,https://flagcdn.com/w160/de.png
+40,GER12,Felix Nmecha,Allemagne,Classique,E,GER,https://flagcdn.com/w160/de.png
+40,GER13,Photo d'équipe,Allemagne,Classique,E,GER,https://flagcdn.com/w160/de.png
+40,GER14,Leon Goretzka,Allemagne,Classique,E,GER,https://flagcdn.com/w160/de.png
+40,GER15,Jamal Musiala,Allemagne,Classique,E,GER,https://flagcdn.com/w160/de.png
+40,GER16,Serge Gnabry,Allemagne,Classique,E,GER,https://flagcdn.com/w160/de.png
+40,GER17,Kai Havertz,Allemagne,Classique,E,GER,https://flagcdn.com/w160/de.png
+40,GER18,Leroy Sane,Allemagne,Classique,E,GER,https://flagcdn.com/w160/de.png
+40,GER19,Karim Adeyemi,Allemagne,Classique,E,GER,https://flagcdn.com/w160/de.png
+40,GER20,Nick Woltemade,Allemagne,Classique,E,GER,https://flagcdn.com/w160/de.png
+42,CUW1,Écusson,Curaçao,Spécial,E,CUW,https://flagcdn.com/w160/cw.png
+42,CUW2,Eloy Room,Curaçao,Classique,E,CUW,https://flagcdn.com/w160/cw.png
+42,CUW3,Armando Obispo,Curaçao,Classique,E,CUW,https://flagcdn.com/w160/cw.png
+42,CUW4,Sherel Floranus,Curaçao,Classique,E,CUW,https://flagcdn.com/w160/cw.png
+42,CUW5,Jurien Gaari,Curaçao,Classique,E,CUW,https://flagcdn.com/w160/cw.png
+42,CUW6,Joshua Brenet,Curaçao,Classique,E,CUW,https://flagcdn.com/w160/cw.png
+42,CUW7,Roshon Van Eijma,Curaçao,Classique,E,CUW,https://flagcdn.com/w160/cw.png
+42,CUW8,Shurandy Sambo,Curaçao,Classique,E,CUW,https://flagcdn.com/w160/cw.png
+42,CUW9,Livano Comenencia,Curaçao,Classique,E,CUW,https://flagcdn.com/w160/cw.png
+42,CUW10,Godfried Roemeratoe,Curaçao,Classique,E,CUW,https://flagcdn.com/w160/cw.png
+42,CUW11,Juninho Bacuna,Curaçao,Classique,E,CUW,https://flagcdn.com/w160/cw.png
+42,CUW12,Leandro Bacuna,Curaçao,Classique,E,CUW,https://flagcdn.com/w160/cw.png
+42,CUW13,Photo d'équipe,Curaçao,Classique,E,CUW,https://flagcdn.com/w160/cw.png
+42,CUW14,Tahith Chong,Curaçao,Classique,E,CUW,https://flagcdn.com/w160/cw.png
+42,CUW15,Kenji Gorre,Curaçao,Classique,E,CUW,https://flagcdn.com/w160/cw.png
+42,CUW16,Jearl Margaritha,Curaçao,Classique,E,CUW,https://flagcdn.com/w160/cw.png
+42,CUW17,Jurgen Locadia,Curaçao,Classique,E,CUW,https://flagcdn.com/w160/cw.png
+42,CUW18,Jeremy Antonisse,Curaçao,Classique,E,CUW,https://flagcdn.com/w160/cw.png
+42,CUW19,Gervane Kastaneer,Curaçao,Classique,E,CUW,https://flagcdn.com/w160/cw.png
+42,CUW20,Sontje Hansen,Curaçao,Classique,E,CUW,https://flagcdn.com/w160/cw.png
+44,CIV1,Écusson,Côte d'Ivoire,Spécial,E,CIV,https://flagcdn.com/w160/ci.png
+44,CIV2,Yahia Fofana,Côte d'Ivoire,Classique,E,CIV,https://flagcdn.com/w160/ci.png
+44,CIV3,Ghislain Konan,Côte d'Ivoire,Classique,E,CIV,https://flagcdn.com/w160/ci.png
+44,CIV4,Wilfried Singo,Côte d'Ivoire,Classique,E,CIV,https://flagcdn.com/w160/ci.png
+44,CIV5,Odilon Kossounou,Côte d'Ivoire,Classique,E,CIV,https://flagcdn.com/w160/ci.png
+44,CIV6,Evan Ndicka,Côte d'Ivoire,Classique,E,CIV,https://flagcdn.com/w160/ci.png
+44,CIV7,Willy Boly,Côte d'Ivoire,Classique,E,CIV,https://flagcdn.com/w160/ci.png
+44,CIV8,Emmanuel Agbadou,Côte d'Ivoire,Classique,E,CIV,https://flagcdn.com/w160/ci.png
+44,CIV9,Ousmane Diomande,Côte d'Ivoire,Classique,E,CIV,https://flagcdn.com/w160/ci.png
+44,CIV10,Franck Kessie,Côte d'Ivoire,Classique,E,CIV,https://flagcdn.com/w160/ci.png
+44,CIV11,Seko Fofana,Côte d'Ivoire,Classique,E,CIV,https://flagcdn.com/w160/ci.png
+44,CIV12,Ibrahim Sangare,Côte d'Ivoire,Classique,E,CIV,https://flagcdn.com/w160/ci.png
+44,CIV13,Photo d'équipe,Côte d'Ivoire,Classique,E,CIV,https://flagcdn.com/w160/ci.png
+44,CIV14,Jean-Philippe Gbamin,Côte d'Ivoire,Classique,E,CIV,https://flagcdn.com/w160/ci.png
+44,CIV15,Amad Diallo,Côte d'Ivoire,Classique,E,CIV,https://flagcdn.com/w160/ci.png
+44,CIV16,Sébastien Haller,Côte d'Ivoire,Classique,E,CIV,https://flagcdn.com/w160/ci.png
+44,CIV17,Simon Adingra,Côte d'Ivoire,Classique,E,CIV,https://flagcdn.com/w160/ci.png
+44,CIV18,Yan Diomande,Côte d'Ivoire,Classique,E,CIV,https://flagcdn.com/w160/ci.png
+44,CIV19,Evann Guessand,Côte d'Ivoire,Classique,E,CIV,https://flagcdn.com/w160/ci.png
+44,CIV20,Oumar Diakite,Côte d'Ivoire,Classique,E,CIV,https://flagcdn.com/w160/ci.png
+46,ECU1,Écusson,Équateur,Spécial,E,ECU,https://flagcdn.com/w160/ec.png
+46,ECU2,Hernán Galíndez,Équateur,Classique,E,ECU,https://flagcdn.com/w160/ec.png
+46,ECU3,Gonzalo Valle,Équateur,Classique,E,ECU,https://flagcdn.com/w160/ec.png
+46,ECU4,Piero Hincapié,Équateur,Classique,E,ECU,https://flagcdn.com/w160/ec.png
+46,ECU5,Pervis Estupiñán,Équateur,Classique,E,ECU,https://flagcdn.com/w160/ec.png
+46,ECU6,Willian Pacho,Équateur,Classique,E,ECU,https://flagcdn.com/w160/ec.png
+46,ECU7,Ángelo Preciado,Équateur,Classique,E,ECU,https://flagcdn.com/w160/ec.png
+46,ECU8,Joel Ordóñez,Équateur,Classique,E,ECU,https://flagcdn.com/w160/ec.png
+46,ECU9,Moises Caicedo,Équateur,Classique,E,ECU,https://flagcdn.com/w160/ec.png
+46,ECU10,Alan Franco,Équateur,Classique,E,ECU,https://flagcdn.com/w160/ec.png
+46,ECU11,Kendry Paez,Équateur,Classique,E,ECU,https://flagcdn.com/w160/ec.png
+46,ECU12,Pedro Vite,Équateur,Classique,E,ECU,https://flagcdn.com/w160/ec.png
+46,ECU13,Photo d'équipe,Équateur,Classique,E,ECU,https://flagcdn.com/w160/ec.png
+46,ECU14,John Yeboah,Équateur,Classique,E,ECU,https://flagcdn.com/w160/ec.png
+46,ECU15,Leonardo Campana,Équateur,Classique,E,ECU,https://flagcdn.com/w160/ec.png
+46,ECU16,Gonzalo Plata,Équateur,Classique,E,ECU,https://flagcdn.com/w160/ec.png
+46,ECU17,Nilson Angulo,Équateur,Classique,E,ECU,https://flagcdn.com/w160/ec.png
+46,ECU18,Alan Minda,Équateur,Classique,E,ECU,https://flagcdn.com/w160/ec.png
+46,ECU19,Kevin Rodriguez,Équateur,Classique,E,ECU,https://flagcdn.com/w160/ec.png
+46,ECU20,Enner Valencia,Équateur,Classique,E,ECU,https://flagcdn.com/w160/ec.png
+48,NED1,Écusson,Pays-Bas,Spécial,F,NED,https://flagcdn.com/w160/nl.png
+48,NED2,Bart Verbruggen,Pays-Bas,Classique,F,NED,https://flagcdn.com/w160/nl.png
+48,NED3,Virgil van Dijk,Pays-Bas,Classique,F,NED,https://flagcdn.com/w160/nl.png
+48,NED4,Micky van de Ven,Pays-Bas,Classique,F,NED,https://flagcdn.com/w160/nl.png
+48,NED5,Jurrien Timber,Pays-Bas,Classique,F,NED,https://flagcdn.com/w160/nl.png
+48,NED6,Denzel Dumfries,Pays-Bas,Classique,F,NED,https://flagcdn.com/w160/nl.png
+48,NED7,Nathan Aké,Pays-Bas,Classique,F,NED,https://flagcdn.com/w160/nl.png
+48,NED8,Jeremie Frimpong,Pays-Bas,Classique,F,NED,https://flagcdn.com/w160/nl.png
+48,NED9,Jan Paul van Hecke,Pays-Bas,Classique,F,NED,https://flagcdn.com/w160/nl.png
+48,NED10,Tijjani Reijnders,Pays-Bas,Classique,F,NED,https://flagcdn.com/w160/nl.png
+48,NED11,Ryan Gravenberch,Pays-Bas,Classique,F,NED,https://flagcdn.com/w160/nl.png
+48,NED12,Teun Koopmeiners,Pays-Bas,Classique,F,NED,https://flagcdn.com/w160/nl.png
+48,NED13,Photo d'équipe,Pays-Bas,Classique,F,NED,https://flagcdn.com/w160/nl.png
+48,NED14,Frenkie de Jong,Pays-Bas,Classique,F,NED,https://flagcdn.com/w160/nl.png
+48,NED15,Xavi Simons,Pays-Bas,Classique,F,NED,https://flagcdn.com/w160/nl.png
+48,NED16,Justin Kluivert,Pays-Bas,Classique,F,NED,https://flagcdn.com/w160/nl.png
+48,NED17,Memphis Depay,Pays-Bas,Classique,F,NED,https://flagcdn.com/w160/nl.png
+48,NED18,Donyell Malen,Pays-Bas,Classique,F,NED,https://flagcdn.com/w160/nl.png
+48,NED19,Wout Weghorst,Pays-Bas,Classique,F,NED,https://flagcdn.com/w160/nl.png
+48,NED20,Cody Gakpo,Pays-Bas,Classique,F,NED,https://flagcdn.com/w160/nl.png
+50,JPN1,Écusson,Japon,Spécial,F,JPN,https://flagcdn.com/w160/jp.png
+50,JPN2,Zion Suzuki,Japon,Classique,F,JPN,https://flagcdn.com/w160/jp.png
+50,JPN3,Henry Heroki Mochizuki,Japon,Classique,F,JPN,https://flagcdn.com/w160/jp.png
+50,JPN4,Ayumu Seko,Japon,Classique,F,JPN,https://flagcdn.com/w160/jp.png
+50,JPN5,Junnosuke Suzuki,Japon,Classique,F,JPN,https://flagcdn.com/w160/jp.png
+50,JPN6,Shogo Taniguchi,Japon,Classique,F,JPN,https://flagcdn.com/w160/jp.png
+50,JPN7,Tsuyoshi Watanabe,Japon,Classique,F,JPN,https://flagcdn.com/w160/jp.png
+50,JPN8,Kaishu Sano,Japon,Classique,F,JPN,https://flagcdn.com/w160/jp.png
+50,JPN9,Yuki Soma,Japon,Classique,F,JPN,https://flagcdn.com/w160/jp.png
+50,JPN10,Ao Tanaka,Japon,Classique,F,JPN,https://flagcdn.com/w160/jp.png
+50,JPN11,Daichi Kamada,Japon,Classique,F,JPN,https://flagcdn.com/w160/jp.png
+50,JPN12,Takefusa Kubo,Japon,Classique,F,JPN,https://flagcdn.com/w160/jp.png
+50,JPN13,Photo d'équipe,Japon,Classique,F,JPN,https://flagcdn.com/w160/jp.png
+50,JPN14,Ritsu Doan,Japon,Classique,F,JPN,https://flagcdn.com/w160/jp.png
+50,JPN15,Keito Nakamura,Japon,Classique,F,JPN,https://flagcdn.com/w160/jp.png
+50,JPN16,Takumi Minamino,Japon,Classique,F,JPN,https://flagcdn.com/w160/jp.png
+50,JPN17,Shuto Machino,Japon,Classique,F,JPN,https://flagcdn.com/w160/jp.png
+50,JPN18,Junya Ito,Japon,Classique,F,JPN,https://flagcdn.com/w160/jp.png
+50,JPN19,Koki Ogawa,Japon,Classique,F,JPN,https://flagcdn.com/w160/jp.png
+50,JPN20,Ayase Ueda,Japon,Classique,F,JPN,https://flagcdn.com/w160/jp.png
+52,SWE1,Écusson,Suède,Spécial,F,SWE,https://flagcdn.com/w160/se.png
+52,SWE2,Victor Johansson,Suède,Classique,F,SWE,https://flagcdn.com/w160/se.png
+52,SWE3,Isak Hien,Suède,Classique,F,SWE,https://flagcdn.com/w160/se.png
+52,SWE4,Gabriel Gudmundsson,Suède,Classique,F,SWE,https://flagcdn.com/w160/se.png
+52,SWE5,Emil Holm,Suède,Classique,F,SWE,https://flagcdn.com/w160/se.png
+52,SWE6,Victor Nilsson Lindelöf,Suède,Classique,F,SWE,https://flagcdn.com/w160/se.png
+52,SWE7,Gustaf Lagerbielke,Suède,Classique,F,SWE,https://flagcdn.com/w160/se.png
+52,SWE8,Lucas Bergvall,Suède,Classique,F,SWE,https://flagcdn.com/w160/se.png
+52,SWE9,Hugo Larsson,Suède,Classique,F,SWE,https://flagcdn.com/w160/se.png
+52,SWE10,Jesper Karlström,Suède,Classique,F,SWE,https://flagcdn.com/w160/se.png
+52,SWE11,Yasin Ayari,Suède,Classique,F,SWE,https://flagcdn.com/w160/se.png
+52,SWE12,Mattias Svanberg,Suède,Classique,F,SWE,https://flagcdn.com/w160/se.png
+52,SWE13,Photo d'équipe,Suède,Classique,F,SWE,https://flagcdn.com/w160/se.png
+52,SWE14,Daniel Svensson,Suède,Classique,F,SWE,https://flagcdn.com/w160/se.png
+52,SWE15,Ken Sema,Suède,Classique,F,SWE,https://flagcdn.com/w160/se.png
+52,SWE16,Roony Bardghji,Suède,Classique,F,SWE,https://flagcdn.com/w160/se.png
+52,SWE17,Dejan Kulusevski,Suède,Classique,F,SWE,https://flagcdn.com/w160/se.png
+52,SWE18,Anthony Elanga,Suède,Classique,F,SWE,https://flagcdn.com/w160/se.png
+52,SWE19,Alexander Isak,Suède,Classique,F,SWE,https://flagcdn.com/w160/se.png
+52,SWE20,Viktor Gyökeres,Suède,Classique,F,SWE,https://flagcdn.com/w160/se.png
+54,TUN1,Écusson,Tunisie,Spécial,F,TUN,https://flagcdn.com/w160/tn.png
+54,TUN2,Bechir Ben Said,Tunisie,Classique,F,TUN,https://flagcdn.com/w160/tn.png
+54,TUN3,Aymen Dahmen,Tunisie,Classique,F,TUN,https://flagcdn.com/w160/tn.png
+54,TUN4,Yan Valery,Tunisie,Classique,F,TUN,https://flagcdn.com/w160/tn.png
+54,TUN5,Montassar Talbi,Tunisie,Classique,F,TUN,https://flagcdn.com/w160/tn.png
+54,TUN6,Yassine Meriah,Tunisie,Classique,F,TUN,https://flagcdn.com/w160/tn.png
+54,TUN7,Ali Abdi,Tunisie,Classique,F,TUN,https://flagcdn.com/w160/tn.png
+54,TUN8,Dylan Bronn,Tunisie,Classique,F,TUN,https://flagcdn.com/w160/tn.png
+54,TUN9,Ellyes Skhiri,Tunisie,Classique,F,TUN,https://flagcdn.com/w160/tn.png
+54,TUN10,Aissa Laidouni,Tunisie,Classique,F,TUN,https://flagcdn.com/w160/tn.png
+54,TUN11,Ferjani Sassi,Tunisie,Classique,F,TUN,https://flagcdn.com/w160/tn.png
+54,TUN12,Mohamed Ali Ben Romdhane,Tunisie,Classique,F,TUN,https://flagcdn.com/w160/tn.png
+54,TUN13,Photo d'équipe,Tunisie,Classique,F,SUI,https://flagcdn.com/w160/ch.png
+54,TUN14,Hannibal Mejbri,Tunisie,Classique,F,SUI,https://flagcdn.com/w160/ch.png
+54,TUN15,Elias Achouri,Tunisie,Classique,F,SUI,https://flagcdn.com/w160/ch.png
+54,TUN16,Elias Saad,Tunisie,Classique,F,BRA,https://flagcdn.com/w160/br.png
+54,TUN17,Hazem Mastouri,Tunisie,Classique,F,BRA,https://flagcdn.com/w160/br.png
+54,TUN18,Ismael Gharbi,Tunisie,Classique,F,BRA,https://flagcdn.com/w160/br.png
+54,TUN19,Sayfallah Ltaief,Tunisie,Classique,F,BRA,https://flagcdn.com/w160/br.png
+54,TUN20,Naim Sliti,Tunisie,Classique,F,BRA,https://flagcdn.com/w160/br.png
+58,BEL1,Écusson,Belgique,Spécial,G,BRA,https://flagcdn.com/w160/br.png
+58,BEL2,Thibaut Courtois,Belgique,Classique,G,BRA,https://flagcdn.com/w160/br.png
+58,BEL3,Arthur Theate,Belgique,Classique,G,BRA,https://flagcdn.com/w160/br.png
+58,BEL4,Timothy Castagne,Belgique,Classique,G,BRA,https://flagcdn.com/w160/br.png
+58,BEL5,Zeno Debast,Belgique,Classique,G,BRA,https://flagcdn.com/w160/br.png
+58,BEL6,Brandon Mechele,Belgique,Classique,G,BRA,https://flagcdn.com/w160/br.png
+58,BEL7,Maxim De Cuyper,Belgique,Classique,G,BRA,https://flagcdn.com/w160/br.png
+58,BEL8,Thomas Meunier,Belgique,Classique,G,BRA,https://flagcdn.com/w160/br.png
+58,BEL9,Youri Tielemans,Belgique,Classique,G,BRA,https://flagcdn.com/w160/br.png
+58,BEL10,Amadou Onana,Belgique,Classique,G,BRA,https://flagcdn.com/w160/br.png
+58,BEL11,Nicolas Raskin,Belgique,Classique,G,BRA,https://flagcdn.com/w160/br.png
+58,BEL12,Alexis Saelemaekers,Belgique,Classique,G,BRA,https://flagcdn.com/w160/br.png
+58,BEL13,Photo d'équipe,Belgique,Classique,G,BRA,https://flagcdn.com/w160/br.png
+58,BEL14,Hans Vanaken,Belgique,Classique,G,BRA,https://flagcdn.com/w160/br.png
+58,BEL15,Kevin De Bruyne,Belgique,Classique,G,BRA,https://flagcdn.com/w160/br.png
+58,BEL16,Jérémy Doku,Belgique,Classique,G,MAR,https://flagcdn.com/w160/ma.png
+58,BEL17,Charles De Ketelaere,Belgique,Classique,G,MAR,https://flagcdn.com/w160/ma.png
+58,BEL18,Leandro Trossard,Belgique,Classique,G,MAR,https://flagcdn.com/w160/ma.png
+58,BEL19,Loïs Openda,Belgique,Classique,G,MAR,https://flagcdn.com/w160/ma.png
+58,BEL20,Romelu Lukaku,Belgique,Classique,G,MAR,https://flagcdn.com/w160/ma.png
+60,EGY1,Écusson,Égypte,Spécial,G,MAR,https://flagcdn.com/w160/ma.png
+60,EGY2,Mohamed El Shenawy,Égypte,Classique,G,MAR,https://flagcdn.com/w160/ma.png
+60,EGY3,Mohamed Hany,Égypte,Classique,G,MAR,https://flagcdn.com/w160/ma.png
+60,EGY4,Mohamed Hamdy,Égypte,Classique,G,MAR,https://flagcdn.com/w160/ma.png
+60,EGY5,Yasser Ibrahim,Égypte,Classique,G,MAR,https://flagcdn.com/w160/ma.png
+60,EGY6,Khaled Sobhi,Égypte,Classique,G,MAR,https://flagcdn.com/w160/ma.png
+60,EGY7,Ramy Rabia,Égypte,Classique,G,MAR,https://flagcdn.com/w160/ma.png
+60,EGY8,Hossam Abdelmaguid,Égypte,Classique,G,MAR,https://flagcdn.com/w160/ma.png
+60,EGY9,Ahmed Fatouh,Égypte,Classique,G,MAR,https://flagcdn.com/w160/ma.png
+60,EGY10,Marwan Attia,Égypte,Classique,G,MAR,https://flagcdn.com/w160/ma.png
+60,EGY11,Zizo,Égypte,Classique,G,MAR,https://flagcdn.com/w160/ma.png
+60,EGY12,Hamdy Fathy,Égypte,Classique,G,MAR,https://flagcdn.com/w160/ma.png
+60,EGY13,Photo d'équipe,Égypte,Classique,G,MAR,https://flagcdn.com/w160/ma.png
+60,EGY14,Mohamed Lasheen,Égypte,Classique,G,MAR,https://flagcdn.com/w160/ma.png
+60,EGY15,Emam Ashour,Égypte,Classique,G,MAR,https://flagcdn.com/w160/ma.png
+60,EGY16,Osama Faisal,Égypte,Classique,G,HAI,https://flagcdn.com/w160/ht.png
+60,EGY17,Mohamed Salah,Égypte,Classique,G,HAI,https://flagcdn.com/w160/ht.png
+60,EGY18,Mostafa Mohamed,Égypte,Classique,G,HAI,https://flagcdn.com/w160/ht.png
+60,EGY19,Trezeguet,Égypte,Classique,G,HAI,https://flagcdn.com/w160/ht.png
+60,EGY20,Omar Marmoush,Égypte,Classique,G,HAI,https://flagcdn.com/w160/ht.png
+62,IRN1,Écusson,Iran,Spécial,G,HAI,https://flagcdn.com/w160/ht.png
+62,IRN2,Alireza Beiranvand,Iran,Classique,G,HAI,https://flagcdn.com/w160/ht.png
+62,IRN3,Morteza Pouraliganji,Iran,Classique,G,HAI,https://flagcdn.com/w160/ht.png
+62,IRN4,Ehsan Hajsafi,Iran,Classique,G,HAI,https://flagcdn.com/w160/ht.png
+62,IRN5,Milad Mohammadi,Iran,Classique,G,HAI,https://flagcdn.com/w160/ht.png
+62,IRN6,Shojae Khalilzadeh,Iran,Classique,G,HAI,https://flagcdn.com/w160/ht.png
+62,IRN7,Ramin Rezaeian,Iran,Classique,G,HAI,https://flagcdn.com/w160/ht.png
+62,IRN8,Hossein Kanaani,Iran,Classique,G,HAI,https://flagcdn.com/w160/ht.png
+62,IRN9,Sadegh Moharrami,Iran,Classique,G,HAI,https://flagcdn.com/w160/ht.png
+62,IRN10,Saleh Hardani,Iran,Classique,G,HAI,https://flagcdn.com/w160/ht.png
+62,IRN11,Saeed Ezatolahi,Iran,Classique,G,HAI,https://flagcdn.com/w160/ht.png
+62,IRN12,Saman Ghoddos,Iran,Classique,G,HAI,https://flagcdn.com/w160/ht.png
+62,IRN13,Photo d'équipe,Iran,Classique,G,HAI,https://flagcdn.com/w160/ht.png
+62,IRN14,Omid Noorafkan,Iran,Classique,G,HAI,https://flagcdn.com/w160/ht.png
+62,IRN15,Roozbeh Cheshmi,Iran,Classique,G,HAI,https://flagcdn.com/w160/ht.png
+62,IRN16,Mohammad Mohebi,Iran,Classique,G,IRN,https://flagcdn.com/w160/ir.png
+62,IRN17,Sardar Azmoun,Iran,Classique,G,IRN,https://flagcdn.com/w160/ir.png
+62,IRN18,Mehdi Taremi,Iran,Classique,G,IRN,https://flagcdn.com/w160/ir.png
+62,IRN19,Alireza Jahanbakhsh,Iran,Classique,G,IRN,https://flagcdn.com/w160/ir.png
+62,IRN20,Ali Gholizadeh,Iran,Classique,G,IRN,https://flagcdn.com/w160/ir.png
+64,NZL1,Écusson,Nouvelle-Zélande,Spécial,G,NZL,https://flagcdn.com/w160/nz.png
+64,NZL2,Max Crocombe,Nouvelle-Zélande,Classique,G,NZL,https://flagcdn.com/w160/nz.png
+64,NZL3,Alex Paulsen,Nouvelle-Zélande,Classique,G,SCO,https://flagcdn.com/w160/gb-sct.png
+64,NZL4,Michael Boxall,Nouvelle-Zélande,Classique,G,SCO,https://flagcdn.com/w160/gb-sct.png
+64,NZL5,Liberato Cacace,Nouvelle-Zélande,Classique,G,SCO,https://flagcdn.com/w160/gb-sct.png
+64,NZL6,Tim Payne,Nouvelle-Zélande,Classique,G,SCO,https://flagcdn.com/w160/gb-sct.png
+64,NZL7,Tyler Bindon,Nouvelle-Zélande,Classique,G,SCO,https://flagcdn.com/w160/gb-sct.png
+64,NZL8,Francis de Vries,Nouvelle-Zélande,Classique,G,SCO,https://flagcdn.com/w160/gb-sct.png
+64,NZL9,Finn Surman,Nouvelle-Zélande,Classique,G,SCO,https://flagcdn.com/w160/gb-sct.png
+64,NZL10,Joe Bell,Nouvelle-Zélande,Classique,G,SCO,https://flagcdn.com/w160/gb-sct.png
+64,NZL11,Sarpreet Singh,Nouvelle-Zélande,Classique,G,SCO,https://flagcdn.com/w160/gb-sct.png
+64,NZL12,Ryan Thomas,Nouvelle-Zélande,Classique,G,SCO,https://flagcdn.com/w160/gb-sct.png
+64,NZL13,Photo d'équipe,Nouvelle-Zélande,Classique,G,SCO,https://flagcdn.com/w160/gb-sct.png
+64,NZL14,Matthew Garbett,Nouvelle-Zélande,Classique,G,SCO,https://flagcdn.com/w160/gb-sct.png
+64,NZL15,Marko Stamenić,Nouvelle-Zélande,Classique,G,SCO,https://flagcdn.com/w160/gb-sct.png
+64,NZL16,Ben Old,Nouvelle-Zélande,Classique,G,USA,https://flagcdn.com/w160/us.png
+64,NZL17,Chris Wood,Nouvelle-Zélande,Classique,G,USA,https://flagcdn.com/w160/us.png
+64,NZL18,Elijah Just,Nouvelle-Zélande,Classique,G,USA,https://flagcdn.com/w160/us.png
+64,NZL19,Callum McCowatt,Nouvelle-Zélande,Classique,G,USA,https://flagcdn.com/w160/us.png
+64,NZL20,Kosta Barbarouses,Nouvelle-Zélande,Classique,G,USA,https://flagcdn.com/w160/us.png
+66,ESP1,Écusson,Espagne,Spécial,H,USA,https://flagcdn.com/w160/us.png
+66,ESP2,Unai Simon,Espagne,Classique,H,USA,https://flagcdn.com/w160/us.png
+66,ESP3,Robin Le Normand,Espagne,Classique,H,USA,https://flagcdn.com/w160/us.png
+66,ESP4,Aymeric Laporte,Espagne,Classique,H,USA,https://flagcdn.com/w160/us.png
+66,ESP5,Dean Huijsen,Espagne,Classique,H,USA,https://flagcdn.com/w160/us.png
+66,ESP6,Pedro Porro,Espagne,Classique,H,USA,https://flagcdn.com/w160/us.png
+66,ESP7,Dani Carvajal,Espagne,Classique,H,USA,https://flagcdn.com/w160/us.png
+66,ESP8,Marc Cucurella,Espagne,Classique,H,USA,https://flagcdn.com/w160/us.png
+66,ESP9,Martín Zubimendi,Espagne,Classique,H,USA,https://flagcdn.com/w160/us.png
+66,ESP10,Rodri,Espagne,Classique,H,USA,https://flagcdn.com/w160/us.png
+66,ESP11,Pedri,Espagne,Classique,H,USA,https://flagcdn.com/w160/us.png
+66,ESP12,Fabian Ruiz,Espagne,Classique,H,USA,https://flagcdn.com/w160/us.png
+66,ESP13,Photo d'équipe,Espagne,Classique,H,USA,https://flagcdn.com/w160/us.png
+66,ESP14,Mikel Merino,Espagne,Classique,H,USA,https://flagcdn.com/w160/us.png
+66,ESP15,Lamine Yamal,Espagne,Classique,H,USA,https://flagcdn.com/w160/us.png
+66,ESP16,Dani Olmo,Espagne,Classique,H,PAR,https://flagcdn.com/w160/py.png
+66,ESP17,Nico Williams,Espagne,Classique,H,PAR,https://flagcdn.com/w160/py.png
+66,ESP18,Ferran Torres,Espagne,Classique,H,PAR,https://flagcdn.com/w160/py.png
+66,ESP19,Álvaro Morata,Espagne,Classique,H,PAR,https://flagcdn.com/w160/py.png
+66,ESP20,Mikel Oyarzabal,Espagne,Classique,H,PAR,https://flagcdn.com/w160/py.png
+68,CPV1,Écusson,Cap-Vert,Spécial,H,PAR,https://flagcdn.com/w160/py.png
+68,CPV2,Vozinha,Cap-Vert,Classique,H,CPV,https://flagcdn.com/w160/cv.png
+68,CPV3,Logan Costa,Cap-Vert,Classique,H,CPV,https://flagcdn.com/w160/cv.png
+68,CPV4,Pico,Cap-Vert,Classique,H,CPV,https://flagcdn.com/w160/cv.png
+68,CPV5,Diney,Cap-Vert,Classique,H,CPV,https://flagcdn.com/w160/cv.png
+68,CPV6,Steven Moreira,Cap-Vert,Classique,H,CPV,https://flagcdn.com/w160/cv.png
+68,CPV7,Wagner Pina,Cap-Vert,Classique,H,CPV,https://flagcdn.com/w160/cv.png
+68,CPV8,Joao Paulo,Cap-Vert,Classique,H,CPV,https://flagcdn.com/w160/cv.png
+68,CPV9,Yannick Semedo,Cap-Vert,Classique,H,CPV,https://flagcdn.com/w160/cv.png
+68,CPV10,Kevin Pina,Cap-Vert,Classique,H,CPV,https://flagcdn.com/w160/cv.png
+68,CPV11,Patrick Andrade,Cap-Vert,Classique,H,CPV,https://flagcdn.com/w160/cv.png
+68,CPV12,Jamiro Monteiro,Cap-Vert,Classique,H,CPV,https://flagcdn.com/w160/cv.png
+68,CPV13,Photo d'équipe,Cap-Vert,Classique,H,CPV,https://flagcdn.com/w160/cv.png
+68,CPV14,Deroy Duarte,Cap-Vert,Classique,H,CPV,https://flagcdn.com/w160/cv.png
+68,CPV15,Garry Rodrigues,Cap-Vert,Classique,H,CPV,https://flagcdn.com/w160/cv.png
+68,CPV16,Jovane Cabral,Cap-Vert,Classique,H,CPV,https://flagcdn.com/w160/cv.png
+68,CPV17,Ryan Mendes,Cap-Vert,Classique,H,CPV,https://flagcdn.com/w160/cv.png
+68,CPV18,Dailon Livramento,Cap-Vert,Classique,H,CPV,https://flagcdn.com/w160/cv.png
+68,CPV19,Willy Semedo,Cap-Vert,Classique,H,CPV,https://flagcdn.com/w160/cv.png
+68,CPV20,Bebe,Cap-Vert,Classique,H,CPV,https://flagcdn.com/w160/cv.png
+70,KSA1,Écusson,Arabie saoudite,Spécial,H,KSA,https://flagcdn.com/w160/sa.png
+70,KSA2,Nawaf Alaqidi,Arabie saoudite,Classique,H,KSA,https://flagcdn.com/w160/sa.png
+70,KSA3,Abdulrahman Al-Sanbi,Arabie saoudite,Classique,H,KSA,https://flagcdn.com/w160/sa.png
+70,KSA4,Saud Abdulhamid,Arabie saoudite,Classique,H,KSA,https://flagcdn.com/w160/sa.png
+70,KSA5,Nawaf Bouwashl,Arabie saoudite,Classique,H,KSA,https://flagcdn.com/w160/sa.png
+70,KSA6,Jihad Thakri,Arabie saoudite,Classique,H,KSA,https://flagcdn.com/w160/sa.png
+70,KSA7,Moteb Al-Harbi,Arabie saoudite,Classique,H,KSA,https://flagcdn.com/w160/sa.png
+70,KSA8,Hassan Altambakti,Arabie saoudite,Classique,H,KSA,https://flagcdn.com/w160/sa.png
+70,KSA9,Musab Aljuwayr,Arabie saoudite,Classique,H,KSA,https://flagcdn.com/w160/sa.png
+70,KSA10,Ziyad Aljohani,Arabie saoudite,Classique,H,KSA,https://flagcdn.com/w160/sa.png
+70,KSA11,Abdullah Alkhaibari,Arabie saoudite,Classique,H,KSA,https://flagcdn.com/w160/sa.png
+70,KSA12,Nasser Aldawsari,Arabie saoudite,Classique,H,KSA,https://flagcdn.com/w160/sa.png
+70,KSA13,Photo d'équipe,Arabie saoudite,Classique,H,KSA,https://flagcdn.com/w160/sa.png
+70,KSA14,Saleh Abu Alshamat,Arabie saoudite,Classique,H,KSA,https://flagcdn.com/w160/sa.png
+70,KSA15,Marwan Alsahafi,Arabie saoudite,Classique,H,KSA,https://flagcdn.com/w160/sa.png
+70,KSA16,Salem Aldawsari,Arabie saoudite,Classique,H,KSA,https://flagcdn.com/w160/sa.png
+70,KSA17,Abdulrahman Al-Aboud,Arabie saoudite,Classique,H,KSA,https://flagcdn.com/w160/sa.png
+70,KSA18,Feras Akbrikan,Arabie saoudite,Classique,H,KSA,https://flagcdn.com/w160/sa.png
+70,KSA19,Saleh Alshehri,Arabie saoudite,Classique,H,KSA,https://flagcdn.com/w160/sa.png
+70,KSA20,Abdullah Al-Hamdan,Arabie saoudite,Classique,H,KSA,https://flagcdn.com/w160/sa.png
+72,URU1,Écusson,Uruguay,Spécial,H,URU,https://flagcdn.com/w160/uy.png
+72,URU2,Sergio Rochet,Uruguay,Classique,H,URU,https://flagcdn.com/w160/uy.png
+72,URU3,Santiago Mele,Uruguay,Classique,H,URU,https://flagcdn.com/w160/uy.png
+72,URU4,Ronald Araujo,Uruguay,Classique,H,URU,https://flagcdn.com/w160/uy.png
+72,URU5,José María Giménez,Uruguay,Classique,H,URU,https://flagcdn.com/w160/uy.png
+72,URU6,Sebastian Caceres,Uruguay,Classique,H,URU,https://flagcdn.com/w160/uy.png
+72,URU7,Mathias Olivera,Uruguay,Classique,H,URU,https://flagcdn.com/w160/uy.png
+72,URU8,Guillermo Varela,Uruguay,Classique,H,URU,https://flagcdn.com/w160/uy.png
+72,URU9,Nahitan Nandez,Uruguay,Classique,H,URU,https://flagcdn.com/w160/uy.png
+72,URU10,Federico Valverde,Uruguay,Classique,H,URU,https://flagcdn.com/w160/uy.png
+72,URU11,Giorgian De Arrascaeta,Uruguay,Classique,H,URU,https://flagcdn.com/w160/uy.png
+72,URU12,Rodrigo Bentancur,Uruguay,Classique,H,URU,https://flagcdn.com/w160/uy.png
+72,URU13,Photo d'équipe,Uruguay,Classique,H,URU,https://flagcdn.com/w160/uy.png
+72,URU14,Manuel Ugarte,Uruguay,Classique,H,URU,https://flagcdn.com/w160/uy.png
+72,URU15,Nicolás de la Cruz,Uruguay,Classique,H,URU,https://flagcdn.com/w160/uy.png
+72,URU16,Maxi Araujo,Uruguay,Classique,H,URU,https://flagcdn.com/w160/uy.png
+72,URU17,Darwin Núñez,Uruguay,Classique,H,URU,https://flagcdn.com/w160/uy.png
+72,URU18,Federico Viñas,Uruguay,Classique,H,URU,https://flagcdn.com/w160/uy.png
+72,URU19,Rodrigo Aguirre,Uruguay,Classique,H,URU,https://flagcdn.com/w160/uy.png
+72,URU20,Facundo Pellistri,Uruguay,Classique,H,URU,https://flagcdn.com/w160/uy.png
+74,FRA1,Écusson,France,Spécial,I,FRA,https://flagcdn.com/w160/fr.png
+74,FRA2,Mike Maignan,France,Classique,I,FRA,https://flagcdn.com/w160/fr.png
+74,FRA3,Theo Hernandez,France,Classique,I,FRA,https://flagcdn.com/w160/fr.png
+74,FRA4,William Saliba,France,Classique,I,FRA,https://flagcdn.com/w160/fr.png
+74,FRA5,Jules Kounde,France,Classique,I,FRA,https://flagcdn.com/w160/fr.png
+74,FRA6,Ibrahima Konate,France,Classique,I,FRA,https://flagcdn.com/w160/fr.png
+74,FRA7,Dayot Upamecano,France,Classique,I,FRA,https://flagcdn.com/w160/fr.png
+74,FRA8,Lucas Digne,France,Classique,I,FRA,https://flagcdn.com/w160/fr.png
+74,FRA9,Aurélien Tchouaméni,France,Classique,I,FRA,https://flagcdn.com/w160/fr.png
+74,FRA10,Eduardo Camavinga,France,Classique,I,FRA,https://flagcdn.com/w160/fr.png
+74,FRA11,Manu Kone,France,Classique,I,FRA,https://flagcdn.com/w160/fr.png
+74,FRA12,Adrien Rabiot,France,Classique,I,FRA,https://flagcdn.com/w160/fr.png
+74,FRA13,Photo d'équipe,France,Classique,I,FRA,https://flagcdn.com/w160/fr.png
+74,FRA14,Michael Olise,France,Classique,I,FRA,https://flagcdn.com/w160/fr.png
+74,FRA15,Ousmane Dembele,France,Classique,I,FRA,https://flagcdn.com/w160/fr.png
+74,FRA16,Bradley Barcola,France,Classique,I,FRA,https://flagcdn.com/w160/fr.png
+74,FRA17,Désiré Doué,France,Classique,I,FRA,https://flagcdn.com/w160/fr.png
+74,FRA18,Kingsley Coman,France,Classique,I,FRA,https://flagcdn.com/w160/fr.png
+74,FRA19,Hugo Ekitike,France,Classique,I,FRA,https://flagcdn.com/w160/fr.png
+74,FRA20,Kylian Mbappe,France,Classique,I,FRA,https://flagcdn.com/w160/fr.png
+76,SEN1,Écusson,Sénégal,Spécial,I,SEN,https://flagcdn.com/w160/sn.png
+76,SEN2,Édouard Mendy,Sénégal,Classique,I,SEN,https://flagcdn.com/w160/sn.png
+76,SEN3,Yehvann Diouf,Sénégal,Classique,I,SEN,https://flagcdn.com/w160/sn.png
+76,SEN4,Moussa Niakhaté,Sénégal,Classique,I,SEN,https://flagcdn.com/w160/sn.png
+76,SEN5,Abdoulaye Seck,Sénégal,Classique,I,SEN,https://flagcdn.com/w160/sn.png
+76,SEN6,Ismail Jakobs,Sénégal,Classique,I,SEN,https://flagcdn.com/w160/sn.png
+76,SEN7,El Hadji Malick Diouf,Sénégal,Classique,I,SEN,https://flagcdn.com/w160/sn.png
+76,SEN8,Kalidou Koulibaly,Sénégal,Classique,I,SEN,https://flagcdn.com/w160/sn.png
+76,SEN9,Idrissa Gana Gueye,Sénégal,Classique,I,SEN,https://flagcdn.com/w160/sn.png
+76,SEN10,Pape Matar Sarr,Sénégal,Classique,I,SEN,https://flagcdn.com/w160/sn.png
+76,SEN11,Pape Gueye,Sénégal,Classique,I,SEN,https://flagcdn.com/w160/sn.png
+76,SEN12,Habib Diarra,Sénégal,Classique,I,SEN,https://flagcdn.com/w160/sn.png
+76,SEN13,Photo d'équipe,Sénégal,Classique,I,SEN,https://flagcdn.com/w160/sn.png
+76,SEN14,Lamine Camara,Sénégal,Classique,I,SEN,https://flagcdn.com/w160/sn.png
+76,SEN15,Sadio Mane,Sénégal,Classique,I,SEN,https://flagcdn.com/w160/sn.png
+76,SEN16,Ismaïla Sarr,Sénégal,Classique,I,SEN,https://flagcdn.com/w160/sn.png
+76,SEN17,Boulaye Dia,Sénégal,Classique,I,SEN,https://flagcdn.com/w160/sn.png
+76,SEN18,Iliman Ndiaye,Sénégal,Classique,I,SEN,https://flagcdn.com/w160/sn.png
+76,SEN19,Nicolas Jackson,Sénégal,Classique,I,SEN,https://flagcdn.com/w160/sn.png
+76,SEN20,Krepin Diatta,Sénégal,Classique,I,SEN,https://flagcdn.com/w160/sn.png
+78,IRQ1,Écusson,Irak,Spécial,I,IRQ,https://flagcdn.com/w160/iq.png
+78,IRQ2,Jalal Hassan,Irak,Classique,I,IRQ,https://flagcdn.com/w160/iq.png
+78,IRQ3,Rebin Sulaka,Irak,Classique,I,IRQ,https://flagcdn.com/w160/iq.png
+78,IRQ4,Hussein Ali,Irak,Classique,I,IRQ,https://flagcdn.com/w160/iq.png
+78,IRQ5,Akam Hashem,Irak,Classique,I,IRQ,https://flagcdn.com/w160/iq.png
+78,IRQ6,Merchas Doski,Irak,Classique,I,IRQ,https://flagcdn.com/w160/iq.png
+78,IRQ7,Zaid Tahseen,Irak,Classique,I,IRQ,https://flagcdn.com/w160/iq.png
+78,IRQ8,Manaf Younis,Irak,Classique,I,IRQ,https://flagcdn.com/w160/iq.png
+78,IRQ9,Zidane Iqbal,Irak,Classique,I,IRQ,https://flagcdn.com/w160/iq.png
+78,IRQ10,Amir Al-Ammari,Irak,Classique,I,IRQ,https://flagcdn.com/w160/iq.png
+78,IRQ11,Ibrahim Bavesh,Irak,Classique,I,IRQ,https://flagcdn.com/w160/iq.png
+78,IRQ12,Ali Jasim,Irak,Classique,I,IRQ,https://flagcdn.com/w160/iq.png
+78,IRQ13,Photo d'équipe,Irak,Classique,I,IRQ,https://flagcdn.com/w160/iq.png
+78,IRQ14,Youssef Amyn,Irak,Classique,I,IRQ,https://flagcdn.com/w160/iq.png
+78,IRQ15,Aimar Sher,Irak,Classique,I,IRQ,https://flagcdn.com/w160/iq.png
+78,IRQ16,Marko Farji,Irak,Classique,I,IRQ,https://flagcdn.com/w160/iq.png
+78,IRQ17,Osama Rashid,Irak,Classique,I,IRQ,https://flagcdn.com/w160/iq.png
+78,IRQ18,Ali Al-Hamadi,Irak,Classique,I,IRQ,https://flagcdn.com/w160/iq.png
+78,IRQ19,Aymen Hussein,Irak,Classique,I,IRQ,https://flagcdn.com/w160/iq.png
+78,IRQ20,Mohanad Ali,Irak,Classique,I,IRQ,https://flagcdn.com/w160/iq.png
+80,NOR1,Écusson,Norvège,Spécial,I,NOR,https://flagcdn.com/w160/no.png
+80,NOR2,Orjan Nyland,Norvège,Classique,I,NOR,https://flagcdn.com/w160/no.png
+80,NOR3,Julian Ryerson,Norvège,Classique,I,NOR,https://flagcdn.com/w160/no.png
+80,NOR4,Leo Ostigård,Norvège,Classique,I,NOR,https://flagcdn.com/w160/no.png
+80,NOR5,Kristoffer Vassbakk Ajer,Norvège,Classique,I,NOR,https://flagcdn.com/w160/no.png
+80,NOR6,Marcus Holmgren Pedersen,Norvège,Classique,I,NOR,https://flagcdn.com/w160/no.png
+80,NOR7,David Møller Wolfe,Norvège,Classique,I,NOR,https://flagcdn.com/w160/no.png
+80,NOR8,Torbjørn Heggem,Norvège,Classique,I,NOR,https://flagcdn.com/w160/no.png
+80,NOR9,Morten Thorsby,Norvège,Classique,I,NOR,https://flagcdn.com/w160/no.png
+80,NOR10,Martin Ødegaard,Norvège,Classique,I,NOR,https://flagcdn.com/w160/no.png
+80,NOR11,Sander Berge,Norvège,Classique,I,NOR,https://flagcdn.com/w160/no.png
+80,NOR12,Andreas Schjelderup,Norvège,Classique,I,NOR,https://flagcdn.com/w160/no.png
+80,NOR13,Photo d'équipe,Norvège,Classique,I,NOR,https://flagcdn.com/w160/no.png
+80,NOR14,Patrick Berg,Norvège,Classique,I,NOR,https://flagcdn.com/w160/no.png
+80,NOR15,Erling Haaland,Norvège,Classique,I,NOR,https://flagcdn.com/w160/no.png
+80,NOR16,Alexander Sørloth,Norvège,Classique,I,NOR,https://flagcdn.com/w160/no.png
+80,NOR17,Aron Dønnum,Norvège,Classique,I,NOR,https://flagcdn.com/w160/no.png
+80,NOR18,Jorgen Strand Larsen,Norvège,Classique,I,NOR,https://flagcdn.com/w160/no.png
+80,NOR19,Antonio Nusa,Norvège,Classique,I,NOR,https://flagcdn.com/w160/no.png
+80,NOR20,Oscar Bobb,Norvège,Classique,I,NOR,https://flagcdn.com/w160/no.png
+82,ARG1,Écusson,Argentine,Spécial,J,ARG,https://flagcdn.com/w160/ar.png
+82,ARG2,Emiliano Martinez,Argentine,Classique,J,ARG,https://flagcdn.com/w160/ar.png
+82,ARG3,Nahuel Molina,Argentine,Classique,J,ARG,https://flagcdn.com/w160/ar.png
+82,ARG4,Cristian Romero,Argentine,Classique,J,ARG,https://flagcdn.com/w160/ar.png
+82,ARG5,Nicolas Otamendi,Argentine,Classique,J,ARG,https://flagcdn.com/w160/ar.png
+82,ARG6,Nicolas Tagliafico,Argentine,Classique,J,ARG,https://flagcdn.com/w160/ar.png
+82,ARG7,Leonardo Balerdi,Argentine,Classique,J,ARG,https://flagcdn.com/w160/ar.png
+82,ARG8,Enzo Fernandez,Argentine,Classique,J,ARG,https://flagcdn.com/w160/ar.png
+82,ARG9,Alexis Mac Allister,Argentine,Classique,J,ARG,https://flagcdn.com/w160/ar.png
+82,ARG10,Rodrigo De Paul,Argentine,Classique,J,ARG,https://flagcdn.com/w160/ar.png
+82,ARG11,Exequiel Palacios,Argentine,Classique,J,ARG,https://flagcdn.com/w160/ar.png
+82,ARG12,Leandro Paredes,Argentine,Classique,J,ARG,https://flagcdn.com/w160/ar.png
+82,ARG13,Photo d'équipe,Argentine,Classique,J,ARG,https://flagcdn.com/w160/ar.png
+82,ARG14,Nico Paz,Argentine,Classique,J,ARG,https://flagcdn.com/w160/ar.png
+82,ARG15,Franco Mastantuono,Argentine,Classique,J,ARG,https://flagcdn.com/w160/ar.png
+82,ARG16,Nico Gonzalez,Argentine,Classique,J,ARG,https://flagcdn.com/w160/ar.png
+82,ARG17,Lionel Messi,Argentine,Classique,J,ARG,https://flagcdn.com/w160/ar.png
+82,ARG18,Lautaro Martinez,Argentine,Classique,J,ARG,https://flagcdn.com/w160/ar.png
+82,ARG19,Julian Alvarez,Argentine,Classique,J,ARG,https://flagcdn.com/w160/ar.png
+82,ARG20,Giuliano Simeone,Argentine,Classique,J,ARG,https://flagcdn.com/w160/ar.png
+84,ALG1,Écusson,Algérie,Spécial,J,ALG,https://flagcdn.com/w160/dz.png
+84,ALG2,Alexis Guendouz,Algérie,Classique,J,ALG,https://flagcdn.com/w160/dz.png
+84,ALG3,Ramy Bensebaini,Algérie,Classique,J,ALG,https://flagcdn.com/w160/dz.png
+84,ALG4,Youcef Atal,Algérie,Classique,J,ALG,https://flagcdn.com/w160/dz.png
+84,ALG5,Rayan Aït-Nouri,Algérie,Classique,J,ALG,https://flagcdn.com/w160/dz.png
+84,ALG6,Mohamed Amine Tougai,Algérie,Classique,J,ALG,https://flagcdn.com/w160/dz.png
+84,ALG7,Aïssa Mandi,Algérie,Classique,J,ALG,https://flagcdn.com/w160/dz.png
+84,ALG8,Ismael Bennacer,Algérie,Classique,J,ALG,https://flagcdn.com/w160/dz.png
+84,ALG9,Houssem Aouar,Algérie,Classique,J,ALG,https://flagcdn.com/w160/dz.png
+84,ALG10,Hicham Boudaoui,Algérie,Classique,J,ALG,https://flagcdn.com/w160/dz.png
+84,ALG11,Ramiz Zerrouki,Algérie,Classique,J,ALG,https://flagcdn.com/w160/dz.png
+84,ALG12,Nabil Bentaleb,Algérie,Classique,J,ALG,https://flagcdn.com/w160/dz.png
+84,ALG13,Photo d'équipe,Algérie,Classique,J,ALG,https://flagcdn.com/w160/dz.png
+84,ALG14,Farés Chaibi,Algérie,Classique,J,ALG,https://flagcdn.com/w160/dz.png
+84,ALG15,Riyad Mahrez,Algérie,Classique,J,ALG,https://flagcdn.com/w160/dz.png
+84,ALG16,Said Benrahma,Algérie,Classique,J,ALG,https://flagcdn.com/w160/dz.png
+84,ALG17,Anis Hadj Moussa,Algérie,Classique,J,ALG,https://flagcdn.com/w160/dz.png
+84,ALG18,Amine Gouiri,Algérie,Classique,J,ALG,https://flagcdn.com/w160/dz.png
+84,ALG19,Baghdad Bounedjah,Algérie,Classique,J,ALG,https://flagcdn.com/w160/dz.png
+84,ALG20,Mohammed Amoura,Algérie,Classique,J,ALG,https://flagcdn.com/w160/dz.png
+86,AUT1,Écusson,Autriche,Spécial,J,AUT,https://flagcdn.com/w160/at.png
+86,AUT2,Alexander Schlager,Autriche,Classique,J,AUT,https://flagcdn.com/w160/at.png
+86,AUT3,Patrick Pentz,Autriche,Classique,J,AUT,https://flagcdn.com/w160/at.png
+86,AUT4,David Alaba,Autriche,Classique,J,AUT,https://flagcdn.com/w160/at.png
+86,AUT5,Kevin Danso,Autriche,Classique,J,AUT,https://flagcdn.com/w160/at.png
+86,AUT6,Philipp Lienhart,Autriche,Classique,J,AUT,https://flagcdn.com/w160/at.png
+86,AUT7,Stefan Posch,Autriche,Classique,J,AUT,https://flagcdn.com/w160/at.png
+86,AUT8,Phillipp Mwene,Autriche,Classique,J,AUT,https://flagcdn.com/w160/at.png
+86,AUT9,Alexander Prass,Autriche,Classique,J,AUT,https://flagcdn.com/w160/at.png
+86,AUT10,Xaver Schlager,Autriche,Classique,J,AUT,https://flagcdn.com/w160/at.png
+86,AUT11,Marcel Sabitzer,Autriche,Classique,J,AUT,https://flagcdn.com/w160/at.png
+86,AUT12,Konrad Laimer,Autriche,Classique,J,AUT,https://flagcdn.com/w160/at.png
+86,AUT13,Photo d'équipe,Autriche,Classique,J,AUT,https://flagcdn.com/w160/at.png
+86,AUT14,Florian Grillitsch,Autriche,Classique,J,AUT,https://flagcdn.com/w160/at.png
+86,AUT15,Nicolas Seiwald,Autriche,Classique,J,AUT,https://flagcdn.com/w160/at.png
+86,AUT16,Romano Schmid,Autriche,Classique,J,AUT,https://flagcdn.com/w160/at.png
+86,AUT17,Patrick Wimmer,Autriche,Classique,J,AUT,https://flagcdn.com/w160/at.png
+86,AUT18,Christoph Baumgartner,Autriche,Classique,J,AUT,https://flagcdn.com/w160/at.png
+86,AUT19,Michael Gregoritsch,Autriche,Classique,J,AUT,https://flagcdn.com/w160/at.png
+86,AUT20,Marko Arnautović,Autriche,Classique,J,AUT,https://flagcdn.com/w160/at.png
+88,JOR1,Écusson,Jordanie,Spécial,J,JOR,https://flagcdn.com/w160/jo.png
+88,JOR2,Yazeed Abulaila,Jordanie,Classique,J,JOR,https://flagcdn.com/w160/jo.png
+88,JOR3,Ihsan Haddad,Jordanie,Classique,J,JOR,https://flagcdn.com/w160/jo.png
+88,JOR4,Mohammad Abu Hashish,Jordanie,Classique,J,JOR,https://flagcdn.com/w160/jo.png
+88,JOR5,Yazan Al-Arab,Jordanie,Classique,J,JOR,https://flagcdn.com/w160/jo.png
+88,JOR6,Abdallah Nasib,Jordanie,Classique,J,JOR,https://flagcdn.com/w160/jo.png
+88,JOR7,Saleem Obaid,Jordanie,Classique,J,JOR,https://flagcdn.com/w160/jo.png
+88,JOR8,Mohammad Abualnadi,Jordanie,Classique,J,SUI,https://flagcdn.com/w160/ch.png
+88,JOR9,Ibrahim Saadeh,Jordanie,Classique,J,SUI,https://flagcdn.com/w160/ch.png
+88,JOR10,Nizar Al-Rashdan,Jordanie,Classique,J,SUI,https://flagcdn.com/w160/ch.png
+88,JOR11,Noor Al-Rawabdeh,Jordanie,Classique,J,BRA,https://flagcdn.com/w160/br.png
+88,JOR12,Mohannad Abu Taha,Jordanie,Classique,J,BRA,https://flagcdn.com/w160/br.png
+88,JOR13,Photo d'équipe,Jordanie,Classique,J,BRA,https://flagcdn.com/w160/br.png
+88,JOR14,Amer Jamous,Jordanie,Classique,J,BRA,https://flagcdn.com/w160/br.png
+88,JOR15,Musa Al-Taamari,Jordanie,Classique,J,BRA,https://flagcdn.com/w160/br.png
+88,JOR16,Yazan Al-Naimat,Jordanie,Classique,J,BRA,https://flagcdn.com/w160/br.png
+88,JOR17,Mahmoud Al-Mardi,Jordanie,Classique,J,BRA,https://flagcdn.com/w160/br.png
+88,JOR18,Ali Olwan,Jordanie,Classique,J,BRA,https://flagcdn.com/w160/br.png
+88,JOR19,Mohammad Abu Zrayq,Jordanie,Classique,J,BRA,https://flagcdn.com/w160/br.png
+88,JOR20,Ibrahim Sabra,Jordanie,Classique,J,BRA,https://flagcdn.com/w160/br.png
+90,POR1,Écusson,Portugal,Spécial,K,BRA,https://flagcdn.com/w160/br.png
+90,POR2,Diogo Costa,Portugal,Classique,K,BRA,https://flagcdn.com/w160/br.png
+90,POR3,José Sá,Portugal,Classique,K,BRA,https://flagcdn.com/w160/br.png
+90,POR4,Ruben Dias,Portugal,Classique,K,BRA,https://flagcdn.com/w160/br.png
+90,POR5,João Cancelo,Portugal,Classique,K,BRA,https://flagcdn.com/w160/br.png
+90,POR6,Diogo Dalot,Portugal,Classique,K,BRA,https://flagcdn.com/w160/br.png
+90,POR7,Nuno Mendes,Portugal,Classique,K,BRA,https://flagcdn.com/w160/br.png
+90,POR8,Gonçalo Inácio,Portugal,Classique,K,BRA,https://flagcdn.com/w160/br.png
+90,POR9,Bernardo Silva,Portugal,Classique,K,BRA,https://flagcdn.com/w160/br.png
+90,POR10,Bruno Fernandes,Portugal,Classique,K,BRA,https://flagcdn.com/w160/br.png
+90,POR11,Ruben Neves,Portugal,Classique,K,MAR,https://flagcdn.com/w160/ma.png
+90,POR12,Vitinha,Portugal,Classique,K,MAR,https://flagcdn.com/w160/ma.png
+90,POR13,Photo d'équipe,Portugal,Classique,K,MAR,https://flagcdn.com/w160/ma.png
+90,POR14,João Neves,Portugal,Classique,K,MAR,https://flagcdn.com/w160/ma.png
+90,POR15,Cristiano Ronaldo,Portugal,Classique,K,MAR,https://flagcdn.com/w160/ma.png
+90,POR16,Francisco Trincao,Portugal,Classique,K,MAR,https://flagcdn.com/w160/ma.png
+90,POR17,João Felix,Portugal,Classique,K,MAR,https://flagcdn.com/w160/ma.png
+90,POR18,Gonçalo Ramos,Portugal,Classique,K,MAR,https://flagcdn.com/w160/ma.png
+90,POR19,Pedro Neto,Portugal,Classique,K,MAR,https://flagcdn.com/w160/ma.png
+90,POR20,Rafael Leão,Portugal,Classique,K,MAR,https://flagcdn.com/w160/ma.png
+92,COD1,Écusson,RD Congo,Spécial,K,MAR,https://flagcdn.com/w160/ma.png
+92,COD2,Lionel Mpasi-Nzau,RD Congo,Classique,K,MAR,https://flagcdn.com/w160/ma.png
+92,COD3,Aaron Wan-Bissaka,RD Congo,Classique,K,MAR,https://flagcdn.com/w160/ma.png
+92,COD4,Axel Tuanzebe,RD Congo,Classique,K,MAR,https://flagcdn.com/w160/ma.png
+92,COD5,Arthur Masuaku,RD Congo,Classique,K,MAR,https://flagcdn.com/w160/ma.png
+92,COD6,Chancel Mbemba,RD Congo,Classique,K,MAR,https://flagcdn.com/w160/ma.png
+92,COD7,Joris Kayembe,RD Congo,Classique,K,MAR,https://flagcdn.com/w160/ma.png
+92,COD8,Charles Pickel,RD Congo,Classique,K,MAR,https://flagcdn.com/w160/ma.png
+92,COD9,Ngal'ayel Mukau,RD Congo,Classique,K,MAR,https://flagcdn.com/w160/ma.png
+92,COD10,Edo Kayembe,RD Congo,Classique,K,MAR,https://flagcdn.com/w160/ma.png
+92,COD11,Samuel Moutoussamy,RD Congo,Classique,K,HAI,https://flagcdn.com/w160/ht.png
+92,COD12,Noah Sadiki,RD Congo,Classique,K,HAI,https://flagcdn.com/w160/ht.png
+92,COD13,Photo d'équipe,RD Congo,Classique,K,HAI,https://flagcdn.com/w160/ht.png
+92,COD14,Théo Bongonda,RD Congo,Classique,K,HAI,https://flagcdn.com/w160/ht.png
+92,COD15,Meschak Elia,RD Congo,Classique,K,HAI,https://flagcdn.com/w160/ht.png
+92,COD16,Yoane Wissa,RD Congo,Classique,K,HAI,https://flagcdn.com/w160/ht.png
+92,COD17,Brian Cipenga,RD Congo,Classique,K,HAI,https://flagcdn.com/w160/ht.png
+92,COD18,Fiston Mayele,RD Congo,Classique,K,HAI,https://flagcdn.com/w160/ht.png
+92,COD19,Cédric Bakambu,RD Congo,Classique,K,HAI,https://flagcdn.com/w160/ht.png
+92,COD20,Nathanaël Mbuku,RD Congo,Classique,K,HAI,https://flagcdn.com/w160/ht.png
+94,UZB1,Écusson,Ouzbékistan,Spécial,K,HAI,https://flagcdn.com/w160/ht.png
+94,UZB2,Utkir Yusupov,Ouzbékistan,Classique,K,HAI,https://flagcdn.com/w160/ht.png
+94,UZB3,Farrukh Savfiev,Ouzbékistan,Classique,K,HAI,https://flagcdn.com/w160/ht.png
+94,UZB4,Sherzod Nasrullaev,Ouzbékistan,Classique,K,HAI,https://flagcdn.com/w160/ht.png
+94,UZB5,Umar Eshmurodov,Ouzbékistan,Classique,K,HAI,https://flagcdn.com/w160/ht.png
+94,UZB6,Husniddin Aliqulov,Ouzbékistan,Classique,K,HAI,https://flagcdn.com/w160/ht.png
+94,UZB7,Rustamjon Ashurmatov,Ouzbékistan,Classique,K,HAI,https://flagcdn.com/w160/ht.png
+94,UZB8,Khojiakbar Alijonov,Ouzbékistan,Classique,K,HAI,https://flagcdn.com/w160/ht.png
+94,UZB9,Abdukodir Khusanov,Ouzbékistan,Classique,K,HAI,https://flagcdn.com/w160/ht.png
+94,UZB10,Odiljon Hamrobekov,Ouzbékistan,Classique,K,HAI,https://flagcdn.com/w160/ht.png
+94,UZB11,Otabek Shukurov,Ouzbékistan,Classique,K,UZB,https://flagcdn.com/w160/uz.png
+94,UZB12,Jamshid Iskanderov,Ouzbékistan,Classique,K,UZB,https://flagcdn.com/w160/uz.png
+94,UZB13,Photo d'équipe,Ouzbékistan,Classique,K,UZB,https://flagcdn.com/w160/uz.png
+94,UZB14,Azizbek Turgunboev,Ouzbékistan,Classique,K,UZB,https://flagcdn.com/w160/uz.png
+94,UZB15,Khojimat Erkinov,Ouzbékistan,Classique,K,UZB,https://flagcdn.com/w160/uz.png
+94,UZB16,Eldor Shomurodov,Ouzbékistan,Classique,K,UZB,https://flagcdn.com/w160/uz.png
+94,UZB17,Oston Urunov,Ouzbékistan,Classique,K,UZB,https://flagcdn.com/w160/uz.png
+94,UZB18,Jaloliddin Masharipov,Ouzbékistan,Classique,K,SCO,https://flagcdn.com/w160/gb-sct.png
+94,UZB19,Igor Sergeev,Ouzbékistan,Classique,K,SCO,https://flagcdn.com/w160/gb-sct.png
+94,UZB20,Abbosbek Fayzullaev,Ouzbékistan,Classique,K,SCO,https://flagcdn.com/w160/gb-sct.png
+96,COL1,Écusson,Colombie,Spécial,K,SCO,https://flagcdn.com/w160/gb-sct.png
+96,COL2,Camilo Vargas,Colombie,Classique,K,SCO,https://flagcdn.com/w160/gb-sct.png
+96,COL3,David Ospina,Colombie,Classique,K,SCO,https://flagcdn.com/w160/gb-sct.png
+96,COL4,Dávinson Sánchez,Colombie,Classique,K,SCO,https://flagcdn.com/w160/gb-sct.png
+96,COL5,Yerry Mina,Colombie,Classique,K,SCO,https://flagcdn.com/w160/gb-sct.png
+96,COL6,Daniel Munoz,Colombie,Classique,K,SCO,https://flagcdn.com/w160/gb-sct.png
+96,COL7,Johan Mojica,Colombie,Classique,K,SCO,https://flagcdn.com/w160/gb-sct.png
+96,COL8,Jhon Lucumí,Colombie,Classique,K,SCO,https://flagcdn.com/w160/gb-sct.png
+96,COL9,Santiago Arias,Colombie,Classique,K,SCO,https://flagcdn.com/w160/gb-sct.png
+96,COL10,Jefferson Lerma,Colombie,Classique,K,SCO,https://flagcdn.com/w160/gb-sct.png
+96,COL11,Kevin Castaño,Colombie,Classique,K,USA,https://flagcdn.com/w160/us.png
+96,COL12,Richard Rios,Colombie,Classique,K,USA,https://flagcdn.com/w160/us.png
+96,COL13,Photo d'équipe,Colombie,Classique,K,USA,https://flagcdn.com/w160/us.png
+96,COL14,James Rodriguez,Colombie,Classique,K,USA,https://flagcdn.com/w160/us.png
+96,COL15,Juan Fernando Quintero,Colombie,Classique,K,USA,https://flagcdn.com/w160/us.png
+96,COL16,Jorge Carrascal,Colombie,Classique,K,USA,https://flagcdn.com/w160/us.png
+96,COL17,Jhon Arias,Colombie,Classique,K,USA,https://flagcdn.com/w160/us.png
+96,COL18,Jhon Cordova,Colombie,Classique,K,USA,https://flagcdn.com/w160/us.png
+96,COL19,Luis Suarez,Colombie,Classique,K,USA,https://flagcdn.com/w160/us.png
+96,COL20,Luis Diaz,Colombie,Classique,K,USA,https://flagcdn.com/w160/us.png
+98,ENG1,Écusson,Angleterre,Spécial,L,USA,https://flagcdn.com/w160/us.png
+98,ENG2,Jordan Pickford,Angleterre,Classique,L,USA,https://flagcdn.com/w160/us.png
+98,ENG3,John Stones,Angleterre,Classique,L,USA,https://flagcdn.com/w160/us.png
+98,ENG4,Marc Guéhi,Angleterre,Classique,L,USA,https://flagcdn.com/w160/us.png
+98,ENG5,Ezri Konsa,Angleterre,Classique,L,USA,https://flagcdn.com/w160/us.png
+98,ENG6,Trent Alexander-Arnold,Angleterre,Classique,L,USA,https://flagcdn.com/w160/us.png
+98,ENG7,Reece James,Angleterre,Classique,L,USA,https://flagcdn.com/w160/us.png
+98,ENG8,Dan Burn,Angleterre,Classique,L,USA,https://flagcdn.com/w160/us.png
+98,ENG9,Jordan Henderson,Angleterre,Classique,L,USA,https://flagcdn.com/w160/us.png
+98,ENG10,Declan Rice,Angleterre,Classique,L,USA,https://flagcdn.com/w160/us.png
+98,ENG11,Jude Bellingham,Angleterre,Classique,L,PAR,https://flagcdn.com/w160/py.png
+98,ENG12,Cole Palmer,Angleterre,Classique,L,PAR,https://flagcdn.com/w160/py.png
+98,ENG13,Photo d'équipe,Angleterre,Classique,L,PAR,https://flagcdn.com/w160/py.png
+98,ENG14,Morgan Rogers,Angleterre,Classique,L,PAR,https://flagcdn.com/w160/py.png
+98,ENG15,Anthony Gordon,Angleterre,Classique,L,PAR,https://flagcdn.com/w160/py.png
+98,ENG16,Phil Foden,Angleterre,Classique,L,PAR,https://flagcdn.com/w160/py.png
+98,ENG17,Bukayo Saka,Angleterre,Classique,L,ENG,https://flagcdn.com/w160/gb-eng.png
+98,ENG18,Harry Kane,Angleterre,Classique,L,ENG,https://flagcdn.com/w160/gb-eng.png
+98,ENG19,Marcus Rashford,Angleterre,Classique,L,ENG,https://flagcdn.com/w160/gb-eng.png
+98,ENG20,Ollie Watkins,Angleterre,Classique,L,ENG,https://flagcdn.com/w160/gb-eng.png
+100,CRO1,Écusson,Croatie,Spécial,L,CRO,https://flagcdn.com/w160/hr.png
+100,CRO2,Dominik Livaković,Croatie,Classique,L,CRO,https://flagcdn.com/w160/hr.png
+100,CRO3,Duje Caleta-Car,Croatie,Classique,L,CRO,https://flagcdn.com/w160/hr.png
+100,CRO4,Josko Gvardiol,Croatie,Classique,L,CRO,https://flagcdn.com/w160/hr.png
+100,CRO5,Josip Stanišić,Croatie,Classique,L,CRO,https://flagcdn.com/w160/hr.png
+100,CRO6,Luka Vušković,Croatie,Classique,L,CRO,https://flagcdn.com/w160/hr.png
+100,CRO7,Josip Sutalo,Croatie,Classique,L,CRO,https://flagcdn.com/w160/hr.png
+100,CRO8,Kristijan Jakic,Croatie,Classique,L,CRO,https://flagcdn.com/w160/hr.png
+100,CRO9,Luka Modrić,Croatie,Classique,L,CRO,https://flagcdn.com/w160/hr.png
+100,CRO10,Mateo Kovacic,Croatie,Classique,L,CRO,https://flagcdn.com/w160/hr.png
+100,CRO11,Martin Baturina,Croatie,Classique,L,CRO,https://flagcdn.com/w160/hr.png
+100,CRO12,Lovro Majer,Croatie,Classique,L,CRO,https://flagcdn.com/w160/hr.png
+100,CRO13,Photo d'équipe,Croatie,Classique,L,CRO,https://flagcdn.com/w160/hr.png
+100,CRO14,Mario Pasalic,Croatie,Classique,L,CRO,https://flagcdn.com/w160/hr.png
+100,CRO15,Petar Sucic,Croatie,Classique,L,CRO,https://flagcdn.com/w160/hr.png
+100,CRO16,Ivan Perišić,Croatie,Classique,L,CRO,https://flagcdn.com/w160/hr.png
+100,CRO17,Marco Pasalic,Croatie,Classique,L,CRO,https://flagcdn.com/w160/hr.png
+100,CRO18,Ante Budimir,Croatie,Classique,L,CRO,https://flagcdn.com/w160/hr.png
+100,CRO19,Andrej Kramarić,Croatie,Classique,L,CRO,https://flagcdn.com/w160/hr.png
+100,CRO20,Franjo Ivanovic,Croatie,Classique,L,CRO,https://flagcdn.com/w160/hr.png
+102,GHA1,Écusson,Ghana,Spécial,L,GHA,https://flagcdn.com/w160/gh.png
+102,GHA2,Lawrence Ati Zigi,Ghana,Classique,L,GHA,https://flagcdn.com/w160/gh.png
+102,GHA3,Tariq Lamptey,Ghana,Classique,L,GHA,https://flagcdn.com/w160/gh.png
+102,GHA4,Mohammed Salisu,Ghana,Classique,L,GHA,https://flagcdn.com/w160/gh.png
+102,GHA5,Alidu Seidu,Ghana,Classique,L,GHA,https://flagcdn.com/w160/gh.png
+102,GHA6,Alexander Djiku,Ghana,Classique,L,GHA,https://flagcdn.com/w160/gh.png
+102,GHA7,Gideon Mensah,Ghana,Classique,L,GHA,https://flagcdn.com/w160/gh.png
+102,GHA8,Caleb Yirenkyi,Ghana,Classique,L,GHA,https://flagcdn.com/w160/gh.png
+102,GHA9,Abdul Issahaku Fatawu,Ghana,Classique,L,GHA,https://flagcdn.com/w160/gh.png
+102,GHA10,Thomas Partey,Ghana,Classique,L,GHA,https://flagcdn.com/w160/gh.png
+102,GHA11,Salis Abdul Samed,Ghana,Classique,L,GHA,https://flagcdn.com/w160/gh.png
+102,GHA12,Kamaldeen Sulemana,Ghana,Classique,L,GHA,https://flagcdn.com/w160/gh.png
+102,GHA13,Photo d'équipe,Ghana,Classique,L,GHA,https://flagcdn.com/w160/gh.png
+102,GHA14,Mohammed Kudus,Ghana,Classique,L,GHA,https://flagcdn.com/w160/gh.png
+102,GHA15,Inaki Williams,Ghana,Classique,L,GHA,https://flagcdn.com/w160/gh.png
+102,GHA16,Jordan Ayew,Ghana,Classique,L,GHA,https://flagcdn.com/w160/gh.png
+102,GHA17,André Ayew,Ghana,Classique,L,GHA,https://flagcdn.com/w160/gh.png
+102,GHA18,Joseph Paintsil,Ghana,Classique,L,GHA,https://flagcdn.com/w160/gh.png
+102,GHA19,Osman Bukari,Ghana,Classique,L,GHA,https://flagcdn.com/w160/gh.png
+102,GHA20,Antoine Semenyo,Ghana,Classique,L,GHA,https://flagcdn.com/w160/gh.png
+104,PAN1,Écusson,Panama,Spécial,L,PAN,https://flagcdn.com/w160/pa.png
+104,PAN2,Orlando Mosquera,Panama,Classique,L,PAN,https://flagcdn.com/w160/pa.png
+104,PAN3,Luis Mejia,Panama,Classique,L,PAN,https://flagcdn.com/w160/pa.png
+104,PAN4,Fidel Escobar,Panama,Classique,L,PAN,https://flagcdn.com/w160/pa.png
+104,PAN5,Andres Andrade,Panama,Classique,L,PAN,https://flagcdn.com/w160/pa.png
+104,PAN6,Michael Amir Murillo,Panama,Classique,L,PAN,https://flagcdn.com/w160/pa.png
+104,PAN7,Eric Davis,Panama,Classique,L,PAN,https://flagcdn.com/w160/pa.png
+104,PAN8,Jose Cordoba,Panama,Classique,L,PAN,https://flagcdn.com/w160/pa.png
+104,PAN9,Cesar Blackman,Panama,Classique,L,PAN,https://flagcdn.com/w160/pa.png
+104,PAN10,Cristian Martinez,Panama,Classique,L,PAN,https://flagcdn.com/w160/pa.png
+104,PAN11,Aníbal Godoy,Panama,Classique,L,PAN,https://flagcdn.com/w160/pa.png
+104,PAN12,Adalberto Carrasquilla,Panama,Classique,L,PAN,https://flagcdn.com/w160/pa.png
+104,PAN13,Photo d'équipe,Panama,Classique,L,PAN,https://flagcdn.com/w160/pa.png
+104,PAN14,Édgar Bárcenas,Panama,Classique,L,PAN,https://flagcdn.com/w160/pa.png
+104,PAN15,Carlos Harvey,Panama,Classique,L,PAN,https://flagcdn.com/w160/pa.png
+104,PAN16,Ismael Díaz,Panama,Classique,L,PAN,https://flagcdn.com/w160/pa.png
+104,PAN17,Jose Fajardo,Panama,Classique,L,PAN,https://flagcdn.com/w160/pa.png
+104,PAN18,Cecilio Waterman,Panama,Classique,L,PAN,https://flagcdn.com/w160/pa.png
+104,PAN19,Jose Luiz Rodriguez,Panama,Classique,L,PAN,https://flagcdn.com/w160/pa.png
+104,PAN20,Alberto Quintero,Panama,Classique,L,PAN,https://flagcdn.com/w160/pa.png
+106,FWC9,Italie 1934,Histoire de la Coupe du monde,Spécial,FIFA,FWC,https://upload.wikimedia.org/wikipedia/commons/1/10/Flag_of_FIFA.svg
+106,FWC10,Uruguay 1950,Histoire de la Coupe du monde,Spécial,FIFA,FWC,https://upload.wikimedia.org/wikipedia/commons/1/10/Flag_of_FIFA.svg
+106,FWC11,Allemagne 1954,Histoire de la Coupe du monde,Spécial,FIFA,FWC,https://upload.wikimedia.org/wikipedia/commons/1/10/Flag_of_FIFA.svg
+106,FWC12,Brésil 1962,Histoire de la Coupe du monde,Spécial,FIFA,FWC,https://upload.wikimedia.org/wikipedia/commons/1/10/Flag_of_FIFA.svg
+106,FWC13,Allemagne 1974,Histoire de la Coupe du monde,Spécial,FIFA,FWC,https://upload.wikimedia.org/wikipedia/commons/1/10/Flag_of_FIFA.svg
+106,FWC14,Argentine 1986,Histoire de la Coupe du monde,Spécial,FIFA,FWC,https://upload.wikimedia.org/wikipedia/commons/1/10/Flag_of_FIFA.svg
+106,FWC15,Brésil 1994,Histoire de la Coupe du monde,Spécial,FIFA,FWC,https://upload.wikimedia.org/wikipedia/commons/1/10/Flag_of_FIFA.svg
+106,FWC16,Brésil 2002,Histoire de la Coupe du monde,Spécial,FIFA,FWC,https://upload.wikimedia.org/wikipedia/commons/1/10/Flag_of_FIFA.svg
+106,FWC17,Italie 2006,Histoire de la Coupe du monde,Spécial,FIFA,FWC,https://upload.wikimedia.org/wikipedia/commons/1/10/Flag_of_FIFA.svg
+106,FWC18,Allemagne 2014,Histoire de la Coupe du monde,Spécial,FIFA,FWC,https://upload.wikimedia.org/wikipedia/commons/1/10/Flag_of_FIFA.svg
+106,FWC19,Argentine 2022,Histoire de la Coupe du monde,Spécial,FIFA,FWC,https://upload.wikimedia.org/wikipedia/commons/1/10/Flag_of_FIFA.svg
+/,LM,Lionel Messi,Argentine,Extra,,EXT,https://ep01.epimg.net/estaticos/arc/2021/12/laliga-panini/images/futbolista.png
+/,JD,Jérémy Doku,Belgique,Extra,,EXT,https://ep01.epimg.net/estaticos/arc/2021/12/laliga-panini/images/futbolista.png
+/,VJ,Vinícíús Júnior,Brésil,Extra,,EXT,https://ep01.epimg.net/estaticos/arc/2021/12/laliga-panini/images/futbolista.png
+/,AD,Alphonso Davies,Canada,Extra,,EXT,https://ep01.epimg.net/estaticos/arc/2021/12/laliga-panini/images/futbolista.png
+/,LD,Luis Díaz,Colombie,Extra,,EXT,https://ep01.epimg.net/estaticos/arc/2021/12/laliga-panini/images/futbolista.png
+/,LMO,Luka Modrić,Croatie,Extra,,EXT,https://ep01.epimg.net/estaticos/arc/2021/12/laliga-panini/images/futbolista.png
+/,MC,Moisés Caicedo,Équateur,Extra,,EXT,https://ep01.epimg.net/estaticos/arc/2021/12/laliga-panini/images/futbolista.png
+/,MS,Mohamed Salah,Égypte,Extra,,EXT,https://ep01.epimg.net/estaticos/arc/2021/12/laliga-panini/images/futbolista.png
+/,JB,Jude Bellingham,Angleterre,Extra,,EXT,https://ep01.epimg.net/estaticos/arc/2021/12/laliga-panini/images/futbolista.png
+/,KM,Kylian Mbappé,France,Extra,,EXT,https://ep01.epimg.net/estaticos/arc/2021/12/laliga-panini/images/futbolista.png
+/,FW,Florian Wirtz,Allemagne,Extra,,EXT,https://ep01.epimg.net/estaticos/arc/2021/12/laliga-panini/images/futbolista.png
+/,RJ,Raúl Jiménez,Mexique,Extra,,EXT,https://ep01.epimg.net/estaticos/arc/2021/12/laliga-panini/images/futbolista.png
+/,AH,Achraf Hakimi,Maroc,Extra,,EXT,https://ep01.epimg.net/estaticos/arc/2021/12/laliga-panini/images/futbolista.png
+/,EH,Erling Haaland,Norvège,Extra,,EXT,https://ep01.epimg.net/estaticos/arc/2021/12/laliga-panini/images/futbolista.png
+/,CG,Cody Gakpo,Pays-Bas,Extra,,EXT,https://ep01.epimg.net/estaticos/arc/2021/12/laliga-panini/images/futbolista.png
+/,CR,Cristiano Ronaldo,Portugal,Extra,,EXT,https://ep01.epimg.net/estaticos/arc/2021/12/laliga-panini/images/futbolista.png
+/,HS,Heung-min Son,Afrique du Sud,Extra,,EXT,https://ep01.epimg.net/estaticos/arc/2021/12/laliga-panini/images/futbolista.png
+/,LY,Lamine Yamal,Espagne,Extra,,EXT,https://ep01.epimg.net/estaticos/arc/2021/12/laliga-panini/images/futbolista.png
+/,CP,Christian Pulisic,États-Unis,Extra,,EXT,https://ep01.epimg.net/estaticos/arc/2021/12/laliga-panini/images/futbolista.png
+/,FV,Federico Valverde,Uruguay,Extra,,EXT,https://ep01.epimg.net/estaticos/arc/2021/12/laliga-panini/images/futbolista.png
