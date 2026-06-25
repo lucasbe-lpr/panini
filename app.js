@@ -1,999 +1,915 @@
-/* =======================================================
-   app.js — Panini WC26 Collection Tracker
-   Single-user app. No framework, vanilla JS.
-   ======================================================= */
+/* ═══════════════════════════════════════════════════════════
+   PANINI WC2026 — Collection Tracker
+   app.js — Logique principale
+   ═══════════════════════════════════════════════════════════ */
 
-// -------------------------------------------------------
-// 1. DATA STRUCTURES
-// -------------------------------------------------------
+/* ───────────────────────────────────────────────────────────
+   1. ÉTAT GLOBAL
+   ─────────────────────────────────────────────────────────── */
 
-/** @type {Array<Object>} Raw sticker metadata from database.json */
+/** Données brutes du JSON, chargées au démarrage */
 let stickers = [];
 
 /**
- * Collection state: maps sticker ID → { status, count }
- * status: 'owned' | 'missing' | 'duplicate'
- * count: number of duplicates (1+ when duplicate)
+ * État de la collection, par ID de vignette.
+ * Format : { [stickerID]: { status: 'missing'|'owned'|'duplicate', count: number } }
+ * 'missing' = manquante, 'owned' = possédée, 'duplicate' = doublon
  */
 let collectionState = {};
 
-// -------------------------------------------------------
-// 2. BOOTSTRAP / INIT
-// -------------------------------------------------------
+/** Page de l'album actuellement affichée (index dans la liste des pages uniques) */
+let albumCurrentPageIndex = 0;
+
+/** Liste triée de toutes les pages d'album uniques */
+let albumPages = [];
+
+/** ID de la vignette ouverte dans la modal */
+let modalCurrentID = null;
+
+/** Vue courante */
+let currentTab = 'album';
+
+/* ───────────────────────────────────────────────────────────
+   2. INITIALISATION
+   ─────────────────────────────────────────────────────────── */
 
 /**
- * Entry point. Load data, restore state from localStorage, then render.
+ * Point d'entrée : charge le JSON, restaure depuis localStorage si dispo,
+ * puis initialise toutes les vues.
  */
 async function init() {
-  insertLoadingScreen();
-
   try {
-    const response = await fetch('./database.json');
+    const response = await fetch('database.json');
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     stickers = await response.json();
   } catch (err) {
-    hideLoading();
-    document.querySelector('.app-main').innerHTML = `
-      <div class="error-screen">
-        <h2>⚠ Impossible de charger database.json</h2>
-        <p>Assure-toi que le fichier <code>database.json</code> est dans le même dossier qu'<code>index.html</code>, puis relance l'app.</p>
-        <p style="margin-top:8px;color:#DC0203;">${err.message}</p>
-      </div>`;
+    showToast('Erreur : impossible de charger database.json', 'error');
+    console.error(err);
     return;
   }
 
-  // Restore saved state from localStorage
-  restoreFromLocalStorage();
+  // Restaurer l'état depuis localStorage si disponible
+  const saved = localStorage.getItem('panini-wc26-collection');
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved);
+      collectionState = sanitizeCollectionState(parsed);
+    } catch (_) {
+      collectionState = {};
+    }
+  }
 
-  // Populate all filter selects
-  populateFilters();
+  // S'assurer que chaque vignette a un état initial
+  stickers.forEach(s => {
+    if (!collectionState[s.ID]) {
+      collectionState[s.ID] = { status: 'missing', count: 0 };
+    }
+  });
 
-  // Initial render of all views
-  renderAlbum();
-  renderCountryGrid();
-  renderMissingList();
-  renderDuplicateList();
-  renderStats();
+  // Construire la liste de pages et remplir les menus déroulants
+  buildAlbumPageList();
+  populateSelectFilters();
 
-  updateHeaderStats();
-  hideLoading();
+  // Afficher la première vue
+  renderAlbumView();
+  updateHeaderProgress();
 }
 
-/** Insert the loading screen DOM node */
-function insertLoadingScreen() {
-  const el = document.createElement('div');
-  el.id = 'loading-screen';
-  el.innerHTML = `
-    <div class="loading-logo">WC<span>26</span></div>
-    <div class="loading-bar-wrap"><div class="loading-bar-fill"></div></div>
-    <div class="loading-text">Chargement de l'album…</div>`;
-  document.body.appendChild(el);
+/**
+ * Valide et nettoie un objet collectionState importé.
+ * Rejette les IDs invalides et normalise les statuts.
+ */
+function sanitizeCollectionState(obj) {
+  if (typeof obj !== 'object' || Array.isArray(obj)) return {};
+  const validStatuses = ['missing', 'owned', 'duplicate'];
+  const clean = {};
+  for (const [id, val] of Object.entries(obj)) {
+    if (typeof val !== 'object' || val === null) continue;
+    const status = validStatuses.includes(val.status) ? val.status : 'missing';
+    const count = (status === 'duplicate' && Number.isInteger(val.count) && val.count > 0)
+      ? val.count : (status === 'duplicate' ? 1 : 0);
+    clean[id] = { status, count };
+  }
+  return clean;
 }
 
-function hideLoading() {
-  const el = document.getElementById('loading-screen');
-  if (!el) return;
-  el.classList.add('hidden');
-  setTimeout(() => el.remove(), 400);
-}
+/* ───────────────────────────────────────────────────────────
+   3. PERSISTANCE
+   ─────────────────────────────────────────────────────────── */
 
-// -------------------------------------------------------
-// 3. PERSIST — localStorage as automatic cache
-// -------------------------------------------------------
-
-const LS_KEY = 'panini-wc26-collection';
-
+/** Sauvegarde l'état dans localStorage (cache automatique) */
 function saveToLocalStorage() {
   try {
-    localStorage.setItem(LS_KEY, JSON.stringify(collectionState));
-  } catch (e) {
-    console.warn('localStorage save failed:', e);
-  }
+    localStorage.setItem('panini-wc26-collection', JSON.stringify(collectionState));
+  } catch (_) { /* quota exceeded, ignorer */ }
 }
-
-function restoreFromLocalStorage() {
-  try {
-    const raw = localStorage.getItem(LS_KEY);
-    if (raw) collectionState = JSON.parse(raw);
-  } catch (e) {
-    console.warn('localStorage restore failed:', e);
-    collectionState = {};
-  }
-}
-
-// -------------------------------------------------------
-// 4. EXPORT / IMPORT JSON (main persistence mechanism)
-// -------------------------------------------------------
 
 /**
- * Export collectionState as a downloadable JSON file.
+ * Exporte la collection complète dans un fichier JSON téléchargeable.
+ * Encapsulé de façon autonome — ne dépend pas de l'UI.
  */
 function exportCollectionAsJSON() {
-  try {
-    const json = JSON.stringify(collectionState, null, 2);
-    const blob = new Blob([json], { type: 'application/json' });
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
-    a.href     = url;
-    a.download = 'ma-collection-panini.json';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    showToast('Collection exportée ✓', 'ok');
-  } catch (err) {
-    showToast('Erreur export : ' + err.message, 'err');
-  }
+  const json = JSON.stringify(collectionState, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'ma-collection-panini-wc26.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('Collection exportée ✓', 'success');
 }
 
 /**
- * Import collectionState from a user-selected JSON file.
+ * Déclenché quand l'utilisateur sélectionne un fichier via l'input.
  * @param {HTMLInputElement} input
  */
-function importCollectionFromJSON(input) {
-  const file = input.files[0];
+function handleImportFile(input) {
+  const file = input.files && input.files[0];
   if (!file) return;
+  importCollectionFromJSON(file);
+  input.value = ''; // reset pour permettre de re-importer le même fichier
+}
 
+/**
+ * Lit un fichier JSON et remplace la collection courante.
+ * @param {File} file
+ */
+function importCollectionFromJSON(file) {
+  if (!file || file.type !== 'application/json' && !file.name.endsWith('.json')) {
+    showToast('Fichier invalide — choisissez un .json', 'error');
+    return;
+  }
   const reader = new FileReader();
-  reader.onload = function (e) {
+  reader.onload = function(e) {
     try {
       const imported = JSON.parse(e.target.result);
-
-      // Basic validation: must be an object
-      if (typeof imported !== 'object' || Array.isArray(imported)) {
-        throw new Error('Format invalide : JSON doit être un objet.');
-      }
-
-      collectionState = imported;
+      const clean = sanitizeCollectionState(imported);
+      // Fusionner avec les IDs connus (ignorer les IDs inconnus du JSON)
+      const knownIDs = new Set(stickers.map(s => s.ID));
+      collectionState = {};
+      stickers.forEach(s => {
+        if (clean[s.ID] && knownIDs.has(s.ID)) {
+          collectionState[s.ID] = clean[s.ID];
+        } else {
+          collectionState[s.ID] = { status: 'missing', count: 0 };
+        }
+      });
       saveToLocalStorage();
-
-      // Re-render all views
-      renderAlbum();
-      renderCountryGrid();
-      if (activeCountryCode) renderCountryDetail(activeCountryCode);
-      renderMissingList();
-      renderDuplicateList();
-      renderStats();
-      updateHeaderStats();
-
-      showToast('Collection importée ✓', 'ok');
+      refreshAllViews();
+      showToast('Collection importée ✓', 'success');
     } catch (err) {
-      showToast('Fichier invalide : ' + err.message, 'err');
+      showToast('JSON invalide — fichier corrompu ?', 'error');
+      console.error('Import error:', err);
     }
-    // Reset input so the same file can be re-imported if needed
-    input.value = '';
   };
-  reader.onerror = () => showToast('Impossible de lire le fichier.', 'err');
+  reader.onerror = function() {
+    showToast('Erreur de lecture du fichier', 'error');
+  };
   reader.readAsText(file);
 }
 
-// -------------------------------------------------------
-// 5. STATUS MANAGEMENT
-// -------------------------------------------------------
+/* ───────────────────────────────────────────────────────────
+   4. HELPERS DONNÉES
+   ─────────────────────────────────────────────────────────── */
 
-/**
- * Get the current status object for a sticker, defaulting to 'missing'.
- * @param {string} id
- * @returns {{ status: string, count: number }}
- */
-function getState(id) {
-  return collectionState[id] || { status: 'missing', count: 0 };
+/** Retourne le statut d'une vignette (défaut : 'missing') */
+function getStatus(id) {
+  return collectionState[id] ? collectionState[id].status : 'missing';
 }
 
-/**
- * Set a sticker's status.
- * When setting to 'duplicate', increments count.
- * When setting to 'owned' or 'missing', resets count.
- * @param {string} id
- * @param {'owned'|'missing'|'duplicate'} status
- */
-function setStatus(id, status) {
-  if (!id) return;
-  const current = getState(id);
+/** Retourne le nombre de doublons (0 si non-doublon) */
+function getDuplicateCount(id) {
+  const s = collectionState[id];
+  return (s && s.status === 'duplicate') ? (s.count || 1) : 0;
+}
 
-  if (status === 'duplicate') {
-    const count = (current.status === 'duplicate') ? current.count + 1 : 1;
-    collectionState[id] = { status: 'duplicate', count };
-  } else {
-    collectionState[id] = { status, count: 0 };
-  }
-
+/** Met à jour le statut d'une vignette et sauvegarde */
+function setStatus(id, status, count) {
+  collectionState[id] = {
+    status,
+    count: status === 'duplicate' ? (count || 1) : 0
+  };
   saveToLocalStorage();
-  refreshAfterStatusChange(id);
-
-  // Update modal if open
-  if (currentModal === id) updateModalStatus(id);
+  updateHeaderProgress();
 }
 
 /**
- * Decrement duplicate count. If it reaches 0, mark as 'owned'.
- * @param {string} id
+ * Calcule les stats globales.
+ * @returns {{ total, owned, missing, duplicateTypes, duplicateTotal, pct }}
  */
-function decrementDuplicate(id) {
-  if (!id) return;
-  const current = getState(id);
-  if (current.status !== 'duplicate') return;
-
-  if (current.count <= 1) {
-    collectionState[id] = { status: 'owned', count: 0 };
-  } else {
-    collectionState[id] = { status: 'duplicate', count: current.count - 1 };
-  }
-
-  saveToLocalStorage();
-  refreshAfterStatusChange(id);
-  if (currentModal === id) updateModalStatus(id);
-}
-
-/**
- * Refresh only the parts of the UI that changed after a status update.
- * @param {string} id
- */
-function refreshAfterStatusChange(id) {
-  // Update sticker card in album if visible
-  const card = document.querySelector(`.sticker-card[data-id="${id}"]`);
-  if (card) decorateStickerCard(card, id);
-
-  // Update list items in country detail if visible
-  const countryChip = document.querySelector(`.list-item-chip[data-id="${id}"]`);
-  if (countryChip) {
-    const s = getState(id);
-    countryChip.className = `list-item-chip ${s.status === 'owned' ? 'chip-missing' : s.status === 'duplicate' ? 'chip-duplicate' : 'chip-missing'}`;
-  }
-
-  updateHeaderStats();
-}
-
-// -------------------------------------------------------
-// 6. HELPERS
-// -------------------------------------------------------
-
-/** Extract unique sorted values for a given key from stickers */
-function uniqueValues(key) {
-  return [...new Set(stickers.map(s => s[key]).filter(Boolean))].sort();
-}
-
-/** Group stickers by a key → { value: [stickers] } */
-function groupBy(arr, key) {
-  return arr.reduce((acc, s) => {
-    const k = s[key] || '—';
-    if (!acc[k]) acc[k] = [];
-    acc[k].push(s);
-    return acc;
-  }, {});
-}
-
-/** Get sorted, deduped album pages */
-function getAlbumPages() {
-  const pages = [...new Set(stickers.map(s => s['Page (album)']))];
-  // Sort: numeric first, then strings
-  pages.sort((a, b) => {
-    const na = Number(a), nb = Number(b);
-    if (!isNaN(na) && !isNaN(nb)) return na - nb;
-    if (!isNaN(na)) return -1;
-    if (!isNaN(nb)) return 1;
-    return String(a).localeCompare(String(b));
-  });
-  return pages;
-}
-
-/** Get a representative flag URL for a code */
-function getFlagForCode(code) {
-  const s = stickers.find(s => s['Code'] === code && s['Drapeau']);
-  return s ? s['Drapeau'] : '';
-}
-
-/** Format sticker number from ID (strip code prefix) */
-function getStickerNumber(sticker) {
-  const id = sticker['ID'];
-  const code = sticker['Code'];
-  const num = id.replace(code, '');
-  return num || id;
-}
-
-/** Update the header mini-stats + progress bar */
-function updateHeaderStats() {
-  let owned = 0, missing = 0, dup = 0;
+function computeStats() {
+  let owned = 0, missing = 0, duplicateTypes = 0, duplicateTotal = 0;
+  const total = stickers.length;
   stickers.forEach(s => {
-    const st = getState(s['ID']).status;
+    const st = getStatus(s.ID);
     if (st === 'owned')     owned++;
     else if (st === 'missing') missing++;
-    else if (st === 'duplicate') { owned++; dup++; } // duplicates count as owned
-  });
-
-  const pct = stickers.length ? Math.round((owned / stickers.length) * 100) : 0;
-
-  document.getElementById('h-owned').textContent   = owned;
-  document.getElementById('h-missing').textContent = missing;
-  document.getElementById('h-dup').textContent      = dup;
-  document.getElementById('h-pct').textContent      = pct + '%';
-  document.getElementById('progress-fill').style.width = pct + '%';
-}
-
-/** Populate all filter <select> elements */
-function populateFilters() {
-  const codes    = uniqueValues('Code');
-  const sections = uniqueValues('Section');
-  const types    = uniqueValues('Type');
-  const groups   = uniqueValues('Groupe').filter(g => g && g !== '');
-
-  const makeOptions = (values) => values.map(v => `<option value="${v}">${v}</option>`).join('');
-
-  ['missing', 'dup'].forEach(prefix => {
-    document.getElementById(`${prefix}-filter-code`).innerHTML    = `<option value="">Tous les pays</option>${makeOptions(codes)}`;
-    document.getElementById(`${prefix}-filter-section`).innerHTML = `<option value="">Toutes les sections</option>${makeOptions(sections)}`;
-    document.getElementById(`${prefix}-filter-type`).innerHTML    = `<option value="">Tous les types</option>${makeOptions(types)}`;
-    document.getElementById(`${prefix}-filter-group`).innerHTML   = `<option value="">Tous les groupes</option>${makeOptions(groups)}`;
-  });
-}
-
-// -------------------------------------------------------
-// 7. TAB NAVIGATION
-// -------------------------------------------------------
-
-let activeTab = 'album';
-
-function switchTab(tabId) {
-  document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.tab === tabId);
-  });
-  document.querySelectorAll('.tab-content').forEach(section => {
-    section.classList.toggle('active', section.id === `tab-${tabId}`);
-  });
-  activeTab = tabId;
-}
-
-// -------------------------------------------------------
-// 8. ALBUM VIEW
-// -------------------------------------------------------
-
-let albumPages = [];
-let currentPageIndex = 0;
-
-function renderAlbum() {
-  albumPages = getAlbumPages();
-
-  // Populate page selector
-  const select = document.getElementById('page-select');
-  select.innerHTML = albumPages.map((p, i) =>
-    `<option value="${i}">Page ${p}</option>`
-  ).join('');
-
-  document.getElementById('page-total').textContent = albumPages.length;
-  renderCurrentAlbumPage();
-}
-
-function renderCurrentAlbumPage() {
-  const page = albumPages[currentPageIndex];
-  if (page === undefined) return;
-
-  // Label
-  document.getElementById('album-page-label').textContent = `Page ${page}`;
-
-  // Sync select
-  document.getElementById('page-select').value = currentPageIndex;
-
-  // Nav buttons
-  document.getElementById('btn-prev').disabled = currentPageIndex === 0;
-  document.getElementById('btn-next').disabled = currentPageIndex === albumPages.length - 1;
-
-  // Filter stickers for this page
-  const pageStickers = stickers.filter(s => s['Page (album)'] == page);
-
-  // Render grid
-  const grid = document.getElementById('album-grid');
-  grid.innerHTML = '';
-  pageStickers.forEach(s => {
-    const card = buildStickerCard(s);
-    grid.appendChild(card);
-  });
-}
-
-function albumPrevPage() {
-  if (currentPageIndex > 0) {
-    currentPageIndex--;
-    renderCurrentAlbumPage();
-  }
-}
-
-function albumNextPage() {
-  if (currentPageIndex < albumPages.length - 1) {
-    currentPageIndex++;
-    renderCurrentAlbumPage();
-  }
-}
-
-function albumGoToPage(index) {
-  currentPageIndex = parseInt(index, 10);
-  renderCurrentAlbumPage();
-}
-
-function markAllPageOwned() {
-  const page = albumPages[currentPageIndex];
-  stickers.filter(s => s['Page (album)'] == page).forEach(s => {
-    if (getState(s['ID']).status !== 'owned') {
-      collectionState[s['ID']] = { status: 'owned', count: 0 };
+    else if (st === 'duplicate') {
+      duplicateTypes++;
+      duplicateTotal += (collectionState[s.ID].count || 1);
     }
   });
-  saveToLocalStorage();
-  renderCurrentAlbumPage();
-  updateHeaderStats();
-  showToast('Page marquée possédée ✓', 'ok');
+  const pct = total > 0 ? Math.round(((owned + duplicateTypes) / total) * 100) : 0;
+  return { total, owned, missing, duplicateTypes, duplicateTotal, pct };
 }
 
-function markAllPageMissing() {
-  const page = albumPages[currentPageIndex];
-  stickers.filter(s => s['Page (album)'] == page).forEach(s => {
-    collectionState[s['ID']] = { status: 'missing', count: 0 };
+/**
+ * Stats par pays/section.
+ * @returns {Array<{code, section, flag, total, ownedCount}>}
+ */
+function computeCountryStats() {
+  // Grouper par Code
+  const map = {};
+  stickers.forEach(s => {
+    if (!map[s.Code]) {
+      map[s.Code] = { code: s.Code, section: s.Section, flag: s.Drapeau, total: 0, ownedCount: 0 };
+    }
+    map[s.Code].total++;
+    const st = getStatus(s.ID);
+    if (st === 'owned' || st === 'duplicate') map[s.Code].ownedCount++;
   });
-  saveToLocalStorage();
-  renderCurrentAlbumPage();
-  updateHeaderStats();
-  showToast('Page marquée manquante ✗', 'info');
+  return Object.values(map).sort((a, b) => b.ownedCount / b.total - a.ownedCount / a.total);
 }
 
-/** Build a sticker card DOM element */
-function buildStickerCard(sticker) {
-  const id = sticker['ID'];
-  const card = document.createElement('div');
-  card.className = 'sticker-card';
-  card.dataset.id = id;
-  card.onclick = () => openModal(id);
+/** Retourne les vignettes filtrées selon les sélecteurs d'un groupe de filtres */
+function getFilteredStickers({ status, pays, section, type, groupe }) {
+  return stickers.filter(s => {
+    const st = getStatus(s.ID);
+    if (status && st !== status) return false;
+    if (pays && s.Code !== pays) return false;
+    if (section && s.Section !== section) return false;
+    if (type && s.Type !== type) return false;
+    if (groupe && s.Groupe !== groupe) return false;
+    return true;
+  });
+}
 
-  // Type class for badge
-  const typeClass = {
-    'Spécial': 'type-special',
-    'Classique': 'type-classique',
-    'Extra': 'type-extra'
-  }[sticker['Type']] || 'type-classique';
+/* ───────────────────────────────────────────────────────────
+   5. NAVIGATION (ONGLETS)
+   ─────────────────────────────────────────────────────────── */
+
+function switchTab(tabName) {
+  currentTab = tabName;
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.tab === tabName);
+  });
+  document.querySelectorAll('.tab-content').forEach(el => {
+    el.classList.toggle('active', el.id === `tab-${tabName}`);
+  });
+
+  // Render the relevant view
+  if (tabName === 'album')      renderAlbumView();
+  if (tabName === 'pays')       renderPaysView();
+  if (tabName === 'manquantes') renderMissingView();
+  if (tabName === 'doublons')   renderDuplicatesView();
+  if (tabName === 'stats')      renderStatsView();
+}
+
+/** Rafraîchit toutes les vues (après import ou reset) */
+function refreshAllViews() {
+  renderAlbumView();
+  if (currentTab === 'pays')       renderPaysView();
+  if (currentTab === 'manquantes') renderMissingView();
+  if (currentTab === 'doublons')   renderDuplicatesView();
+  if (currentTab === 'stats')      renderStatsView();
+  updateHeaderProgress();
+}
+
+/* ───────────────────────────────────────────────────────────
+   6. REMPLISSAGE DES FILTRES
+   ─────────────────────────────────────────────────────────── */
+
+function buildAlbumPageList() {
+  albumPages = [...new Set(stickers.map(s => s['Page (album)']))].sort((a, b) => a - b);
+  const sel = document.getElementById('albumPageSelect');
+  sel.innerHTML = '';
+  // Regrouper les pages par section pour le select
+  const pageLabels = {};
+  stickers.forEach(s => {
+    const p = s['Page (album)'];
+    if (!pageLabels[p]) pageLabels[p] = s.Section;
+  });
+  albumPages.forEach((p, i) => {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = `${p} — ${pageLabels[p] || ''}`;
+    sel.appendChild(opt);
+  });
+  document.getElementById('albumPageTotal').textContent = `/ ${albumPages.length}`;
+}
+
+function populateSelectFilters() {
+  const codes    = [...new Set(stickers.map(s => s.Code))].sort();
+  const sections = [...new Set(stickers.map(s => s.Section))].sort();
+  const groupes  = [...new Set(stickers.map(s => s.Groupe).filter(Boolean))].sort();
+
+  // Pays view
+  const paysSelect = document.getElementById('paysSelect');
+  paysSelect.innerHTML = '<option value="">— Sélectionner —</option>';
+  codes.forEach(code => {
+    const section = stickers.find(s => s.Code === code)?.Section || code;
+    const opt = document.createElement('option');
+    opt.value = code;
+    opt.textContent = `${code} — ${section}`;
+    paysSelect.appendChild(opt);
+  });
+
+  // Groupe filter for pays view
+  const paysGroupeFilter = document.getElementById('paysGroupeFilter');
+  paysGroupeFilter.innerHTML = '<option value="">Tous</option>';
+  groupes.forEach(g => {
+    const opt = document.createElement('option');
+    opt.value = g; opt.textContent = `Groupe ${g}`;
+    paysGroupeFilter.appendChild(opt);
+  });
+
+  // Manquantes filters
+  populatePaysFilter('manqPaysFilter', codes);
+  populateSectionFilter('manqSectionFilter', sections);
+  populateGroupeFilter('manqGroupeFilter', groupes);
+
+  // Doublons filters
+  populatePaysFilter('dblPaysFilter', codes);
+  populateSectionFilter('dblSectionFilter', sections);
+  populateGroupeFilter('dblGroupeFilter', groupes);
+}
+
+function populatePaysFilter(id, codes) {
+  const el = document.getElementById(id);
+  el.innerHTML = '<option value="">Tous</option>';
+  codes.forEach(code => {
+    const opt = document.createElement('option');
+    opt.value = code; opt.textContent = code;
+    el.appendChild(opt);
+  });
+}
+function populateSectionFilter(id, sections) {
+  const el = document.getElementById(id);
+  el.innerHTML = '<option value="">Toutes</option>';
+  sections.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s; opt.textContent = s;
+    el.appendChild(opt);
+  });
+}
+function populateGroupeFilter(id, groupes) {
+  const el = document.getElementById(id);
+  el.innerHTML = '<option value="">Tous</option>';
+  groupes.forEach(g => {
+    const opt = document.createElement('option');
+    opt.value = g; opt.textContent = `Groupe ${g}`;
+    el.appendChild(opt);
+  });
+}
+
+/* ───────────────────────────────────────────────────────────
+   7. VUE ALBUM
+   ─────────────────────────────────────────────────────────── */
+
+function albumGoToPage(index) {
+  albumCurrentPageIndex = Math.max(0, Math.min(index, albumPages.length - 1));
+  document.getElementById('albumPageSelect').value = albumCurrentPageIndex;
+  renderAlbumView();
+}
+function albumPrevPage() { albumGoToPage(albumCurrentPageIndex - 1); }
+function albumNextPage() { albumGoToPage(albumCurrentPageIndex + 1); }
+
+/** Rend la grille de vignettes pour la page courante */
+function renderAlbumView() {
+  if (!albumPages.length) return;
+  const pageNum = albumPages[albumCurrentPageIndex];
+  const pageStickers = stickers.filter(s => s['Page (album)'] === pageNum);
+
+  const grid = document.getElementById('albumGrid');
+  grid.innerHTML = '';
+
+  pageStickers.forEach(s => {
+    grid.appendChild(createStickerCard(s));
+  });
+
+  // Mise à jour navigation
+  document.getElementById('prevPageBtn').disabled = (albumCurrentPageIndex === 0);
+  document.getElementById('nextPageBtn').disabled = (albumCurrentPageIndex === albumPages.length - 1);
+}
+
+/** Crée un élément de carte vignette */
+function createStickerCard(s) {
+  const status = getStatus(s.ID);
+  const dblCount = getDuplicateCount(s.ID);
+
+  const card = document.createElement('div');
+  card.className = `sticker-card status-${status}`;
+  card.setAttribute('data-id', s.ID);
+  card.setAttribute('role', 'button');
+  card.setAttribute('tabindex', '0');
+  card.setAttribute('aria-label', `${s.ID} — ${s.Nom}`);
+  card.onclick = () => openModal(s.ID);
+  card.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') openModal(s.ID); };
 
   card.innerHTML = `
+    <div class="sticker-ribbon"></div>
     <div class="sticker-flag-wrap">
-      <img class="sticker-flag" src="${sticker['Drapeau']}" alt="${sticker['Nom']}" loading="lazy" onerror="this.src='';this.classList.add('error-flag')">
+      <img class="sticker-flag" src="${s.Drapeau}" alt="${s.Code}" loading="lazy"
+           onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 40 26%22><rect fill=%22%23333%22 width=%2240%22 height=%2226%22/><text x=%2250%%25%22 y=%2255%%25%22 font-size=%228%22 fill=%22%23888%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22>${s.Code}</text></svg>'">
     </div>
-    <div class="sticker-body">
-      <div class="sticker-id">${id}</div>
-      <div class="sticker-nom" title="${sticker['Nom']}">${sticker['Nom']}</div>
-      <span class="sticker-type ${typeClass}">${sticker['Type']}</span>
+    <div class="sticker-info">
+      <div class="sticker-id">${s.ID}</div>
+      <div class="sticker-name">${s.Nom}</div>
     </div>
-    <div class="sticker-status-badge"></div>`;
-
-  decorateStickerCard(card, id);
+    ${status === 'duplicate' ? `<div class="sticker-dbl-badge">${dblCount}</div>` : ''}
+    ${status === 'owned' ? `<div class="sticker-owned-mark">✓</div>` : ''}
+  `;
   return card;
 }
 
-/** Apply status-based decoration to an existing card element */
-function decorateStickerCard(card, id) {
-  const { status, count } = getState(id);
+/* ───────────────────────────────────────────────────────────
+   8. VUE PAR PAYS
+   ─────────────────────────────────────────────────────────── */
 
-  // Remove old status classes
-  card.classList.remove('status-owned', 'status-missing', 'status-duplicate');
-  card.classList.add(`status-${status}`);
-
-  // Update badge
-  const badge = card.querySelector('.sticker-status-badge');
-  badge.className = 'sticker-status-badge';
-  if (status === 'owned') {
-    badge.classList.add('badge-owned');
-    badge.textContent = '✓';
-  } else if (status === 'missing') {
-    badge.classList.add('badge-missing');
-    badge.textContent = '✗';
-  } else {
-    badge.classList.add('badge-duplicate');
-    badge.textContent = '+';
-  }
-
-  // Dup count
-  let dupEl = card.querySelector('.sticker-dup-count');
-  if (status === 'duplicate') {
-    if (!dupEl) {
-      dupEl = document.createElement('div');
-      dupEl.className = 'sticker-dup-count';
-      card.appendChild(dupEl);
-    }
-    dupEl.textContent = `×${count}`;
-  } else if (dupEl) {
-    dupEl.remove();
-  }
-}
-
-// -------------------------------------------------------
-// 9. COUNTRY VIEW
-// -------------------------------------------------------
-
-let activeCountryCode = null;
-
-function renderCountryGrid() {
-  const codes = uniqueValues('Code');
-  const grid = document.getElementById('country-grid');
+function renderPaysView() {
+  const code   = document.getElementById('paysSelect').value;
+  const groupe = document.getElementById('paysGroupeFilter').value;
+  const grid   = document.getElementById('paysGrid');
   grid.innerHTML = '';
 
-  codes.forEach(code => {
-    const codeStickers = stickers.filter(s => s['Code'] === code);
-    const owned = codeStickers.filter(s => {
-      const st = getState(s['ID']).status;
-      return st === 'owned' || st === 'duplicate';
-    }).length;
-    const pct = Math.round((owned / codeStickers.length) * 100);
-    const flag = getFlagForCode(code);
-    const sectionName = codeStickers[0]?.['Section'] || code;
+  if (!code) {
+    // Afficher tous les pays en accordéon
+    const codes = [...new Set(stickers
+      .filter(s => !groupe || s.Groupe === groupe)
+      .map(s => s.Code)
+    )].sort();
 
-    const pill = document.createElement('button');
-    pill.className = 'country-pill';
-    pill.dataset.code = code;
-    pill.onclick = () => {
-      document.querySelectorAll('.country-pill').forEach(p => p.classList.remove('active'));
-      pill.classList.add('active');
-      activeCountryCode = code;
-      renderCountryDetail(code);
-    };
-    pill.innerHTML = `
-      ${flag ? `<img src="${flag}" alt="${code}" onerror="this.style.display='none'">` : ''}
-      <span>${code}</span>
-      <span class="cpill-pct">${pct}%</span>`;
-    grid.appendChild(pill);
-  });
+    if (!codes.length) {
+      grid.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🌍</div>Aucun pays trouvé.</div>`;
+      return;
+    }
+
+    codes.forEach(c => {
+      const countryStickers = stickers.filter(s => s.Code === c && (!groupe || s.Groupe === groupe));
+      grid.appendChild(createCountryAccordion(c, countryStickers));
+    });
+  } else {
+    // Afficher les vignettes du pays sélectionné
+    const filtered = stickers.filter(s => s.Code === code && (!groupe || s.Groupe === groupe));
+    if (!filtered.length) {
+      grid.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🔎</div>Aucune vignette trouvée.</div>`;
+      return;
+    }
+    // Entête avec drapeau + progression
+    const representative = filtered[0];
+    const ownedCount = filtered.filter(s => getStatus(s.ID) !== 'missing').length;
+    const pct = Math.round((ownedCount / filtered.length) * 100);
+
+    const hdr = document.createElement('div');
+    hdr.className = 'country-section-hdr open';
+    hdr.style.cursor = 'default';
+    hdr.innerHTML = `
+      <img class="csec-flag" src="${representative.Drapeau}" alt="${code}">
+      <span class="csec-name">${representative.Section}</span>
+      <span class="csec-code">${code}</span>
+      <div class="csec-progress">
+        <div class="csec-bar-track"><div class="csec-bar-fill" style="width:${pct}%"></div></div>
+        <span class="csec-pct">${pct}%</span>
+      </div>
+    `;
+    grid.appendChild(hdr);
+
+    filtered.forEach(s => grid.appendChild(createStickerRow(s)));
+  }
 }
 
-function renderCountryDetail(code) {
-  const codeStickers = stickers.filter(s => s['Code'] === code);
-  const flag = getFlagForCode(code);
-  const sectionName = codeStickers[0]?.['Section'] || code;
+/** Crée un accordéon de pays avec ses vignettes */
+function createCountryAccordion(code, stickerList) {
+  const rep = stickerList[0];
+  const ownedCount = stickerList.filter(s => getStatus(s.ID) !== 'missing').length;
+  const pct = Math.round((ownedCount / stickerList.length) * 100);
 
-  const owned = codeStickers.filter(s => {
-    const st = getState(s['ID']).status;
-    return st === 'owned' || st === 'duplicate';
-  }).length;
-  const missing = codeStickers.filter(s => getState(s['ID']).status === 'missing').length;
-  const pct = Math.round((owned / codeStickers.length) * 100);
+  const wrapper = document.createElement('div');
 
-  const detail = document.getElementById('country-detail');
-  detail.innerHTML = `
-    <div class="country-detail-header">
-      ${flag ? `<img class="country-detail-flag" src="${flag}" alt="${code}" onerror="this.style.display='none'">` : ''}
-      <div>
-        <div class="country-detail-name">${sectionName}</div>
-        <div class="country-detail-code">${code} — ${codeStickers.length} vignettes</div>
-      </div>
-      <div class="country-detail-stats">
-        <div class="pct-big">${pct}%</div>
-        <div style="font-size:10px;color:var(--outline);font-family:var(--font-mono)">${owned}/${codeStickers.length} possédées · ${missing} manquantes</div>
-      </div>
+  const hdr = document.createElement('div');
+  hdr.className = 'country-section-hdr';
+  hdr.innerHTML = `
+    <img class="csec-flag" src="${rep.Drapeau}" alt="${code}">
+    <span class="csec-name">${rep.Section}</span>
+    <span class="csec-code">${code}</span>
+    <div class="csec-progress">
+      <div class="csec-bar-track"><div class="csec-bar-fill" style="width:${pct}%"></div></div>
+      <span class="csec-pct">${pct}%</span>
     </div>
-    <div class="album-grid" id="country-sticker-grid"></div>`;
+    <span class="csec-chevron">▼</span>
+  `;
 
-  const grid = document.getElementById('country-sticker-grid');
-  codeStickers.forEach(s => {
-    const card = buildStickerCard(s);
-    grid.appendChild(card);
-  });
+  const panel = document.createElement('div');
+  panel.className = 'country-stickers-panel';
+
+  stickerList.forEach(s => panel.appendChild(createStickerRow(s)));
+
+  hdr.onclick = () => {
+    hdr.classList.toggle('open');
+    panel.classList.toggle('open');
+  };
+
+  wrapper.appendChild(hdr);
+  wrapper.appendChild(panel);
+  return wrapper;
 }
 
-// -------------------------------------------------------
-// 10. MISSING LIST VIEW
-// -------------------------------------------------------
+/** Crée une ligne de vignette (vue liste) */
+function createStickerRow(s) {
+  const status   = getStatus(s.ID);
+  const dblCount = getDuplicateCount(s.ID);
 
-function renderMissingList() {
-  const code    = document.getElementById('missing-filter-code').value;
-  const section = document.getElementById('missing-filter-section').value;
-  const type    = document.getElementById('missing-filter-type').value;
-  const group   = document.getElementById('missing-filter-group').value;
+  const badgeLabel = { missing: 'Manquante', owned: 'Possédée', duplicate: `×${dblCount} Doublon` };
+  const badgeClass = { missing: 'badge-missing', owned: 'badge-owned', duplicate: 'badge-duplicate' };
 
-  let filtered = stickers.filter(s => getState(s['ID']).status === 'missing');
-  if (code)    filtered = filtered.filter(s => s['Code'] === code);
-  if (section) filtered = filtered.filter(s => s['Section'] === section);
-  if (type)    filtered = filtered.filter(s => s['Type'] === type);
-  if (group)   filtered = filtered.filter(s => s['Groupe'] === group);
+  const row = document.createElement('div');
+  row.className = `sticker-row status-${status}`;
+  row.setAttribute('data-id', s.ID);
+  row.setAttribute('role', 'button');
+  row.setAttribute('tabindex', '0');
+  row.onclick = () => openModal(s.ID);
+  row.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') openModal(s.ID); };
 
-  renderListView('missing-list', filtered, 'missing');
+  row.innerHTML = `
+    <img class="row-flag" src="${s.Drapeau}" alt="${s.Code}" loading="lazy"
+         onerror="this.style.display='none'">
+    <span class="row-id">${s.ID}</span>
+    <span class="row-name">${s.Nom}</span>
+    <span class="row-meta">
+      <span>${s.Type}</span>
+      ${s.Groupe ? `<span>Gr.${s.Groupe}</span>` : ''}
+    </span>
+    <span class="row-status-badge ${badgeClass[status]}">${badgeLabel[status]}</span>
+  `;
+  return row;
 }
 
-// -------------------------------------------------------
-// 11. DUPLICATE LIST VIEW
-// -------------------------------------------------------
+/* ───────────────────────────────────────────────────────────
+   9. VUE MANQUANTES
+   ─────────────────────────────────────────────────────────── */
 
-function renderDuplicateList() {
-  const code    = document.getElementById('dup-filter-code').value;
-  const section = document.getElementById('dup-filter-section').value;
-  const type    = document.getElementById('dup-filter-type').value;
-  const group   = document.getElementById('dup-filter-group').value;
+function renderMissingView() {
+  const pays    = document.getElementById('manqPaysFilter').value;
+  const section = document.getElementById('manqSectionFilter').value;
+  const type    = document.getElementById('manqTypeFilter').value;
+  const groupe  = document.getElementById('manqGroupeFilter').value;
 
-  let filtered = stickers.filter(s => getState(s['ID']).status === 'duplicate');
-  if (code)    filtered = filtered.filter(s => s['Code'] === code);
-  if (section) filtered = filtered.filter(s => s['Section'] === section);
-  if (type)    filtered = filtered.filter(s => s['Type'] === type);
-  if (group)   filtered = filtered.filter(s => s['Groupe'] === group);
+  const filtered = getFilteredStickers({ status: 'missing', pays, section, type, groupe });
+  const grid = document.getElementById('manqGrid');
+  const countEl = document.getElementById('manqCount');
+  grid.innerHTML = '';
 
-  renderListView('dup-list', filtered, 'duplicate');
-}
+  countEl.textContent = `${filtered.length} vignette(s) manquante(s)`;
 
-/**
- * Render a grouped list view (missing or duplicate).
- * @param {string} containerId
- * @param {Array} stickerList
- * @param {'missing'|'duplicate'} chipType
- */
-function renderListView(containerId, stickerList, chipType) {
-  const container = document.getElementById(containerId);
-  container.innerHTML = '';
-
-  if (!stickerList.length) {
-    container.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">${chipType === 'missing' ? '🎉' : '📦'}</div><p>${chipType === 'missing' ? 'Aucune vignette manquante !' : 'Aucun doublon.'}</p></div>`;
+  if (!filtered.length) {
+    grid.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🎉</div>Aucune vignette manquante !<br>Collection complète (sur ces filtres).</div>`;
     return;
   }
-
-  // Group by code
-  const groups = groupBy(stickerList, 'Code');
-
-  Object.entries(groups).sort().forEach(([code, items]) => {
-    const flag = getFlagForCode(code);
-    const sectionName = items[0]?.['Section'] || code;
-    const group = document.createElement('div');
-    group.className = 'list-group';
-
-    const chipsHtml = items.map(s => {
-      const st = getState(s['ID']);
-      const countHtml = chipType === 'duplicate'
-        ? `<span class="chip-dup-count">${st.count}</span>` : '';
-      const num = getStickerNumber(s);
-      return `<span class="list-item-chip chip-${chipType}" data-id="${s['ID']}" title="${s['Nom']}" onclick="openModal('${s['ID']}')">${num}${countHtml}</span>`;
-    }).join('');
-
-    group.innerHTML = `
-      <div class="list-group-header">
-        ${flag ? `<img class="list-group-flag" src="${flag}" alt="${code}" onerror="this.style.display='none'">` : ''}
-        <span class="list-group-code">${code}</span>
-        <span class="list-group-name">${sectionName}</span>
-        <span class="list-group-count">${items.length}</span>
-      </div>
-      <div class="list-items">${chipsHtml}</div>`;
-
-    container.appendChild(group);
-  });
+  filtered.forEach(s => grid.appendChild(createStickerRow(s)));
 }
 
-// -------------------------------------------------------
-// 12. EXPORT LIST TEXT (wantlist / duplicate list)
-// -------------------------------------------------------
+/** Génère le texte de la wantlist et l'affiche dans le textarea */
+function exportMissingAsText() {
+  const pays    = document.getElementById('manqPaysFilter').value;
+  const section = document.getElementById('manqSectionFilter').value;
+  const type    = document.getElementById('manqTypeFilter').value;
+  const groupe  = document.getElementById('manqGroupeFilter').value;
+
+  const filtered = getFilteredStickers({ status: 'missing', pays, section, type, groupe });
+  const text = buildExportText(filtered);
+
+  const ta = document.getElementById('manqExportText');
+  ta.style.display = 'block';
+  ta.value = text;
+  ta.select();
+  navigator.clipboard.writeText(text).then(() => showToast('Copié dans le presse-papier ✓', 'success')).catch(() => {});
+}
+
+/* ───────────────────────────────────────────────────────────
+   10. VUE DOUBLONS
+   ─────────────────────────────────────────────────────────── */
+
+function renderDuplicatesView() {
+  const pays    = document.getElementById('dblPaysFilter').value;
+  const section = document.getElementById('dblSectionFilter').value;
+  const type    = document.getElementById('dblTypeFilter').value;
+  const groupe  = document.getElementById('dblGroupeFilter').value;
+
+  const filtered = getFilteredStickers({ status: 'duplicate', pays, section, type, groupe });
+  const grid = document.getElementById('dblGrid');
+  const countEl = document.getElementById('dblCount');
+  grid.innerHTML = '';
+
+  countEl.textContent = `${filtered.length} type(s) en doublon`;
+
+  if (!filtered.length) {
+    grid.innerHTML = `<div class="empty-state"><div class="empty-state-icon">✌️</div>Aucun doublon pour ces filtres.</div>`;
+    return;
+  }
+  filtered.forEach(s => grid.appendChild(createStickerRow(s)));
+}
+
+function exportDuplicatesAsText() {
+  const pays    = document.getElementById('dblPaysFilter').value;
+  const section = document.getElementById('dblSectionFilter').value;
+  const type    = document.getElementById('dblTypeFilter').value;
+  const groupe  = document.getElementById('dblGroupeFilter').value;
+
+  const filtered = getFilteredStickers({ status: 'duplicate', pays, section, type, groupe });
+  const text = buildExportText(filtered);
+
+  const ta = document.getElementById('dblExportText');
+  ta.style.display = 'block';
+  ta.value = text;
+  ta.select();
+  navigator.clipboard.writeText(text).then(() => showToast('Copié dans le presse-papier ✓', 'success')).catch(() => {});
+}
 
 /**
- * Build the text export string:
- * Format: CODE num1,num2,num3
- * Example: MEX 1,2,5,10
+ * Construit le texte d'export au format "CODE N°,N°,N°"
+ * Exemple : RSA 1,2,3,4,5
  * @param {Array} stickerList
  * @returns {string}
  */
 function buildExportText(stickerList) {
-  const groups = groupBy(stickerList, 'Code');
-  return Object.entries(groups).sort()
-    .map(([code, items]) => {
-      const nums = items.map(s => getStickerNumber(s)).join(',');
-      return `${code} ${nums}`;
-    })
+  // Grouper par Code
+  const groups = {};
+  stickerList.forEach(s => {
+    if (!groups[s.Code]) groups[s.Code] = [];
+    groups[s.Code].push(s['N°']);
+  });
+  return Object.entries(groups)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([code, nums]) => `${code} ${nums.join(',')}`)
     .join('\n');
 }
 
-function exportMissingList() {
-  const code    = document.getElementById('missing-filter-code').value;
-  const section = document.getElementById('missing-filter-section').value;
-  const type    = document.getElementById('missing-filter-type').value;
-  const group   = document.getElementById('missing-filter-group').value;
+/* ───────────────────────────────────────────────────────────
+   11. VUE STATS
+   ─────────────────────────────────────────────────────────── */
 
-  let filtered = stickers.filter(s => getState(s['ID']).status === 'missing');
-  if (code)    filtered = filtered.filter(s => s['Code'] === code);
-  if (section) filtered = filtered.filter(s => s['Section'] === section);
-  if (type)    filtered = filtered.filter(s => s['Type'] === type);
-  if (group)   filtered = filtered.filter(s => s['Groupe'] === group);
+function renderStatsView() {
+  const { total, owned, missing, duplicateTypes, duplicateTotal, pct } = computeStats();
 
-  const text = buildExportText(filtered);
-  const ta = document.getElementById('missing-textarea');
-  ta.value = text || '(aucune vignette manquante)';
-  ta.select();
-  try { document.execCommand('copy'); showToast('Liste copiée ✓', 'ok'); }
-  catch { showToast('Sélectionne et copie le texte manuellement', 'info'); }
-}
+  document.getElementById('statPct').textContent    = `${pct}%`;
+  document.getElementById('statOwned').textContent  = `${owned + duplicateTypes} / ${total} vignettes`;
+  document.getElementById('statBarOwned').style.width = `${pct}%`;
+  document.getElementById('statOwnedCount').textContent    = owned;
+  document.getElementById('statMissingCount').textContent  = missing;
+  document.getElementById('statDuplicateCount').textContent = duplicateTypes;
+  document.getElementById('statDuplicateTotal').textContent = `(${duplicateTotal} en tout)`;
 
-function exportDuplicateList() {
-  const code    = document.getElementById('dup-filter-code').value;
-  const section = document.getElementById('dup-filter-section').value;
-  const type    = document.getElementById('dup-filter-type').value;
-  const group   = document.getElementById('dup-filter-group').value;
-
-  let filtered = stickers.filter(s => getState(s['ID']).status === 'duplicate');
-  if (code)    filtered = filtered.filter(s => s['Code'] === code);
-  if (section) filtered = filtered.filter(s => s['Section'] === section);
-  if (type)    filtered = filtered.filter(s => s['Type'] === type);
-  if (group)   filtered = filtered.filter(s => s['Groupe'] === group);
-
-  const text = buildExportText(filtered);
-  const ta = document.getElementById('dup-textarea');
-  ta.value = text || '(aucun doublon)';
-  ta.select();
-  try { document.execCommand('copy'); showToast('Liste copiée ✓', 'ok'); }
-  catch { showToast('Sélectionne et copie le texte manuellement', 'info'); }
-}
-
-// -------------------------------------------------------
-// 13. STATS VIEW
-// -------------------------------------------------------
-
-function renderStats() {
-  let owned = 0, missing = 0, dup = 0;
-  stickers.forEach(s => {
-    const st = getState(s['ID']).status;
-    if (st === 'owned')     owned++;
-    else if (st === 'missing') missing++;
-    else if (st === 'duplicate') { owned++; dup++; }
+  // Stats par pays
+  const countryStats = computeCountryStats();
+  const el = document.getElementById('statsCountry');
+  el.innerHTML = '';
+  countryStats.forEach(cs => {
+    const pctC = cs.total > 0 ? Math.round((cs.ownedCount / cs.total) * 100) : 0;
+    const row = document.createElement('div');
+    row.className = 'stat-country-row';
+    row.innerHTML = `
+      <img class="stat-country-flag" src="${cs.flag}" alt="${cs.code}" loading="lazy">
+      <span class="stat-country-name">${cs.section}</span>
+      <div class="stat-country-bar-track">
+        <div class="stat-country-bar-fill" style="width:${pctC}%"></div>
+      </div>
+      <span class="stat-country-pct">${pctC}%</span>
+      <span class="stat-country-detail">${cs.ownedCount}/${cs.total}</span>
+    `;
+    el.appendChild(row);
   });
-
-  const total = stickers.length;
-  const pct   = total ? Math.round((owned / total) * 100) : 0;
-
-  document.getElementById('stat-owned').textContent   = owned;
-  document.getElementById('stat-missing').textContent = missing;
-  document.getElementById('stat-dup').textContent     = dup;
-  document.getElementById('stat-total').textContent   = total;
-  document.getElementById('stats-pct').textContent    = pct + '%';
-  document.getElementById('stats-big-fill').style.width = pct + '%';
-
-  // Per-section stats
-  const sections = groupBy(stickers, 'Section');
-  const statsGrid = document.getElementById('stats-grid');
-  statsGrid.innerHTML = '';
-
-  Object.entries(sections)
-    .sort(([a], [b]) => a.localeCompare(b))
-    .forEach(([section, items]) => {
-      const sOwned = items.filter(s => {
-        const st = getState(s['ID']).status;
-        return st === 'owned' || st === 'duplicate';
-      }).length;
-      const sPct = Math.round((sOwned / items.length) * 100);
-      const flag = getFlagForCode(items[0]['Code']);
-
-      const row = document.createElement('div');
-      row.className = 'stats-row';
-      row.innerHTML = `
-        ${flag ? `<img class="stats-row-flag" src="${flag}" alt="${section}" onerror="this.style.display='none'">` : '<div style="width:28px"></div>'}
-        <span class="stats-row-name" title="${section}">${section}</span>
-        <span style="font-family:var(--font-mono);font-size:9px;color:var(--outline);margin-left:auto;margin-right:6px;">${sOwned}/${items.length}</span>
-        <div class="stats-row-bar-wrap">
-          <div class="stats-row-bar-fill ${sPct === 100 ? 'stats-row-fill-green' : ''}" style="width:${sPct}%"></div>
-        </div>
-        <span class="stats-row-pct">${sPct}%</span>`;
-      statsGrid.appendChild(row);
-    });
 }
 
-// -------------------------------------------------------
-// 14. EXCHANGE MODULE
-// -------------------------------------------------------
+/* ───────────────────────────────────────────────────────────
+   12. VUE ÉCHANGES
+   ─────────────────────────────────────────────────────────── */
 
 /**
- * Parse a list text (e.g. "MEX 1,2,3\nFRA 4,5") into a map:
- * { MEX: ['MEX1','MEX2','MEX3'], FRA: ['FRA4','FRA5'] }
- * Also handles plain IDs like "MEX1,MEX2" or mixed formats.
- * @param {string} text
- * @returns {Object}
+ * Parse une liste texte au format "CODE N°,N°,N°" en Map<code, Set<num>>
  */
-function parseListText(text) {
-  const result = {};
-  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
-
+function parseExchangeText(text) {
+  const map = new Map();
+  const lines = text.trim().split('\n').filter(l => l.trim());
   lines.forEach(line => {
-    // Try to match "CODE num1,num2,..." pattern
-    const match = line.match(/^([A-Z0-9]{2,5})\s+([\d,]+)$/);
-    if (match) {
-      const code = match[1];
-      const nums = match[2].split(',').map(n => n.trim()).filter(Boolean);
-      result[code] = (result[code] || []).concat(nums.map(n => code + n));
-    } else {
-      // Try comma-separated IDs: MEX1,MEX2,FRA3
-      const ids = line.split(',').map(s => s.trim()).filter(Boolean);
-      ids.forEach(id => {
-        // Extract code prefix (letters)
-        const codeMatch = id.match(/^([A-Z]{2,5})/);
-        if (codeMatch) {
-          const code = codeMatch[1];
-          result[code] = result[code] || [];
-          result[code].push(id);
-        }
-      });
-    }
+    const match = line.trim().match(/^([A-Z0-9]+)\s+(.+)$/);
+    if (!match) return;
+    const code = match[1];
+    const nums = match[2].split(',').map(n => parseInt(n.trim())).filter(n => !isNaN(n));
+    if (!map.has(code)) map.set(code, new Set());
+    nums.forEach(n => map.get(code).add(n));
+  });
+  return map;
+}
+
+/** Calcule les échanges possibles */
+function computeExchange() {
+  const friendMissingText = document.getElementById('friendMissing').value;
+  const friendDupText     = document.getElementById('friendDuplicates').value;
+
+  const friendMissing    = parseExchangeText(friendMissingText);
+  const friendDuplicates = parseExchangeText(friendDupText);
+
+  // Ce que je peux donner : mes doublons que l'ami cherche
+  const myDuplicates = stickers.filter(s => getStatus(s.ID) === 'duplicate');
+  const iCanGive = myDuplicates.filter(s => {
+    const set = friendMissing.get(s.Code);
+    return set && set.has(s['N°']);
   });
 
-  return result;
-}
+  // Ce que l'ami peut me donner : ses doublons que je cherche (mes manquantes)
+  const myMissing = stickers.filter(s => getStatus(s.ID) === 'missing');
+  const iReceive = myMissing.filter(s => {
+    const set = friendDuplicates.get(s.Code);
+    return set && set.has(s['N°']);
+  });
 
-/**
- * Analyze exchange possibilities between my collection and a colleague's list.
- * "Je peux lui donner" = my duplicates that match their missing
- * "Il peut me donner" = their duplicates that match my missing
- */
-function analyzeExchange() {
-  const inputText = document.getElementById('exchange-input').value.trim();
-  if (!inputText) {
-    showToast('Colle la liste du collègue avant d\'analyser', 'info');
-    return;
-  }
+  // Afficher
+  const giveEl    = document.getElementById('exchangeGive');
+  const receiveEl = document.getElementById('exchangeReceive');
 
-  // Parse two blocks: separated by blank line or "manquantes:" / "doublons:" labels
-  let colleagueMissing = {};
-  let colleagueDuplicates = {};
-
-  // Smart split: look for "manquantes" / "doublons" keywords
-  const lower = inputText.toLowerCase();
-  let missingBlock = '', dupBlock = '';
-
-  const dupIdx = Math.max(lower.indexOf('doublon'), lower.indexOf('doublons'));
-  const misIdx = Math.max(lower.indexOf('manquante'), lower.indexOf('manquantes'));
-
-  if (dupIdx !== -1 && misIdx !== -1) {
-    if (misIdx < dupIdx) {
-      missingBlock = inputText.substring(misIdx, dupIdx);
-      dupBlock     = inputText.substring(dupIdx);
-    } else {
-      dupBlock     = inputText.substring(dupIdx, misIdx);
-      missingBlock = inputText.substring(misIdx);
-    }
-    // Remove keywords from start of each block
-    missingBlock = missingBlock.replace(/manquantes?:?\s*/i, '');
-    dupBlock     = dupBlock.replace(/doublons?:?\s*/i, '');
+  if (!iCanGive.length) {
+    giveEl.innerHTML = '<p class="exchange-empty">Aucun échange possible dans ce sens (tes doublons ne correspondent pas à ses manquantes).</p>';
   } else {
-    // No labels: treat first half as missing, second as duplicates (split by blank line)
-    const blocks = inputText.split(/\n\s*\n/);
-    missingBlock = blocks[0] || '';
-    dupBlock     = blocks[1] || '';
+    giveEl.textContent = buildExportText(iCanGive);
   }
 
-  colleagueMissing    = parseListText(missingBlock);
-  colleagueDuplicates = parseListText(dupBlock);
+  if (!iReceive.length) {
+    receiveEl.innerHTML = '<p class="exchange-empty">Aucun échange possible dans ce sens (ses doublons ne correspondent pas à tes manquantes).</p>';
+  } else {
+    receiveEl.textContent = buildExportText(iReceive);
+  }
 
-  // My own data
-  const myDuplicates = stickers.filter(s => getState(s['ID']).status === 'duplicate');
-  const myMissing    = stickers.filter(s => getState(s['ID']).status === 'missing');
-
-  // What I can give: my duplicates that colleague needs (is missing)
-  const allColleagueMissing = Object.values(colleagueMissing).flat();
-  const iCanGive = myDuplicates.filter(s => allColleagueMissing.includes(s['ID']));
-
-  // What colleague can give me: their duplicates that I'm missing
-  const allColleagueDuplicates = Object.values(colleagueDuplicates).flat();
-  const iCanReceive = myMissing.filter(s => allColleagueDuplicates.includes(s['ID']));
-
-  renderExchangeResults(iCanGive, iCanReceive);
+  showToast('Échanges calculés ✓', 'success');
 }
 
-function renderExchangeResults(canGive, canReceive) {
-  const container = document.getElementById('exchange-results');
-
-  if (!canGive.length && !canReceive.length) {
-    container.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-icon">😔</div>
-        <p>Aucun échange possible détecté.<br>Vérifie le format de la liste.</p>
-      </div>`;
+/** Copie le contenu d'un div de résultat dans le presse-papier */
+function copyExchangeResult(containerId) {
+  const el = document.getElementById(containerId);
+  const text = el.textContent.trim();
+  if (!text || el.querySelector('.exchange-empty')) {
+    showToast('Rien à copier', 'error');
     return;
   }
-
-  const buildChips = (items, cls) => items.map(s =>
-    `<span class="list-item-chip ${cls}" onclick="openModal('${s['ID']}')" title="${s['Nom']}">${s['ID']}</span>`
-  ).join('');
-
-  container.innerHTML = `
-    <div class="exchange-section-title give">✅ Je peux lui donner (${canGive.length})</div>
-    <div class="list-items" style="margin-bottom:20px">${canGive.length ? buildChips(canGive, 'chip-duplicate') : '<span style="color:var(--outline);font-size:11px;font-family:var(--font-mono)">Aucun</span>'}</div>
-
-    <div class="exchange-section-title receive">📥 Il peut me donner (${canReceive.length})</div>
-    <div class="list-items">${canReceive.length ? buildChips(canReceive, 'chip-missing') : '<span style="color:var(--outline);font-size:11px;font-family:var(--font-mono)">Aucun</span>'}</div>`;
+  navigator.clipboard.writeText(text)
+    .then(() => showToast('Copié ✓', 'success'))
+    .catch(() => showToast('Copie échouée', 'error'));
 }
 
-// -------------------------------------------------------
-// 15. MODAL
-// -------------------------------------------------------
-
-let currentModal = null;
+/* ───────────────────────────────────────────────────────────
+   13. MODAL DE STATUT
+   ─────────────────────────────────────────────────────────── */
 
 function openModal(id) {
-  const sticker = stickers.find(s => s['ID'] === id);
-  if (!sticker) return;
-  currentModal = id;
+  const s = stickers.find(st => st.ID === id);
+  if (!s) return;
+  modalCurrentID = id;
 
-  document.getElementById('modal-flag').src = sticker['Drapeau'] || '';
-  document.getElementById('modal-flag').alt = sticker['Nom'];
-  document.getElementById('modal-id').textContent  = id;
-  document.getElementById('modal-nom').textContent = sticker['Nom'];
-  document.getElementById('modal-section').textContent = sticker['Section'] || '';
-  document.getElementById('modal-type').textContent    = sticker['Type'] || '';
+  document.getElementById('modalFlag').src = s.Drapeau;
+  document.getElementById('modalFlag').alt = s.Code;
+  document.getElementById('modalId').textContent  = s.ID;
+  document.getElementById('modalTitle').textContent = s.Nom;
+  document.getElementById('modalMeta').innerHTML = `
+    Section : ${s.Section}<br>
+    Type : ${s.Type}${s.Groupe ? ` • Groupe ${s.Groupe}` : ''}<br>
+    Page album : ${s['Page (album)']}
+  `;
 
-  const grp = document.getElementById('modal-group');
-  if (sticker['Groupe']) {
-    grp.textContent = 'Groupe ' + sticker['Groupe'];
-    grp.style.display = 'inline-block';
-  } else {
-    grp.style.display = 'none';
+  const status = getStatus(id);
+  updateModalStatusUI(status);
+
+  const dbl = getDuplicateCount(id);
+  document.getElementById('modalDuplicateCount').textContent = dbl || 1;
+
+  const overlay = document.getElementById('stickerModal');
+  overlay.classList.add('open');
+  overlay.querySelector('.modal-box').focus && overlay.querySelector('.modal-close').focus();
+}
+
+function closeModal(event) {
+  if (event.target === event.currentTarget) closeModalDirect();
+}
+function closeModalDirect() {
+  document.getElementById('stickerModal').classList.remove('open');
+  modalCurrentID = null;
+}
+
+function setModalStatus(status) {
+  if (!modalCurrentID) return;
+  const countEl = document.getElementById('modalDuplicateCount');
+  const count = parseInt(countEl.textContent) || 1;
+  setStatus(modalCurrentID, status, count);
+  updateModalStatusUI(status);
+  // Rafraîchir la carte dans la vue album si visible
+  refreshStickerCard(modalCurrentID);
+  // Rafraîchir les rows dans les autres vues
+  refreshStickerRow(modalCurrentID);
+}
+
+function updateModalStatusUI(status) {
+  document.getElementById('modalBtnMissing').classList.toggle('active',   status === 'missing');
+  document.getElementById('modalBtnOwned').classList.toggle('active',     status === 'owned');
+  document.getElementById('modalBtnDuplicate').classList.toggle('active', status === 'duplicate');
+
+  const ctrl = document.getElementById('modalDuplicateCtrl');
+  ctrl.classList.toggle('visible', status === 'duplicate');
+}
+
+function changeDuplicateCount(delta) {
+  if (!modalCurrentID) return;
+  const countEl = document.getElementById('modalDuplicateCount');
+  const current = parseInt(countEl.textContent) || 1;
+  const next = Math.max(1, current + delta);
+  countEl.textContent = next;
+  // Appliquer immédiatement si statut = duplicate
+  if (getStatus(modalCurrentID) === 'duplicate') {
+    setStatus(modalCurrentID, 'duplicate', next);
+    refreshStickerCard(modalCurrentID);
+    refreshStickerRow(modalCurrentID);
   }
-
-  updateModalStatus(id);
-  document.getElementById('modal-overlay').classList.add('open');
 }
 
-function updateModalStatus(id) {
-  const { status, count } = getState(id);
-  const labels = {
-    owned:     '✓ Possédée',
-    missing:   '✗ Manquante',
-    duplicate: `✌ Doublon ×${count}`
-  };
-  const el = document.getElementById('modal-current-status');
-  el.textContent = labels[status] || '';
-  el.style.color = status === 'owned' ? 'var(--green)' : status === 'missing' ? 'var(--red)' : 'var(--blue-light)';
+/** Met à jour une carte dans la grille album sans tout re-rendre */
+function refreshStickerCard(id) {
+  const existing = document.querySelector(`.sticker-card[data-id="${id}"]`);
+  if (!existing) return;
+  const s = stickers.find(st => st.ID === id);
+  if (!s) return;
+  const newCard = createStickerCard(s);
+  existing.parentNode.replaceChild(newCard, existing);
 }
 
-function closeModal() {
-  document.getElementById('modal-overlay').classList.remove('open');
-
-  // After closing, refresh relevant view
-  if (activeTab === 'manquantes') renderMissingList();
-  if (activeTab === 'doublons')   renderDuplicateList();
-  if (activeTab === 'stats')      renderStats();
-  if (activeTab === 'pays' && activeCountryCode) renderCountryDetail(activeCountryCode);
-
-  updateHeaderStats();
-  currentModal = null;
+/** Met à jour une row de liste sans tout re-rendre */
+function refreshStickerRow(id) {
+  const rows = document.querySelectorAll(`.sticker-row[data-id="${id}"]`);
+  if (!rows.length) return;
+  const s = stickers.find(st => st.ID === id);
+  if (!s) return;
+  const newRow = createStickerRow(s);
+  rows.forEach(row => row.parentNode.replaceChild(newRow.cloneNode(true), row));
+  // Re-attacher les handlers (cloneNode les perd)
+  document.querySelectorAll(`.sticker-row[data-id="${id}"]`).forEach(row => {
+    row.onclick = () => openModal(id);
+    row.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') openModal(id); };
+  });
 }
 
-// -------------------------------------------------------
-// 16. TOAST NOTIFICATIONS
-// -------------------------------------------------------
+/* ───────────────────────────────────────────────────────────
+   14. HEADER PROGRESS
+   ─────────────────────────────────────────────────────────── */
+
+function updateHeaderProgress() {
+  const { total, owned, duplicateTypes, pct } = computeStats();
+  const collected = owned + duplicateTypes;
+  document.getElementById('headerProgressLabel').textContent = `${collected} / ${total}`;
+  document.getElementById('headerProgressFill').style.width  = `${pct}%`;
+  document.getElementById('headerProgressPct').textContent   = `${pct}%`;
+}
+
+/* ───────────────────────────────────────────────────────────
+   15. TOAST
+   ─────────────────────────────────────────────────────────── */
 
 let toastTimer = null;
 
 /**
+ * Affiche une notification temporaire.
  * @param {string} message
- * @param {'ok'|'err'|'info'} type
+ * @param {'default'|'success'|'error'} type
  */
-function showToast(message, type = 'info') {
+function showToast(message, type = 'default') {
   const toast = document.getElementById('toast');
   toast.textContent = message;
-  toast.className = `toast show toast-${type}`;
-
+  toast.className = 'toast show' + (type !== 'default' ? ` toast-${type}` : '');
   if (toastTimer) clearTimeout(toastTimer);
   toastTimer = setTimeout(() => {
     toast.classList.remove('show');
   }, 2500);
 }
 
-// -------------------------------------------------------
-// 17. KEYBOARD SHORTCUTS
-// -------------------------------------------------------
+/* ───────────────────────────────────────────────────────────
+   16. KEYBOARD SHORTCUTS
+   ─────────────────────────────────────────────────────────── */
 
 document.addEventListener('keydown', (e) => {
-  // Escape: close modal
-  if (e.key === 'Escape') closeModal();
-
-  // Arrow navigation in album
-  if (activeTab === 'album' && !document.getElementById('modal-overlay').classList.contains('open')) {
-    if (e.key === 'ArrowRight') albumNextPage();
-    if (e.key === 'ArrowLeft')  albumPrevPage();
+  // Fermer la modal avec Escape
+  if (e.key === 'Escape') {
+    const modal = document.getElementById('stickerModal');
+    if (modal.classList.contains('open')) closeModalDirect();
   }
-
-  // In modal, 1/2/3 keys for quick status set
-  if (currentModal && document.getElementById('modal-overlay').classList.contains('open')) {
-    if (e.key === '1') setStatus(currentModal, 'owned');
-    if (e.key === '2') setStatus(currentModal, 'missing');
-    if (e.key === '3') setStatus(currentModal, 'duplicate');
+  // Naviguer entre les pages de l'album avec les flèches (si pas dans un input)
+  if (document.activeElement.tagName === 'INPUT' ||
+      document.activeElement.tagName === 'TEXTAREA' ||
+      document.activeElement.tagName === 'SELECT') return;
+  if (currentTab === 'album') {
+    if (e.key === 'ArrowLeft')  albumPrevPage();
+    if (e.key === 'ArrowRight') albumNextPage();
   }
 });
 
-// -------------------------------------------------------
-// 18. START
-// -------------------------------------------------------
-
-// Wait for DOM ready then boot
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
-} else {
-  init();
-}
+/* ───────────────────────────────────────────────────────────
+   17. DÉMARRAGE
+   ─────────────────────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', init);

@@ -3,234 +3,330 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Panini WC26 — Ma Collection</title>
+  <title>Panini WC 2026 — Ma Collection</title>
   <link href="https://fonts.googleapis.com/css2?family=Climate+Crisis&family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-  <!-- ===================== HEADER ===================== -->
-  <header id="header">
-    <div class="logo-pill">
-      <div class="logo-text">
-        <span class="logo-source">Panini</span>
-        <span class="logo-name">WC26</span>
-      </div>
-      <div class="logo-digits">
-        <div class="digit-bubble d-red">2</div>
-        <div class="digit-bubble d-blue">0</div>
-        <div class="digit-bubble d-green">2</div>
-        <div class="digit-bubble d-dark">6</div>
-      </div>
+<!-- ═══════════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════════ -->
+<header id="header">
+  <div class="logo-pill">
+    <div class="logo-text">
+      <span class="logo-source">Panini</span>
+      <span class="logo-name">MA COLLECTION</span>
     </div>
-
-    <div class="header-stats" id="header-stats">
-      <span class="hstat owned"><span id="h-owned">0</span> possédées</span>
-      <span class="hstat missing"><span id="h-missing">0</span> manquantes</span>
-      <span class="hstat duplicate"><span id="h-dup">0</span> doublons</span>
-      <div class="progress-bar-wrap">
-        <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
-      </div>
-      <span class="hstat pct" id="h-pct">0%</span>
-    </div>
-
-    <div class="header-actions">
-      <button class="btn-action btn-export" onclick="exportCollectionAsJSON()">⬇ Exporter</button>
-      <button class="btn-action btn-import" onclick="document.getElementById('import-input').click()">⬆ Importer</button>
-      <input type="file" id="import-input" accept=".json" style="display:none" onchange="importCollectionFromJSON(this)">
-    </div>
-  </header>
-
-  <!-- ===================== NAVIGATION TABS ===================== -->
-  <nav class="tabs-nav" id="tabs-nav">
-    <button class="tab-btn active" data-tab="album" onclick="switchTab('album')">
-      <span class="tab-icon">📖</span> Album
-    </button>
-    <button class="tab-btn" data-tab="pays" onclick="switchTab('pays')">
-      <span class="tab-icon">🌍</span> Par pays
-    </button>
-    <button class="tab-btn" data-tab="manquantes" onclick="switchTab('manquantes')">
-      <span class="tab-icon">🔍</span> Manquantes
-    </button>
-    <button class="tab-btn" data-tab="doublons" onclick="switchTab('doublons')">
-      <span class="tab-icon">✌️</span> Doublons
-    </button>
-    <button class="tab-btn" data-tab="stats" onclick="switchTab('stats')">
-      <span class="tab-icon">📊</span> Stats
-    </button>
-    <button class="tab-btn" data-tab="echanges" onclick="switchTab('echanges')">
-      <span class="tab-icon">🤝</span> Échanges
-    </button>
-  </nav>
-
-  <!-- ===================== MAIN CONTENT ===================== -->
-  <main class="app-main">
-
-    <!-- === VUE ALBUM PAR PAGE === -->
-    <section id="tab-album" class="tab-content active">
-      <div class="album-controls">
-        <div class="album-page-nav">
-          <button class="btn-nav" id="btn-prev" onclick="albumPrevPage()">← Préc.</button>
-          <div class="page-indicator">
-            <span class="page-label">Page</span>
-            <select id="page-select" onchange="albumGoToPage(this.value)"></select>
-            <span class="page-label">/ <span id="page-total">0</span></span>
-          </div>
-          <button class="btn-nav" id="btn-next" onclick="albumNextPage()">Suiv. →</button>
-        </div>
-        <div class="album-quick-actions">
-          <button class="btn-sm btn-all-owned" onclick="markAllPageOwned()">✓ Tout possédé</button>
-          <button class="btn-sm btn-all-missing" onclick="markAllPageMissing()">✗ Tout manquant</button>
-        </div>
-      </div>
-      <div class="album-page-label" id="album-page-label">Page 1</div>
-      <div class="album-grid" id="album-grid"></div>
-    </section>
-
-    <!-- === VUE PAR PAYS === -->
-    <section id="tab-pays" class="tab-content">
-      <div class="filter-bar">
-        <div class="country-grid" id="country-grid"></div>
-      </div>
-      <div class="country-detail" id="country-detail">
-        <div class="empty-state">
-          <div class="empty-icon">🌍</div>
-          <p>Sélectionne un pays pour voir ses vignettes</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- === VUE MANQUANTES === -->
-    <section id="tab-manquantes" class="tab-content">
-      <div class="list-controls">
-        <div class="filters-row">
-          <select class="filter-select" id="missing-filter-code" onchange="renderMissingList()">
-            <option value="">Tous les pays</option>
-          </select>
-          <select class="filter-select" id="missing-filter-section" onchange="renderMissingList()">
-            <option value="">Toutes les sections</option>
-          </select>
-          <select class="filter-select" id="missing-filter-type" onchange="renderMissingList()">
-            <option value="">Tous les types</option>
-          </select>
-          <select class="filter-select" id="missing-filter-group" onchange="renderMissingList()">
-            <option value="">Tous les groupes</option>
-          </select>
-        </div>
-        <button class="btn-export-list" onclick="exportMissingList()">📋 Copier la liste</button>
-      </div>
-      <div class="list-view" id="missing-list"></div>
-      <textarea class="export-textarea" id="missing-textarea" placeholder="La liste apparaîtra ici…" readonly></textarea>
-    </section>
-
-    <!-- === VUE DOUBLONS === -->
-    <section id="tab-doublons" class="tab-content">
-      <div class="list-controls">
-        <div class="filters-row">
-          <select class="filter-select" id="dup-filter-code" onchange="renderDuplicateList()">
-            <option value="">Tous les pays</option>
-          </select>
-          <select class="filter-select" id="dup-filter-section" onchange="renderDuplicateList()">
-            <option value="">Toutes les sections</option>
-          </select>
-          <select class="filter-select" id="dup-filter-type" onchange="renderDuplicateList()">
-            <option value="">Tous les types</option>
-          </select>
-          <select class="filter-select" id="dup-filter-group" onchange="renderDuplicateList()">
-            <option value="">Tous les groupes</option>
-          </select>
-        </div>
-        <button class="btn-export-list" onclick="exportDuplicateList()">📋 Copier la liste</button>
-      </div>
-      <div class="list-view" id="dup-list"></div>
-      <textarea class="export-textarea" id="dup-textarea" placeholder="La liste apparaîtra ici…" readonly></textarea>
-    </section>
-
-    <!-- === VUE STATS === -->
-    <section id="tab-stats" class="tab-content">
-      <div class="stats-hero">
-        <div class="stat-card stat-owned">
-          <div class="stat-number" id="stat-owned">0</div>
-          <div class="stat-label">Possédées</div>
-        </div>
-        <div class="stat-card stat-missing">
-          <div class="stat-number" id="stat-missing">0</div>
-          <div class="stat-label">Manquantes</div>
-        </div>
-        <div class="stat-card stat-dup">
-          <div class="stat-number" id="stat-dup">0</div>
-          <div class="stat-label">Doublons</div>
-        </div>
-        <div class="stat-card stat-total">
-          <div class="stat-number" id="stat-total">0</div>
-          <div class="stat-label">Total</div>
-        </div>
-      </div>
-
-      <div class="stats-completion-bar-wrap">
-        <div class="stats-completion-label">
-          Complétion globale : <strong id="stats-pct">0%</strong>
-        </div>
-        <div class="stats-big-bar">
-          <div class="stats-big-fill" id="stats-big-fill" style="width:0%"></div>
-        </div>
-      </div>
-
-      <div class="stats-section-title">Par pays / section</div>
-      <div class="stats-grid" id="stats-grid"></div>
-    </section>
-
-    <!-- === VUE ÉCHANGES === -->
-    <section id="tab-echanges" class="tab-content">
-      <div class="exchange-layout">
-        <div class="exchange-panel">
-          <div class="exchange-panel-header panel-header-blue">
-            <span>📋 Liste d'un collègue</span>
-            <small>Colle sa liste (manquantes + doublons) ici</small>
-          </div>
-          <textarea class="exchange-input" id="exchange-input" placeholder="Exemple :&#10;MEX 1,2,3,5&#10;FRA 4,7,10&#10;…"></textarea>
-          <button class="btn-analyze" onclick="analyzeExchange()">🔍 Analyser les échanges</button>
-        </div>
-        <div class="exchange-results" id="exchange-results">
-          <div class="empty-state">
-            <div class="empty-icon">🤝</div>
-            <p>Colle la liste de ton collègue et clique sur Analyser pour voir les échanges possibles.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-  </main>
-
-  <!-- ===================== TOAST ===================== -->
-  <div class="toast" id="toast"></div>
-
-  <!-- ===================== STICKER MODAL ===================== -->
-  <div class="modal-overlay" id="modal-overlay" onclick="closeModal()">
-    <div class="modal-card" onclick="event.stopPropagation()">
-      <button class="modal-close" onclick="closeModal()">✕</button>
-      <div class="modal-flag-wrap">
-        <img class="modal-flag" id="modal-flag" src="" alt="">
-      </div>
-      <div class="modal-meta">
-        <div class="modal-id" id="modal-id"></div>
-        <div class="modal-nom" id="modal-nom"></div>
-        <div class="modal-badges">
-          <span class="badge-section" id="modal-section"></span>
-          <span class="badge-type" id="modal-type"></span>
-          <span class="badge-group" id="modal-group"></span>
-        </div>
-      </div>
-      <div class="modal-status-btns">
-        <button class="modal-status-btn btn-set-owned" onclick="setStatus(currentModal, 'owned')">✓ Possédée</button>
-        <button class="modal-status-btn btn-set-missing" onclick="setStatus(currentModal, 'missing')">✗ Manquante</button>
-        <button class="modal-status-btn btn-set-dup" onclick="setStatus(currentModal, 'duplicate')">+ Doublon</button>
-        <button class="modal-status-btn btn-set-dup-down" onclick="decrementDuplicate(currentModal)">− Doublon</button>
-      </div>
-      <div class="modal-current-status" id="modal-current-status"></div>
+    <div class="logo-digits" aria-hidden="true">
+      <div class="digit-bubble d-dark">2</div>
+      <div class="digit-bubble d-red">0</div>
+      <div class="digit-bubble d-blue">2</div>
+      <div class="digit-bubble d-green">6</div>
     </div>
   </div>
 
-  <script src="app.js"></script>
+  <!-- Progress bar in header -->
+  <div class="header-progress" id="headerProgress">
+    <div class="progress-label" id="headerProgressLabel">0 / 980</div>
+    <div class="progress-track">
+      <div class="progress-fill" id="headerProgressFill" style="width:0%"></div>
+    </div>
+    <div class="progress-pct" id="headerProgressPct">0%</div>
+  </div>
+
+  <div class="header-actions">
+    <button class="btn btn-sm btn-green" onclick="exportCollectionAsJSON()" title="Exporter ma collection">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Exporter
+    </button>
+    <button class="btn btn-sm btn-outline" onclick="document.getElementById('importFileInput').click()" title="Importer une collection">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      Importer
+    </button>
+    <input type="file" id="importFileInput" accept=".json" style="display:none" onchange="handleImportFile(this)">
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════
+     NAVIGATION TABS
+     ═══════════════════════════════════════════════ -->
+<nav class="nav-tabs" role="tablist">
+  <button class="tab-btn active" role="tab" data-tab="album" onclick="switchTab('album')">
+    <span class="tab-icon">📖</span> Album
+  </button>
+  <button class="tab-btn" role="tab" data-tab="pays" onclick="switchTab('pays')">
+    <span class="tab-icon">🌍</span> Par pays
+  </button>
+  <button class="tab-btn" role="tab" data-tab="manquantes" onclick="switchTab('manquantes')">
+    <span class="tab-icon">🔍</span> Manquantes
+  </button>
+  <button class="tab-btn" role="tab" data-tab="doublons" onclick="switchTab('doublons')">
+    <span class="tab-icon">✌️</span> Doublons
+  </button>
+  <button class="tab-btn" role="tab" data-tab="stats" onclick="switchTab('stats')">
+    <span class="tab-icon">📊</span> Stats
+  </button>
+  <button class="tab-btn" role="tab" data-tab="echanges" onclick="switchTab('echanges')">
+    <span class="tab-icon">🤝</span> Échanges
+  </button>
+</nav>
+
+<!-- ═══════════════════════════════════════════════
+     TOAST NOTIFICATION
+     ═══════════════════════════════════════════════ -->
+<div id="toast" class="toast" aria-live="polite"></div>
+
+<!-- ═══════════════════════════════════════════════
+     MAIN CONTENT
+     ═══════════════════════════════════════════════ -->
+<main class="app-wrap">
+
+  <!-- ──────────────────────────────────────────────
+       VUE 1 : ALBUM PAR PAGE
+       ────────────────────────────────────────────── -->
+  <section id="tab-album" class="tab-content active">
+    <div class="album-controls">
+      <div class="album-nav">
+        <button class="btn btn-nav" id="prevPageBtn" onclick="albumPrevPage()">&#8592;</button>
+        <div class="album-page-info">
+          <span class="page-label">PAGE</span>
+          <select id="albumPageSelect" onchange="albumGoToPage(parseInt(this.value))"></select>
+          <span class="page-label" id="albumPageTotal">/ 50</span>
+        </div>
+        <button class="btn btn-nav" id="nextPageBtn" onclick="albumNextPage()">&#8594;</button>
+      </div>
+      <div class="album-legend">
+        <span class="legend-item"><span class="dot dot-missing"></span> Manquante</span>
+        <span class="legend-item"><span class="dot dot-owned"></span> Possédée</span>
+        <span class="legend-item"><span class="dot dot-duplicate"></span> Doublon</span>
+      </div>
+    </div>
+    <div class="album-page" id="albumGrid"></div>
+  </section>
+
+  <!-- ──────────────────────────────────────────────
+       VUE 2 : PAR PAYS
+       ────────────────────────────────────────────── -->
+  <section id="tab-pays" class="tab-content">
+    <div class="filter-bar">
+      <div class="filter-group">
+        <label class="filter-label">Pays / Code</label>
+        <select id="paysSelect" onchange="renderPaysView()">
+          <option value="">— Sélectionner —</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">Groupe</label>
+        <select id="paysGroupeFilter" onchange="renderPaysView()">
+          <option value="">Tous</option>
+        </select>
+      </div>
+    </div>
+    <div id="paysGrid" class="country-grid"></div>
+  </section>
+
+  <!-- ──────────────────────────────────────────────
+       VUE 3 : MANQUANTES
+       ────────────────────────────────────────────── -->
+  <section id="tab-manquantes" class="tab-content">
+    <div class="filter-bar">
+      <div class="filter-group">
+        <label class="filter-label">Pays</label>
+        <select id="manqPaysFilter" onchange="renderMissingView()">
+          <option value="">Tous</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">Section</label>
+        <select id="manqSectionFilter" onchange="renderMissingView()">
+          <option value="">Toutes</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">Type</label>
+        <select id="manqTypeFilter" onchange="renderMissingView()">
+          <option value="">Tous</option>
+          <option value="Classique">Classique</option>
+          <option value="Spécial">Spécial</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">Groupe</label>
+        <select id="manqGroupeFilter" onchange="renderMissingView()">
+          <option value="">Tous</option>
+        </select>
+      </div>
+    </div>
+    <div class="list-actions">
+      <span class="list-count" id="manqCount">0 vignette(s)</span>
+      <button class="btn btn-sm btn-blue" onclick="exportMissingAsText()">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Copier liste
+      </button>
+    </div>
+    <textarea id="manqExportText" class="export-textarea" readonly placeholder="Le texte exporté apparaîtra ici…" style="display:none"></textarea>
+    <div id="manqGrid" class="sticker-list"></div>
+  </section>
+
+  <!-- ──────────────────────────────────────────────
+       VUE 4 : DOUBLONS
+       ────────────────────────────────────────────── -->
+  <section id="tab-doublons" class="tab-content">
+    <div class="filter-bar">
+      <div class="filter-group">
+        <label class="filter-label">Pays</label>
+        <select id="dblPaysFilter" onchange="renderDuplicatesView()">
+          <option value="">Tous</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">Section</label>
+        <select id="dblSectionFilter" onchange="renderDuplicatesView()">
+          <option value="">Toutes</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">Type</label>
+        <select id="dblTypeFilter" onchange="renderDuplicatesView()">
+          <option value="">Tous</option>
+          <option value="Classique">Classique</option>
+          <option value="Spécial">Spécial</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">Groupe</label>
+        <select id="dblGroupeFilter" onchange="renderDuplicatesView()">
+          <option value="">Tous</option>
+        </select>
+      </div>
+    </div>
+    <div class="list-actions">
+      <span class="list-count" id="dblCount">0 vignette(s)</span>
+      <button class="btn btn-sm btn-blue" onclick="exportDuplicatesAsText()">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Copier liste
+      </button>
+    </div>
+    <textarea id="dblExportText" class="export-textarea" readonly placeholder="Le texte exporté apparaîtra ici…" style="display:none"></textarea>
+    <div id="dblGrid" class="sticker-list"></div>
+  </section>
+
+  <!-- ──────────────────────────────────────────────
+       VUE 5 : STATS
+       ────────────────────────────────────────────── -->
+  <section id="tab-stats" class="tab-content">
+    <div class="stats-hero">
+      <div class="stat-card stat-card--big">
+        <div class="stat-label">Complété</div>
+        <div class="stat-value" id="statPct">0%</div>
+        <div class="stat-sub" id="statOwned">0 / 980 vignettes</div>
+        <div class="stat-bar-track">
+          <div class="stat-bar-fill stat-bar--owned" id="statBarOwned" style="width:0%"></div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Possédées</div>
+        <div class="stat-value stat-value--green" id="statOwnedCount">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Manquantes</div>
+        <div class="stat-value stat-value--red" id="statMissingCount">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Doublons</div>
+        <div class="stat-value stat-value--yellow" id="statDuplicateCount">0</div>
+        <div class="stat-sub" id="statDuplicateTotal">(0 en tout)</div>
+      </div>
+    </div>
+
+    <h2 class="section-title">Par pays / section</h2>
+    <div id="statsCountry" class="stats-country-grid"></div>
+  </section>
+
+  <!-- ──────────────────────────────────────────────
+       VUE 6 : ÉCHANGES
+       ────────────────────────────────────────────── -->
+  <section id="tab-echanges" class="tab-content">
+    <div class="exchange-intro">
+      <p>Colle ici la liste de vignettes d'un ami (ses manquantes + ses doublons, au format <code>CODE N°,N°,N°</code>) et l'app calculera automatiquement les échanges possibles.</p>
+    </div>
+    <div class="exchange-grid">
+      <div class="exchange-panel">
+        <h3 class="panel-title">
+          <span class="panel-badge panel-badge--red">AMI</span>
+          Manquantes de mon ami
+        </h3>
+        <textarea id="friendMissing" class="exchange-textarea" placeholder="Ex: FRA 3,7,12&#10;BRA 1,4,8,15&#10;ARG 2,6"></textarea>
+        <h3 class="panel-title" style="margin-top:16px">
+          <span class="panel-badge panel-badge--yellow">AMI</span>
+          Doublons de mon ami
+        </h3>
+        <textarea id="friendDuplicates" class="exchange-textarea" placeholder="Ex: ESP 2,5,9&#10;GER 1,3"></textarea>
+        <button class="btn btn-full btn-blue" onclick="computeExchange()" style="margin-top:12px">
+          ⚡ Calculer les échanges
+        </button>
+      </div>
+      <div class="exchange-panel">
+        <h3 class="panel-title">
+          <span class="panel-badge panel-badge--green">MOI →</span>
+          Je lui donne (mes doublons qu'il cherche)
+        </h3>
+        <div id="exchangeGive" class="exchange-result">
+          <p class="exchange-empty">Lance le calcul pour voir les résultats.</p>
+        </div>
+        <button class="btn btn-sm btn-outline" onclick="copyExchangeResult('exchangeGive')" style="margin-top:8px">Copier</button>
+
+        <h3 class="panel-title" style="margin-top:20px">
+          <span class="panel-badge panel-badge--blue">→ MOI</span>
+          Il me donne (ses doublons que je cherche)
+        </h3>
+        <div id="exchangeReceive" class="exchange-result">
+          <p class="exchange-empty">Lance le calcul pour voir les résultats.</p>
+        </div>
+        <button class="btn btn-sm btn-outline" onclick="copyExchangeResult('exchangeReceive')" style="margin-top:8px">Copier</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ═══════════════════════════════════════════════
+     STICKER STATUS MODAL (click on a sticker)
+     ═══════════════════════════════════════════════ -->
+<div id="stickerModal" class="modal-overlay" onclick="closeModal(event)" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModalDirect()" aria-label="Fermer">✕</button>
+    <div class="modal-flag-wrap">
+      <img id="modalFlag" src="" alt="" class="modal-flag">
+    </div>
+    <div class="modal-body">
+      <div class="modal-id" id="modalId"></div>
+      <div class="modal-name" id="modalTitle"></div>
+      <div class="modal-meta" id="modalMeta"></div>
+      <div class="modal-status-btns">
+        <button class="status-btn status-btn--missing" id="modalBtnMissing" onclick="setModalStatus('missing')">
+          ✕ Manquante
+        </button>
+        <button class="status-btn status-btn--owned" id="modalBtnOwned" onclick="setModalStatus('owned')">
+          ✓ Possédée
+        </button>
+        <button class="status-btn status-btn--duplicate" id="modalBtnDuplicate" onclick="setModalStatus('duplicate')">
+          ✌ Doublon
+        </button>
+      </div>
+      <div class="modal-duplicate-ctrl" id="modalDuplicateCtrl">
+        <label class="filter-label">Nombre de doublons :</label>
+        <div class="counter-ctrl">
+          <button class="counter-btn" onclick="changeDuplicateCount(-1)">−</button>
+          <span id="modalDuplicateCount">1</span>
+          <button class="counter-btn" onclick="changeDuplicateCount(+1)">+</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
 </body>
 </html>
