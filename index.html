@@ -26,7 +26,6 @@
     <div class="header-inner">
       <!-- Logo / Titre -->
       <div class="header-brand">
-        <span class="brand-badge">PANINI</span>
         <div class="header-brand-text">
           <h1 class="brand-title">FWC 2026</h1>
           <span class="header-credit">Lucas Bessonnat v1.0</span>
@@ -44,10 +43,10 @@
         </div>
       </div>
 
-      <!-- Badge progression mobile (affiché <700px uniquement) -->
-      <div class="header-progress-badge" id="headerProgressBadge">
-        <span id="progressPctBadge">0%</span>
-      </div>
+      <!-- Bouton recherche mobile (ouvre la modale de recherche) -->
+      <button class="btn btn-secondary btn-icon header-search-btn" id="btnMobileSearch" aria-label="Rechercher" title="Rechercher">
+        <span class="material-symbols-outlined">search</span>
+      </button>
 
       <!-- Barre de recherche globale -->
       <div class="header-search" id="headerSearch">
@@ -126,7 +125,7 @@
           <span class="page-label">PAGE</span>
           <strong id="albumPageCurrent">1</strong>
           <span class="page-sep">/</span>
-          <span id="albumPageTotal">50</span>
+          <span id="albumPageTotal">106</span>
         </div>
         <div class="album-nav-btns">
           <button class="btn btn-icon" id="btnPagePrev" aria-label="Page précédente">
@@ -383,7 +382,7 @@
        FAB — OUVERTURE DE BOOSTER
   ═══════════════════════════════════════════════════ -->
   <button class="fab" id="fabBooster" aria-label="Ouvrir un booster" title="Ouvrir un booster">
-    <span class="material-symbols-outlined">open_in_new</span>
+    <span class="material-symbols-outlined">stacks</span>
   </button>
 
   <!-- ═══════════════════════════════════════════════════
@@ -416,6 +415,23 @@
           <span class="material-symbols-outlined">check_circle</span>
           Valider
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       MODALE RECHERCHE (mobile)
+  ═══════════════════════════════════════════════════ -->
+  <div class="modal-overlay hidden" id="searchModal" role="dialog" aria-modal="true" aria-labelledby="searchModalTitle">
+    <div class="modal-card search-card">
+      <div class="modal-header search-header" id="searchModalHeader">
+        <span class="modal-id" id="searchModalTitle">🔍 Recherche</span>
+        <button class="btn btn-icon modal-close" id="btnSearchModalClose" aria-label="Fermer">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="search-modal-body" id="searchModalBody">
+        <!-- La barre de recherche existante (#headerSearch) est déplacée ici en JS à l'ouverture -->
       </div>
     </div>
   </div>

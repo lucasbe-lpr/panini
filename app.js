@@ -82,6 +82,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     initExportImport();
     initModal();
     initGlobalSearch();
+    initMobileSearchModal();
     initBoosterModal();
     initMatchmaker();
 
@@ -109,9 +110,12 @@ async function loadDatabase() {
 
   stickers = await response.json();
 
-  // Extraction des pages uniques, triées numériquement
-  const pagesSet = new Set(stickers.map(s => s['Page']));
-  albumPages = Array.from(pagesSet).sort((a, b) => a - b);
+  // Extraction des pages uniques pour connaître la dernière page réelle de
+  // l'album (certaines pages — couverture, stades, équipes... — n'ont pas
+  // de vignette recensée dans la base mais existent physiquement).
+  const pagesWithStickers = new Set(stickers.map(s => s['Page']));
+  const maxPage = Math.max(...pagesWithStickers);
+  albumPages = Array.from({ length: maxPage }, (_, i) => i + 1);
 
   // Initialisation de collectionState : toutes les vignettes en "missing" par défaut
   stickers.forEach(s => {
@@ -433,6 +437,27 @@ function renderAlbumView() {
 }
 
 /**
+ * Nombre de variantes de couleur disponibles pour .section-banner
+ * (cf. classes .section-banner--0 à --5 dans styles.css).
+ */
+const SECTION_BANNER_COLOR_COUNT = 6;
+
+/**
+ * Calcule un index de couleur stable pour une section donnée, afin que
+ * la même section affiche toujours la même couleur de bandeau.
+ * @param {string} sectionName
+ * @returns {number}
+ */
+function getSectionBannerColorIndex(sectionName) {
+  let hash = 0;
+  const str = sectionName || '';
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash * 31 + str.charCodeAt(i)) >>> 0;
+  }
+  return hash % SECTION_BANNER_COLOR_COUNT;
+}
+
+/**
  * Construit le bandeau de section en haut de la page d'album.
  * @param {Array} pageStickers - Vignettes de la page courante
  */
@@ -449,9 +474,10 @@ function renderAlbumSectionHeader(pageStickers) {
   const firstSection = sections[0];
   const flagURL = pageStickers[0]?.Drapeau || '';
   const groupe = pageStickers[0]?.Groupe || '';
+  const colorClass = `section-banner--${getSectionBannerColorIndex(firstSection)}`;
 
   container.innerHTML = `
-    <div class="section-banner">
+    <div class="section-banner ${colorClass}">
       ${flagURL ? `<img src="${escHtml(flagURL)}" alt="${escHtml(firstSection)}" />` : ''}
       <span>${escHtml(firstSection)}</span>
       ${groupe ? `<span style="font-size:12px;opacity:0.7;letter-spacing:0.1em;">Groupe ${escHtml(groupe)}</span>` : ''}
@@ -1090,6 +1116,7 @@ function initModal() {
     const newCount = (collectionState[modalStickerID]?.count || 2) + 1;
     setStatus(modalStickerID, 'duplicate', newCount);
     document.getElementById('dupCountDisplay').textContent = newCount;
+    updateDupMinusState();
     refreshStickerInView(modalStickerID);
   });
 
@@ -1228,10 +1255,6 @@ function updateGlobalProgress() {
   document.getElementById('progressTotal').textContent = total;
   document.getElementById('progressPct').textContent = `${pct}%`;
   document.getElementById('progressFill').style.width = `${pct}%`;
-
-  // Badge compact mobile
-  const badge = document.getElementById('progressPctBadge');
-  if (badge) badge.textContent = `${pct}%`;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1357,6 +1380,53 @@ function initGlobalSearch() {
     searchActive = false;
     clearBtn.classList.add('hidden');
     applySearchFilter();
+  });
+}
+
+/**
+ * Recherche mobile : sur petit écran, la barre de recherche texte est
+ * masquée et remplacée par un bouton loupe. Au clic, on ouvre une modale
+ * (même esprit que la modale d'ouverture de booster) et on y déplace la
+ * barre de recherche existante — pas de duplication de logique, le même
+ * champ #globalSearch reste l'unique source de vérité.
+ */
+function initMobileSearchModal() {
+  const btn = document.getElementById('btnMobileSearch');
+  const modal = document.getElementById('searchModal');
+  const body = document.getElementById('searchModalBody');
+  const searchBar = document.getElementById('headerSearch');
+  const headerInner = document.querySelector('.header-inner');
+  const headerActions = document.querySelector('.header-actions');
+  const btnClose = document.getElementById('btnSearchModalClose');
+
+  if (!btn || !modal || !body || !searchBar || !headerInner) return;
+
+  function openSearchModal() {
+    body.appendChild(searchBar);
+    modal.classList.remove('hidden');
+    const input = document.getElementById('globalSearch');
+    if (input) input.focus();
+  }
+
+  function closeSearchModal() {
+    modal.classList.add('hidden');
+    // On replace la barre de recherche à sa position d'origine dans le header
+    if (headerActions) {
+      headerInner.insertBefore(searchBar, headerActions);
+    } else {
+      headerInner.appendChild(searchBar);
+    }
+  }
+
+  btn.addEventListener('click', openSearchModal);
+  btnClose && btnClose.addEventListener('click', closeSearchModal);
+
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeSearchModal();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeSearchModal();
   });
 }
 
