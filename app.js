@@ -1,642 +1,1253 @@
 /**
- * app.js – Gestionnaire de collection Panini WC26
+ * ═══════════════════════════════════════════════════════════════
+ * PANINI WC 2026 — APPLICATION JAVASCRIPT COMPLÈTE
+ * Logique métier, gestion d'état, rendu des vues, import/export
+ * ═══════════════════════════════════════════════════════════════
  *
- * Structure :
- *   - stickers : tableau des vignettes chargé depuis database.json
- *   - collectionState : { [stickerID]: { status: 'missing'|'owned'|'duplicate', count: number } }
- *   - localStorage : sauvegarde automatique
- *   - export / import JSON
+ * Architecture :
+ *  - État global : `stickers` (données brutes) + `collectionState` (état utilisateur)
+ *  - Navigation par vues (album, pays, manquantes, doublons, stats, échanges)
+ *  - Chaque vue est rendue à la demande (lazy rendering)
+ *  - Persistance locale via localStorage (cache) + import/export fichier JSON
  */
-"use strict";
 
-// ============================================================
-//  1. ÉTAT GLOBAL
-// ============================================================
+'use strict';
+
+/* ═══════════════════════════════════════════════════════════════
+   1. CONFIGURATION GLOBALE
+   ═══════════════════════════════════════════════════════════════ */
+
+/** URL du fichier database.json — remplace par l'URL GitHub Pages en prod */
+const DATABASE_URL = 'database.json';
+
+/** Clé de stockage localStorage pour la collection */
+const LS_KEY = 'panini_wc2026_collection';
+
+/* ═══════════════════════════════════════════════════════════════
+   2. ÉTAT GLOBAL DE L'APPLICATION
+   ═══════════════════════════════════════════════════════════════ */
+
+/** Données brutes chargées depuis database.json */
 let stickers = [];
+
+/**
+ * État utilisateur de la collection.
+ * Structure : { [stickerID]: { status: 'owned'|'missing'|'duplicate', count: number } }
+ */
 let collectionState = {};
 
-// Éléments DOM
-const views = {
-  page: document.getElementById('view-page'),
-  pays: document.getElementById('view-pays'),
-  missing: document.getElementById('view-missing'),
-  duplicates: document.getElementById('view-duplicates'),
-  stats: document.getElementById('view-stats'),
-  trade: document.getElementById('view-trade'),
-};
+/** Vue actuellement affichée */
+let currentView = 'album';
 
-const statusMsg = document.getElementById('statusMsg');
-let currentPage = 1;
-let stickersPerPage = 24; // ajustable
+/** Page d'album actuellement affichée (index dans la liste des pages triées) */
+let currentAlbumPageIndex = 0;
 
-// Filtres pour manquantes / doublons
-let filters = {
-  code: 'all',
-  section: 'all',
-  type: 'all',
-  groupe: 'all',
-};
+/** Liste triée des numéros de pages uniques */
+let albumPages = [];
 
-// ============================================================
-//  2. CHARGEMENT DES DONNÉES
-// ============================================================
-async function loadData() {
+/** ID de la vignette actuellement ouverte dans la modale */
+let modalStickerID = null;
+
+/* ═══════════════════════════════════════════════════════════════
+   3. INITIALISATION AU CHARGEMENT
+   ═══════════════════════════════════════════════════════════════ */
+
+document.addEventListener('DOMContentLoaded', async () => {
+  // Affichage du spinner pendant le chargement
+  showLoadingSpinner();
+
   try {
-    const resp = await fetch('database.json');
-    if (!resp.ok) throw new Error('Fichier database.json introuvable');
-    stickers = await resp.json();
-    // Initialiser l'état de collection si vide
-    initCollectionState();
-    // Restaurer depuis localStorage
-    restoreFromLocalStorage();
-    // Rendre toutes les vues
-    renderAll();
-    statusMsg.textContent = '✅ Données chargées avec succès';
-  } catch (err) {
-    statusMsg.textContent = '❌ Erreur : ' + err.message;
-    console.error(err);
-  }
-}
+    // Chargement des données
+    await loadDatabase();
 
-function initCollectionState() {
+    // Chargement de la collection depuis localStorage (cache auto)
+    loadCollectionFromLocalStorage();
+
+    // Construction de l'interface
+    initNavigation();
+    initAlbumPageSelect();
+    initPaysSelect();
+    initFilters();
+    initExportImport();
+    initModal();
+
+    // Rendu initial de la vue album
+    renderCurrentView();
+    updateGlobalProgress();
+
+  } catch (err) {
+    console.error('Erreur au démarrage :', err);
+    showToast('❌ Impossible de charger la base de données.', 4000);
+    hideLoadingSpinner();
+  }
+});
+
+/* ═══════════════════════════════════════════════════════════════
+   4. CHARGEMENT DES DONNÉES
+   ═══════════════════════════════════════════════════════════════ */
+
+/**
+ * Charge le fichier database.json et initialise la liste des pages.
+ */
+async function loadDatabase() {
+  const response = await fetch(DATABASE_URL);
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+  stickers = await response.json();
+
+  // Extraction des pages uniques, triées numériquement
+  const pagesSet = new Set(stickers.map(s => s['Page']));
+  albumPages = Array.from(pagesSet).sort((a, b) => a - b);
+
+  // Initialisation de collectionState : toutes les vignettes en "missing" par défaut
   stickers.forEach(s => {
-    const id = s.ID;
-    if (!collectionState[id]) {
-      collectionState[id] = { status: 'missing', count: 0 };
+    if (!collectionState[s.ID]) {
+      collectionState[s.ID] = { status: 'missing', count: 0 };
     }
   });
+
+  hideLoadingSpinner();
 }
 
-// ============================================================
-//  3. LOCAL STORAGE
-// ============================================================
-function saveToLocalStorage() {
+/* ═══════════════════════════════════════════════════════════════
+   5. GESTION DE L'ÉTAT DE LA COLLECTION
+   ═══════════════════════════════════════════════════════════════ */
+
+/**
+ * Retourne le statut d'une vignette ('missing' par défaut).
+ * @param {string} id - ID de la vignette
+ */
+function getStatus(id) {
+  return collectionState[id]?.status || 'missing';
+}
+
+/**
+ * Retourne le nombre de doublons d'une vignette.
+ * @param {string} id - ID de la vignette
+ */
+function getDupCount(id) {
+  return collectionState[id]?.count || 2;
+}
+
+/**
+ * Met à jour le statut d'une vignette et sauvegarde dans localStorage.
+ * @param {string} id - ID de la vignette
+ * @param {string} status - 'missing' | 'owned' | 'duplicate'
+ * @param {number} [count] - Nombre de doublons (si status === 'duplicate')
+ */
+function setStatus(id, status, count) {
+  if (!collectionState[id]) {
+    collectionState[id] = { status: 'missing', count: 0 };
+  }
+  collectionState[id].status = status;
+  if (status === 'duplicate') {
+    collectionState[id].count = Math.max(2, count ?? collectionState[id].count ?? 2);
+  } else {
+    collectionState[id].count = 0;
+  }
+  saveCollectionToLocalStorage();
+  updateGlobalProgress();
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   6. PERSISTANCE : LOCALSTORAGE (cache automatique)
+   ═══════════════════════════════════════════════════════════════ */
+
+/** Sauvegarde l'état courant dans localStorage. */
+function saveCollectionToLocalStorage() {
   try {
-    localStorage.setItem('panini_wc26_state', JSON.stringify(collectionState));
+    localStorage.setItem(LS_KEY, JSON.stringify(collectionState));
   } catch (e) {
-    console.warn('localStorage non disponible', e);
+    console.warn('Impossible de sauvegarder dans localStorage :', e);
   }
 }
 
-function restoreFromLocalStorage() {
+/** Charge l'état depuis localStorage s'il existe. */
+function loadCollectionFromLocalStorage() {
   try {
-    const saved = localStorage.getItem('panini_wc26_state');
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      // Ne garder que les stickers présents dans le JSON
-      const validIds = new Set(stickers.map(s => s.ID));
-      for (const [id, val] of Object.entries(parsed)) {
-        if (validIds.has(id)) {
-          collectionState[id] = val;
-        }
-      }
-      saveToLocalStorage(); // nettoie les clés obsolètes
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return;
+
+    const parsed = JSON.parse(raw);
+    // Vérification minimale : doit être un objet
+    if (typeof parsed !== 'object' || Array.isArray(parsed)) {
+      throw new Error('Format invalide');
     }
+
+    // Fusion avec l'état par défaut (les nouvelles vignettes restent "missing")
+    Object.keys(parsed).forEach(id => {
+      if (collectionState[id] !== undefined) {
+        collectionState[id] = parsed[id];
+      }
+    });
   } catch (e) {
-    console.warn('Erreur lecture localStorage', e);
+    console.warn('Données localStorage corrompues, réinitialisation :', e);
   }
 }
 
-// ============================================================
-//  4. EXPORT / IMPORT JSON
-// ============================================================
-function exportCollection() {
-  const json = JSON.stringify(collectionState, null, 2);
-  const blob = new Blob([json], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'ma-collection-panini.json';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  statusMsg.textContent = '✅ Export terminé !';
+/* ═══════════════════════════════════════════════════════════════
+   7. PERSISTANCE : EXPORT / IMPORT FICHIER JSON
+   ═══════════════════════════════════════════════════════════════ */
+
+/**
+ * Exporte la collection en tant que fichier JSON téléchargeable.
+ * Sérialise collectionState via JSON.stringify, crée un Blob et déclenche le téléchargement.
+ */
+function exportCollectionAsJSON() {
+  try {
+    const json = JSON.stringify(collectionState, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+
+    // Création d'un lien virtuel pour déclencher le téléchargement
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'ma-collection-wc2026.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+    // Nettoyage de la mémoire
+    URL.revokeObjectURL(url);
+
+    showToast('✅ Collection exportée avec succès !');
+  } catch (e) {
+    console.error('Erreur lors de l\'export :', e);
+    showToast('❌ Erreur lors de l\'export.');
+  }
 }
 
-function importCollectionFromFile(file) {
+/**
+ * Importe une collection depuis un fichier JSON sélectionné par l'utilisateur.
+ * Utilise FileReader, vérifie la structure, puis écrase collectionState.
+ * @param {File} file - Fichier .json sélectionné
+ */
+function importCollectionFromJSON(file) {
+  if (!file) return;
+
   const reader = new FileReader();
-  reader.onload = function (e) {
+
+  reader.onload = (event) => {
     try {
-      const imported = JSON.parse(e.target.result);
-      // Vérification basique
-      if (typeof imported !== 'object' || Array.isArray(imported)) {
-        throw new Error('Le fichier doit contenir un objet');
+      const parsed = JSON.parse(event.target.result);
+
+      // Vérification minimale de structure
+      if (typeof parsed !== 'object' || Array.isArray(parsed)) {
+        throw new Error('Le fichier ne contient pas un objet JSON valide.');
       }
-      // Appliquer l'import
-      const validIds = new Set(stickers.map(s => s.ID));
-      let count = 0;
-      for (const [id, val] of Object.entries(imported)) {
-        if (validIds.has(id) && val.status && ['missing', 'owned', 'duplicate'].includes(val.status)) {
+
+      // Vérification que les clés correspondent à des IDs de stickers connus
+      const knownIDs = new Set(stickers.map(s => s.ID));
+      const importedKeys = Object.keys(parsed);
+      const validKeys = importedKeys.filter(k => knownIDs.has(k));
+
+      if (validKeys.length === 0) {
+        throw new Error('Aucun sticker reconnu dans ce fichier.');
+      }
+
+      // Réinitialisation vers "missing" pour tous
+      stickers.forEach(s => {
+        collectionState[s.ID] = { status: 'missing', count: 0 };
+      });
+
+      // Application des données importées (uniquement les IDs connus)
+      validKeys.forEach(id => {
+        const entry = parsed[id];
+        if (entry && typeof entry.status === 'string') {
           collectionState[id] = {
-            status: val.status,
-            count: typeof val.count === 'number' ? val.count : 0,
+            status: ['owned', 'missing', 'duplicate'].includes(entry.status) ? entry.status : 'missing',
+            count: typeof entry.count === 'number' ? entry.count : 0,
           };
-          count++;
         }
-      }
-      saveToLocalStorage();
-      renderAll();
-      statusMsg.textContent = `✅ Import réussi : ${count} vignettes mises à jour.`;
-    } catch (err) {
-      statusMsg.textContent = '❌ Erreur lors de l\'import : ' + err.message;
-      console.error(err);
+      });
+
+      // Sauvegarde dans localStorage
+      saveCollectionToLocalStorage();
+
+      // Re-rendu complet
+      renderCurrentView();
+      updateGlobalProgress();
+
+      showToast(`✅ Collection importée ! (${validKeys.length} vignettes chargées)`);
+    } catch (e) {
+      console.error('Erreur lors de l\'import :', e);
+      showToast(`❌ Erreur d'import : ${e.message}`);
     }
   };
+
+  reader.onerror = () => {
+    showToast('❌ Impossible de lire le fichier.');
+  };
+
   reader.readAsText(file);
 }
 
-// Écouteur sur l'input file
-document.getElementById('importFile').addEventListener('change', function (e) {
-  if (this.files.length > 0) {
-    importCollectionFromFile(this.files[0]);
-    this.value = ''; // permet de réimporter le même fichier
-  }
-});
+/* ═══════════════════════════════════════════════════════════════
+   8. NAVIGATION ENTRE LES VUES
+   ═══════════════════════════════════════════════════════════════ */
 
-// ============================================================
-//  5. GESTION DES STATUTS
-// ============================================================
-function setStickerStatus(id, status) {
-  if (!collectionState[id]) return;
-  collectionState[id].status = status;
-  if (status !== 'duplicate') {
-    collectionState[id].count = 0;
-  }
-  saveToLocalStorage();
-  renderAll();
-}
+/**
+ * Initialise les boutons de navigation (desktop + mobile).
+ */
+function initNavigation() {
+  // Tous les boutons nav (desktop et mobile)
+  const navBtns = document.querySelectorAll('[data-view]');
 
-function incrementDuplicate(id) {
-  if (!collectionState[id] || collectionState[id].status !== 'duplicate') return;
-  collectionState[id].count = (collectionState[id].count || 0) + 1;
-  saveToLocalStorage();
-  renderAll();
-}
-
-function decrementDuplicate(id) {
-  if (!collectionState[id] || collectionState[id].status !== 'duplicate') return;
-  if (collectionState[id].count > 0) {
-    collectionState[id].count--;
-  }
-  saveToLocalStorage();
-  renderAll();
-}
-
-// Cycle de statut : missing -> owned -> duplicate -> missing
-function cycleStatus(id) {
-  const current = collectionState[id]?.status || 'missing';
-  let next;
-  switch (current) {
-    case 'missing':
-      next = 'owned';
-      break;
-    case 'owned':
-      next = 'duplicate';
-      break;
-    case 'duplicate':
-      next = 'missing';
-      break;
-    default:
-      next = 'missing';
-  }
-  setStickerStatus(id, next);
-}
-
-// ============================================================
-//  6. RENDU DES VUES
-// ============================================================
-function renderAll() {
-  renderPageView();
-  renderPaysView();
-  renderMissingView();
-  renderDuplicatesView();
-  renderStatsView();
-  renderTradeView();
-}
-
-// ---------- 6a. Album par page ----------
-function renderPageView() {
-  const container = views.page;
-  // Pagination
-  const totalPages = Math.ceil(stickers.length / stickersPerPage);
-  if (currentPage < 1) currentPage = 1;
-  if (currentPage > totalPages) currentPage = totalPages;
-
-  const start = (currentPage - 1) * stickersPerPage;
-  const pageStickers = stickers.slice(start, start + stickersPerPage);
-
-  let html = `
-    <div class="page-header">
-      <span class="page-title">Album – Page ${currentPage} / ${totalPages || 1}</span>
-      <div class="page-nav">
-        <button class="btn" onclick="changePage(-1)" ${currentPage <= 1 ? 'disabled' : ''}>◀</button>
-        <button class="btn" onclick="changePage(1)" ${currentPage >= totalPages ? 'disabled' : ''}>▶</button>
-      </div>
-    </div>
-    <div class="sticker-grid">
-  `;
-
-  pageStickers.forEach(s => {
-    html += stickerCardHTML(s);
-  });
-
-  html += `</div>`;
-  container.innerHTML = html;
-}
-
-function changePage(delta) {
-  currentPage += delta;
-  renderPageView();
-}
-
-// ---------- 6b. Par pays ----------
-function renderPaysView() {
-  const container = views.pays;
-  // Grouper par code pays
-  const groups = {};
-  stickers.forEach(s => {
-    const code = s.Code || '?';
-    if (!groups[code]) groups[code] = [];
-    groups[code].push(s);
-  });
-
-  let html = `<h2 class="page-title">Pays participants</h2>`;
-  const sortedCodes = Object.keys(groups).sort();
-  sortedCodes.forEach(code => {
-    const list = groups[code];
-    html += `<div style="margin-top:24px; border-bottom:2px solid var(--panel-mid); padding-bottom:8px;">
-      <span style="font-family:var(--font-display); font-size:20px; color:var(--blue-light);">${code}</span>
-      <span style="font-family:var(--font-mono); font-size:12px; color:var(--outline); margin-left:8px;">${list.length} vignettes</span>
-    </div>
-    <div class="sticker-grid" style="margin-top:12px;">`;
-    list.forEach(s => {
-      html += stickerCardHTML(s);
+  navBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const view = btn.dataset.view;
+      switchView(view);
     });
-    html += `</div>`;
   });
-
-  container.innerHTML = html;
 }
 
-// ---------- 6c. Manquantes ----------
-function renderMissingView() {
-  const container = views.missing;
-  const filtered = getFilteredStickers('missing');
-  const textExport = generateExportText(filtered);
+/**
+ * Bascule vers une vue donnée.
+ * @param {string} viewName - Identifiant de la vue
+ */
+function switchView(viewName) {
+  currentView = viewName;
 
-  let html = `
-    <h2 class="page-title">Mes manquantes (${filtered.length})</h2>
-    <div class="filter-bar">
-      ${filterControls()}
-    </div>
-    <div class="list-export">
-      <button class="btn" onclick="copyExportText('missing')">📋 Copier la liste</button>
-    </div>
-    <textarea class="export-textarea" id="missingExportText" readonly>${textExport}</textarea>
-    <div class="sticker-list" style="margin-top:16px;">
-  `;
-
-  filtered.forEach(s => {
-    html += stickerListItemHTML(s);
+  // Mise à jour des boutons actifs
+  document.querySelectorAll('[data-view]').forEach(btn => {
+    const isActive = btn.dataset.view === viewName;
+    btn.classList.toggle('active', isActive);
+    btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
   });
 
-  html += `</div>`;
-  container.innerHTML = html;
-}
-
-// ---------- 6d. Doublons ----------
-function renderDuplicatesView() {
-  const container = views.duplicates;
-  const filtered = getFilteredStickers('duplicate');
-  const textExport = generateExportText(filtered);
-
-  let html = `
-    <h2 class="page-title">Mes doublons (${filtered.length})</h2>
-    <div class="filter-bar">
-      ${filterControls()}
-    </div>
-    <div class="list-export">
-      <button class="btn" onclick="copyExportText('duplicate')">📋 Copier la liste</button>
-    </div>
-    <textarea class="export-textarea" id="duplicateExportText" readonly>${textExport}</textarea>
-    <div class="sticker-list" style="margin-top:16px;">
-  `;
-
-  filtered.forEach(s => {
-    html += stickerListItemHTML(s);
+  // Affichage / masquage des sections
+  document.querySelectorAll('.view').forEach(view => {
+    view.classList.toggle('hidden', view.id !== `view-${viewName}`);
   });
 
-  html += `</div>`;
-  container.innerHTML = html;
+  // Rendu de la vue
+  renderCurrentView();
 }
 
-// ---------- 6e. Statistiques ----------
-function renderStatsView() {
-  const container = views.stats;
-  const total = stickers.length;
-  let owned = 0,
-    missing = 0,
-    duplicate = 0,
-    totalDuplicates = 0;
+/**
+ * Déclenche le rendu de la vue courante.
+ */
+function renderCurrentView() {
+  switch (currentView) {
+    case 'album':      renderAlbumView();      break;
+    case 'pays':       renderPaysView();        break;
+    case 'manquantes': renderManquantesView();  break;
+    case 'doublons':   renderDoublonsView();    break;
+    case 'stats':      renderStatsView();       break;
+    case 'echanges':   /* rien à rendre d'emblée */ break;
+    default: break;
+  }
+}
 
-  stickers.forEach(s => {
-    const state = collectionState[s.ID];
-    if (state) {
-      if (state.status === 'owned') owned++;
-      else if (state.status === 'missing') missing++;
-      else if (state.status === 'duplicate') {
-        duplicate++;
-        totalDuplicates += (state.count || 0);
-      }
-    } else {
-      missing++;
+/* ═══════════════════════════════════════════════════════════════
+   9. VUE ALBUM
+   ═══════════════════════════════════════════════════════════════ */
+
+/**
+ * Initialise le sélecteur de page d'album.
+ */
+function initAlbumPageSelect() {
+  const select = document.getElementById('albumPageSelect');
+  select.innerHTML = '';
+
+  albumPages.forEach((page, idx) => {
+    // On construit le label à partir des stickers de cette page
+    const pageStickers = stickers.filter(s => s['Page'] === page);
+    const section = pageStickers[0]?.Section || `Page ${page}`;
+    const opt = document.createElement('option');
+    opt.value = idx;
+    opt.textContent = `p.${page} — ${section}`;
+    select.appendChild(opt);
+  });
+
+  select.addEventListener('change', () => {
+    currentAlbumPageIndex = parseInt(select.value, 10);
+    renderAlbumView();
+  });
+
+  // Boutons précédent / suivant
+  document.getElementById('btnPagePrev').addEventListener('click', () => {
+    if (currentAlbumPageIndex > 0) {
+      currentAlbumPageIndex--;
+      renderAlbumView();
     }
   });
 
-  const pctOwned = total ? Math.round((owned / total) * 100) : 0;
-
-  // Stats par pays
-  const byCode = {};
-  stickers.forEach(s => {
-    const code = s.Code || '?';
-    if (!byCode[code]) byCode[code] = { total: 0, owned: 0 };
-    byCode[code].total++;
-    if (collectionState[s.ID]?.status === 'owned') byCode[code].owned++;
+  document.getElementById('btnPageNext').addEventListener('click', () => {
+    if (currentAlbumPageIndex < albumPages.length - 1) {
+      currentAlbumPageIndex++;
+      renderAlbumView();
+    }
   });
 
-  let html = `
-    <h2 class="page-title">Statistiques</h2>
-    <div class="stats-grid">
-      <div class="stat-card"><div class="number">${owned}</div><div class="label">Possédées</div></div>
-      <div class="stat-card"><div class="number">${missing}</div><div class="label">Manquantes</div></div>
-      <div class="stat-card"><div class="number">${duplicate}</div><div class="label">Doublons (${totalDuplicates} ex.)</div></div>
-      <div class="stat-card"><div class="number">${pctOwned}%</div><div class="label">Complétion</div></div>
-    </div>
-    <h3 style="font-family:var(--font-display); font-size:18px; color:var(--blue-light); margin: 20px 0 12px;">Par pays</h3>
-    <div class="stats-detail">
-  `;
+  // Mise à jour du total
+  document.getElementById('albumPageTotal').textContent = albumPages.length;
+}
 
-  const sortedCodes = Object.keys(byCode).sort();
-  sortedCodes.forEach(code => {
-    const d = byCode[code];
-    const pct = d.total ? Math.round((d.owned / d.total) * 100) : 0;
-    html += `<div class="stats-detail-item">
-      <span class="label">${code}</span>
-      <span class="pct">${d.owned}/${d.total} (${pct}%)</span>
-    </div>`;
+/**
+ * Rend la vue album pour la page courante.
+ */
+function renderAlbumView() {
+  const pageNum = albumPages[currentAlbumPageIndex];
+  const pageStickers = stickers.filter(s => s['Page'] === pageNum);
+
+  // Mise à jour de l'indicateur de page
+  document.getElementById('albumPageCurrent').textContent = pageNum;
+  document.getElementById('albumPageSelect').value = currentAlbumPageIndex;
+
+  // Boutons prev/next
+  document.getElementById('btnPagePrev').disabled = currentAlbumPageIndex === 0;
+  document.getElementById('btnPageNext').disabled = currentAlbumPageIndex === albumPages.length - 1;
+
+  // En-tête de section
+  renderAlbumSectionHeader(pageStickers);
+
+  // Grille de vignettes
+  const grid = document.getElementById('stickerGrid');
+  grid.innerHTML = '';
+
+  pageStickers.forEach(sticker => {
+    const card = buildStickerCard(sticker);
+    grid.appendChild(card);
   });
-
-  html += `</div>`;
-  container.innerHTML = html;
 }
 
-// ---------- 6f. Échanges ----------
-function renderTradeView() {
-  const container = views.trade;
-  container.innerHTML = `
-    <h2 class="page-title">Échanges</h2>
-    <div class="trade-box">
-      <p style="font-family:var(--font-mono); font-size:12px; color:var(--outline); margin-bottom:8px;">
-        Collez ici la liste des <strong>manquantes</strong> de votre correspondant (format texte, ex: "RSA 1,2,3").
-      </p>
-      <textarea id="tradeInput" placeholder="Ex: FRA 5,12,23&#10;MEX 7,8,9"></textarea>
-      <button class="btn" style="margin-top:10px;" onclick="computeTrade()">🔍 Trouver les échanges possibles</button>
-    </div>
-    <div id="tradeResult" class="trade-result hidden"></div>
-  `;
-}
+/**
+ * Construit le bandeau de section en haut de la page d'album.
+ * @param {Array} pageStickers - Vignettes de la page courante
+ */
+function renderAlbumSectionHeader(pageStickers) {
+  const container = document.getElementById('albumSectionHeader');
 
-function computeTrade() {
-  const input = document.getElementById('tradeInput').value.trim();
-  const resultDiv = document.getElementById('tradeResult');
-  if (!input) {
-    resultDiv.innerHTML = '<span style="color:var(--red);">Veuillez coller une liste.</span>';
-    resultDiv.classList.remove('hidden');
+  if (!pageStickers.length) {
+    container.innerHTML = '';
     return;
   }
 
-  // Parser la liste : on attend des lignes "CODE n1,n2,..."
-  const lines = input.split('\n').filter(l => l.trim());
-  const wanted = new Map(); // code -> Set de numéros
-  lines.forEach(line => {
-    const parts = line.trim().split(/\s+/);
-    if (parts.length < 2) return;
-    const code = parts[0].toUpperCase();
-    const nums = parts.slice(1).join('').split(',').map(n => n.trim()).filter(n => n !== '');
-    if (!wanted.has(code)) wanted.set(code, new Set());
-    nums.forEach(n => {
-      if (n.match(/^\d+$/)) wanted.get(code).add(parseInt(n, 10));
-    });
-  });
+  // Récupération des sections uniques sur cette page
+  const sections = [...new Set(pageStickers.map(s => s['Section']))];
+  const firstSection = sections[0];
+  const flagURL = pageStickers[0]?.Drapeau || '';
+  const groupe = pageStickers[0]?.Groupe || '';
 
-  // Parcourir nos doublons pour trouver les correspondances
-  let matches = [];
+  container.innerHTML = `
+    <div class="section-banner">
+      ${flagURL ? `<img src="${escHtml(flagURL)}" alt="${escHtml(firstSection)}" />` : ''}
+      <span>${escHtml(firstSection)}</span>
+      ${groupe ? `<span style="font-size:12px;opacity:0.7;letter-spacing:0.1em;">Groupe ${escHtml(groupe)}</span>` : ''}
+    </div>
+  `;
+}
+
+/**
+ * Construit et retourne un élément DOM représentant une vignette.
+ * @param {Object} sticker - Données d'une vignette
+ * @returns {HTMLElement}
+ */
+function buildStickerCard(sticker) {
+  const status = getStatus(sticker.ID);
+  const dupCount = getDupCount(sticker.ID);
+
+  const article = document.createElement('article');
+  article.className = `sticker-card ${status}`;
+  article.setAttribute('role', 'listitem');
+  article.setAttribute('aria-label', `${sticker.ID} — ${sticker.Nom} (${statusLabel(status)})`);
+  article.dataset.id = sticker.ID;
+
+  // Badge doublon
+  const dupBadge = status === 'duplicate'
+    ? `<div class="dup-badge" aria-label="${dupCount} doublons">x${dupCount}</div>`
+    : '';
+
+  // Couleur de header selon le type
+  const typeColor = sticker.Type === 'Spécial' ? 'var(--purple-psycho)' : '';
+  const typeStyle = typeColor ? `style="background:${typeColor};color:#fff;"` : '';
+
+  article.innerHTML = `
+    ${dupBadge}
+    <div class="sticker-header" ${typeStyle}>
+      <span class="sticker-id">${escHtml(sticker.ID)}</span>
+      <span class="sticker-type-badge">${escHtml(sticker.Type === 'Spécial' ? 'SPEC' : 'STD')}</span>
+    </div>
+    <div class="sticker-flag-wrap">
+      <img
+        class="sticker-flag"
+        src="${escHtml(sticker.Drapeau || '')}"
+        alt="${escHtml(sticker.Section)}"
+        loading="lazy"
+        onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2260%22 height=%2240%22><rect width=%2260%22 height=%2240%22 fill=%22%23E3E2FF%22/></svg>'"
+      />
+    </div>
+    <div class="sticker-footer">
+      <div class="sticker-name">${escHtml(sticker.Nom)}</div>
+      <div class="sticker-section-label">${escHtml(sticker.Section)}</div>
+    </div>
+  `;
+
+  // Clic → ouverture de la modale
+  article.addEventListener('click', () => openModal(sticker.ID));
+
+  return article;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   10. VUE PAR PAYS
+   ═══════════════════════════════════════════════════════════════ */
+
+/**
+ * Initialise le sélecteur de pays.
+ */
+function initPaysSelect() {
+  const select = document.getElementById('paysSelect');
+
+  // Construction de la liste des pays uniques (triés par nom de section)
+  const paysMap = {};
   stickers.forEach(s => {
-    const state = collectionState[s.ID];
-    if (!state || state.status !== 'duplicate') return;
-    const code = s.Code;
-    if (!wanted.has(code)) return;
-    const num = s['N°'];
-    if (!wanted.get(code).has(num)) return;
-    matches.push({ code, num, name: s.Nom, duplicateCount: state.count || 0 });
+    if (!paysMap[s.Code]) {
+      paysMap[s.Code] = s.Section;
+    }
   });
 
-  if (matches.length === 0) {
-    resultDiv.innerHTML = '❌ Aucun échange possible avec cette liste.';
-  } else {
-    let html = `✅ ${matches.length} échange(s) possible(s) :<ul style="margin-top:8px; list-style:none;">`;
-    matches.forEach(m => {
-      html += `<li style="padding:4px 0;">• ${m.code} n°${m.num} – ${m.name} (${m.duplicateCount} doublon${m.duplicateCount > 1 ? 's' : ''})</li>`;
-    });
-    html += '</ul>';
-    resultDiv.innerHTML = html;
-  }
-  resultDiv.classList.remove('hidden');
+  const paysSorted = Object.entries(paysMap).sort((a, b) => a[1].localeCompare(b[1]));
+
+  paysSorted.forEach(([code, section]) => {
+    const opt = document.createElement('option');
+    opt.value = code;
+    opt.textContent = `${section} (${code})`;
+    select.appendChild(opt);
+  });
+
+  select.addEventListener('change', () => renderPaysView());
 }
 
-// ============================================================
-//  7. FONCTIONS UTILITAIRES
-// ============================================================
+/**
+ * Rend la vue "Par pays".
+ */
+function renderPaysView() {
+  const code = document.getElementById('paysSelect').value;
+  const paysStickers = stickers.filter(s => s.Code === code);
 
-// Génère le HTML d'une carte sticker
-function stickerCardHTML(s) {
-  const state = collectionState[s.ID] || { status: 'missing', count: 0 };
-  const status = state.status;
-  const count = state.count || 0;
-  const statusLabel = { missing: 'Manquante', owned: 'Possédée', duplicate: `Doublon${count > 1 ? 's' : ''}` }[status] || 'Manquante';
-  const statusClass = status;
+  if (!paysStickers.length) return;
 
-  // Gérer les doublons : afficher le compteur
-  let dupBadge = '';
-  if (status === 'duplicate' && count > 0) {
-    dupBadge = ` <span style="background:var(--orange);color:var(--dark);padding:0 6px;border-radius:2px;font-size:10px;font-weight:700;">×${count}</span>`;
-  }
+  // Statistiques du pays
+  const total = paysStickers.length;
+  const owned = paysStickers.filter(s => getStatus(s.ID) === 'owned' || getStatus(s.ID) === 'duplicate').length;
+  const pct = Math.round((owned / total) * 100);
+  const flagURL = paysStickers[0]?.Drapeau || '';
+  const sectionName = paysStickers[0]?.Section || code;
 
-  return `
-    <div class="sticker-card" onclick="cycleStatus('${s.ID}')" title="Cliquer pour changer le statut (${statusLabel})">
-      <img class="flag" src="${s.Drapeau || ''}" alt="${s.Nom}" loading="lazy" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22160%22 height=%2250%22%3E%3Crect width=%22160%22 height=%2250%22 fill=%22%232a2a2a%22/%3E%3Ctext x=%2280%22 y=%2232%22 font-size=%2210%22 fill=%22%237A7A8A%22 text-anchor=%22middle%22 font-family=%22monospace%22%3ENO FLAG%3C/text%3E%3C/svg%3E'" />
-      <div class="id">${s.ID}</div>
-      <div class="name">${s.Nom}</div>
-      <div class="meta">${s.Section || ''} ${s.Type || ''} ${s.Groupe ? '· Groupe '+s.Groupe : ''}</div>
-      <div class="status-badge ${statusClass}">${statusLabel}${dupBadge}</div>
-    </div>
-  `;
-}
-
-// Génère le HTML d'un élément de liste (pour manquantes / doublons)
-function stickerListItemHTML(s) {
-  const state = collectionState[s.ID] || { status: 'missing', count: 0 };
-  const count = state.count || 0;
-  let extra = '';
-  if (state.status === 'duplicate' && count > 0) {
-    extra = `<span class="dup-count">×${count}</span>`;
-  }
-  return `
-    <div class="sticker-list-item">
-      <img class="flag-sm" src="${s.Drapeau || ''}" alt="" loading="lazy" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2222%22%3E%3Crect width=%2232%22 height=%2222%22 fill=%22%232a2a2a%22/%3E%3Ctext x=%2216%22 y=%2215%22 font-size=%228%22 fill=%22%237A7A8A%22 text-anchor=%22middle%22 font-family=%22monospace%22%3E?%3C/text%3E%3C/svg%3E'" />
-      <div class="info">
-        <span class="id-code">${s.Code || ''} ${s['N°'] || ''}</span>
-        <span class="name">${s.Nom}</span>
-        <span class="meta">${s.Section || ''} ${s.Type || ''}</span>
+  // Résumé pays
+  document.getElementById('paysSummary').innerHTML = `
+    <img class="pays-flag" src="${escHtml(flagURL)}" alt="${escHtml(sectionName)}" 
+         onerror="this.style.display='none'" />
+    <div class="pays-info">
+      <div class="pays-info-name">${escHtml(sectionName)}</div>
+      <div class="pays-info-stats">
+        <strong>${owned}</strong> / ${total} possédées — <strong>${pct}%</strong>
       </div>
-      ${extra}
-      <button class="btn" style="font-size:8px; padding:2px 10px;" onclick="event.stopPropagation(); cycleStatus('${s.ID}')">Changer</button>
+    </div>
+    <div class="pays-progress-bar">
+      <div class="pays-progress-fill" style="width:${pct}%"></div>
     </div>
   `;
+
+  // Grille des vignettes du pays
+  const grid = document.getElementById('paysGrid');
+  grid.innerHTML = '';
+  paysStickers.forEach(s => grid.appendChild(buildStickerCard(s)));
 }
 
-// Filtres communs
-function filterControls() {
-  const codes = [...new Set(stickers.map(s => s.Code).filter(Boolean))].sort();
-  const sections = [...new Set(stickers.map(s => s.Section).filter(Boolean))].sort();
-  const types = [...new Set(stickers.map(s => s.Type).filter(Boolean))].sort();
-  const groupes = [...new Set(stickers.map(s => s.Groupe).filter(Boolean))].sort();
+/* ═══════════════════════════════════════════════════════════════
+   11. VUE MANQUANTES
+   ═══════════════════════════════════════════════════════════════ */
 
-  return `
-    <div class="filter-group">
-      <label>Pays</label>
-      <select id="filterCode" onchange="updateFilters()">
-        <option value="all">Tous</option>
-        ${codes.map(c => `<option value="${c}">${c}</option>`).join('')}
-      </select>
+/**
+ * Initialise les filtres communs aux vues manquantes et doublons.
+ */
+function initFilters() {
+  // Filtres manquantes
+  document.getElementById('manqSectionFilter').addEventListener('change', renderManquantesView);
+
+  // Filtres doublons
+  document.getElementById('dblSectionFilter').addEventListener('change', renderDoublonsView);
+
+  // Peuplement des filtres
+  populateFilterSelects();
+}
+
+/**
+ * Peuple les <select> de filtres avec les codes et sections uniques.
+ */
+function populateFilterSelects() {
+  const sections = [...new Set(stickers.map(s => s.Section))].sort();
+
+  const manqSec  = document.getElementById('manqSectionFilter');
+  const dblSec   = document.getElementById('dblSectionFilter');
+
+  sections.forEach(sec => {
+    [manqSec, dblSec].forEach(sel => {
+      const opt = document.createElement('option');
+      opt.value = sec;
+      opt.textContent = sec;
+      sel.appendChild(opt);
+    });
+  });
+}
+
+/**
+ * Rend la vue "Mes manquantes".
+ */
+function renderManquantesView() {
+  const filterSection = document.getElementById('manqSectionFilter').value;
+
+  let missing = stickers.filter(s => getStatus(s.ID) === 'missing');
+
+  if (filterSection) missing = missing.filter(s => s.Section === filterSection);
+
+  // Compteur
+  document.getElementById('manqCount').innerHTML =
+    `<span>${missing.length}</span> vignette${missing.length > 1 ? 's' : ''} manquante${missing.length > 1 ? 's' : ''}`;
+
+  // Rendu de la liste
+  renderStickerList(document.getElementById('manqList'), missing);
+
+  // Masquer la zone d'export si on change les filtres
+  document.getElementById('manqExportZone').classList.add('hidden');
+}
+
+/**
+ * Rend la vue "Mes doublons".
+ */
+function renderDoublonsView() {
+  const filterSection = document.getElementById('dblSectionFilter').value;
+
+  let duplicates = stickers.filter(s => getStatus(s.ID) === 'duplicate');
+
+  if (filterSection) duplicates = duplicates.filter(s => s.Section === filterSection);
+
+  // Compteur
+  document.getElementById('dblCount').innerHTML =
+    `<span>${duplicates.length}</span> vignette${duplicates.length > 1 ? 's' : ''} en doublon`;
+
+  // Rendu de la liste
+  renderStickerList(document.getElementById('dblList'), duplicates, true);
+
+  // Masquer la zone d'export
+  document.getElementById('dblExportZone').classList.add('hidden');
+}
+
+/**
+ * Rend une liste de vignettes groupées par pays.
+ * @param {HTMLElement} container - Conteneur de la liste
+ * @param {Array} stickersList - Vignettes à afficher
+ * @param {boolean} showDupCount - Afficher le compteur de doublons
+ */
+function renderStickerList(container, stickersList, showDupCount = false) {
+  container.innerHTML = '';
+
+  if (!stickersList.length) {
+    container.innerHTML = `
+      <div style="padding:var(--sp-lg);text-align:center;color:var(--outline);">
+        <span class="material-symbols-outlined" style="font-size:48px;opacity:0.3;display:block;margin-bottom:12px;">check_circle</span>
+        <p style="font-weight:700;font-size:14px;">Aucune vignette dans cette catégorie.</p>
+      </div>
+    `;
+    return;
+  }
+
+  // Groupement par Code (pays)
+  const grouped = {};
+  stickersList.forEach(s => {
+    if (!grouped[s.Code]) grouped[s.Code] = [];
+    grouped[s.Code].push(s);
+  });
+
+  Object.entries(grouped).forEach(([code, items]) => {
+    // En-tête du groupe pays
+    const sectionName = items[0]?.Section || code;
+    const flagURL     = items[0]?.Drapeau || '';
+
+    const header = document.createElement('div');
+    header.className = 'list-group-header';
+    header.innerHTML = `
+      ${flagURL ? `<img src="${escHtml(flagURL)}" alt="" />` : ''}
+      <span>${escHtml(sectionName)}</span>
+      <span style="margin-left:auto;font-size:11px;color:var(--outline);">${items.length} vignette${items.length > 1 ? 's' : ''}</span>
+    `;
+    container.appendChild(header);
+
+    // Items de ce groupe
+    items.forEach(s => {
+      const item = document.createElement('div');
+      item.className = 'list-item';
+      item.setAttribute('role', 'listitem');
+      item.dataset.id = s.ID;
+
+      const dupBadge = showDupCount
+        ? `<div class="list-item-dup-count">x${getDupCount(s.ID)}</div>`
+        : '';
+
+      item.innerHTML = `
+        <img class="list-item-flag" src="${escHtml(s.Drapeau || '')}" alt="" loading="lazy"
+             onerror="this.style.display='none'" />
+        <span class="list-item-id">${escHtml(s.ID)}</span>
+        <span class="list-item-name">${escHtml(s.Nom)}</span>
+        <span class="list-item-section">${escHtml(s.Type)}</span>
+        ${dupBadge}
+      `;
+
+      item.addEventListener('click', () => openModal(s.ID));
+      container.appendChild(item);
+    });
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   12. EXPORT TEXTE (wantlist / tradelist)
+   ═══════════════════════════════════════════════════════════════ */
+
+/**
+ * Génère le texte d'export au format "CODE N°1,N°2,N°3".
+ * @param {Array} stickersList - Vignettes à exporter
+ * @returns {string} - Texte formaté
+ */
+function generateExportText(stickersList) {
+  // Groupement par code pays
+  const grouped = {};
+  stickersList.forEach(s => {
+    if (!grouped[s.Code]) grouped[s.Code] = [];
+    grouped[s.Code].push(s['N°']);
+  });
+
+  return Object.entries(grouped)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([code, nums]) => `${code} ${nums.sort((a, b) => a - b).join(',')}`)
+    .join('\n');
+}
+
+/**
+ * Initialise les boutons d'export texte et de copie.
+ */
+function initExportImport() {
+  // --- Export / Import global (JSON) ---
+  document.getElementById('btnExport').addEventListener('click', exportCollectionAsJSON);
+
+  document.getElementById('inputImport').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) importCollectionFromJSON(file);
+    e.target.value = ''; // Reset pour permettre un nouvel import du même fichier
+  });
+
+  // --- Export texte Manquantes ---
+  document.getElementById('btnExportManq').addEventListener('click', () => {
+    const filterSection = document.getElementById('manqSectionFilter').value;
+
+    let missing = stickers.filter(s => getStatus(s.ID) === 'missing');
+    if (filterSection) missing = missing.filter(s => s.Section === filterSection);
+
+    const text = generateExportText(missing);
+    document.getElementById('manqTextarea').value = text || '(Aucune vignette manquante)';
+    document.getElementById('manqExportZone').classList.remove('hidden');
+    document.getElementById('manqExportZone').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  });
+
+  document.getElementById('btnCopyManq').addEventListener('click', () => {
+    copyTextarea('manqTextarea');
+  });
+
+  document.getElementById('btnCloseManqExport').addEventListener('click', () => {
+    document.getElementById('manqExportZone').classList.add('hidden');
+  });
+
+  // --- Export texte Doublons ---
+  document.getElementById('btnExportDbl').addEventListener('click', () => {
+    const filterSection = document.getElementById('dblSectionFilter').value;
+
+    let duplicates = stickers.filter(s => getStatus(s.ID) === 'duplicate');
+    if (filterSection) duplicates = duplicates.filter(s => s.Section === filterSection);
+
+    const text = generateExportText(duplicates);
+    document.getElementById('dblTextarea').value = text || '(Aucun doublon)';
+    document.getElementById('dblExportZone').classList.remove('hidden');
+    document.getElementById('dblExportZone').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  });
+
+  document.getElementById('btnCopyDbl').addEventListener('click', () => {
+    copyTextarea('dblTextarea');
+  });
+
+  document.getElementById('btnCloseDblExport').addEventListener('click', () => {
+    document.getElementById('dblExportZone').classList.add('hidden');
+  });
+
+  // --- Module Échanges ---
+  document.getElementById('btnAnalyse').addEventListener('click', analyseEchanges);
+}
+
+/**
+ * Copie le contenu d'un textarea dans le presse-papier.
+ * @param {string} textareaId - ID du textarea
+ */
+function copyTextarea(textareaId) {
+  const textarea = document.getElementById(textareaId);
+  navigator.clipboard.writeText(textarea.value)
+    .then(() => showToast('📋 Liste copiée dans le presse-papier !'))
+    .catch(() => {
+      // Fallback pour les environnements sans clipboard API
+      textarea.select();
+      document.execCommand('copy');
+      showToast('📋 Liste copiée !');
+    });
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   13. VUE STATISTIQUES
+   ═══════════════════════════════════════════════════════════════ */
+
+/**
+ * Rend la vue Statistiques.
+ */
+function renderStatsView() {
+  const total     = stickers.length;
+  const owned     = stickers.filter(s => getStatus(s.ID) === 'owned').length;
+  const duplicates = stickers.filter(s => getStatus(s.ID) === 'duplicate').length;
+  const missing   = stickers.filter(s => getStatus(s.ID) === 'missing').length;
+  // Les doublons comptent comme "possédées" pour le % de complétion
+  const ownedTotal = owned + duplicates;
+  const pct = Math.round((ownedTotal / total) * 100);
+
+  // Cartes globales
+  document.getElementById('statsGlobal').innerHTML = `
+    <div class="stat-card completion">
+      <div class="stat-card-value">${pct}%</div>
+      <div class="stat-card-label">Complétion globale</div>
     </div>
-    <div class="filter-group">
-      <label>Section</label>
-      <select id="filterSection" onchange="updateFilters()">
-        <option value="all">Toutes</option>
-        ${sections.map(c => `<option value="${c}">${c}</option>`).join('')}
-      </select>
+    <div class="stat-card owned">
+      <div class="stat-card-value">${ownedTotal}</div>
+      <div class="stat-card-label">Possédées</div>
     </div>
-    <div class="filter-group">
-      <label>Type</label>
-      <select id="filterType" onchange="updateFilters()">
-        <option value="all">Tous</option>
-        ${types.map(c => `<option value="${c}">${c}</option>`).join('')}
-      </select>
+    <div class="stat-card missing">
+      <div class="stat-card-value">${missing}</div>
+      <div class="stat-card-label">Manquantes</div>
     </div>
-    <div class="filter-group">
-      <label>Groupe</label>
-      <select id="filterGroupe" onchange="updateFilters()">
-        <option value="all">Tous</option>
-        ${groupes.map(c => `<option value="${c}">${c}</option>`).join('')}
-      </select>
+    <div class="stat-card duplicate">
+      <div class="stat-card-value">${duplicates}</div>
+      <div class="stat-card-label">Doublons</div>
     </div>
   `;
+
+  // Barres par pays
+  renderStatsBars();
 }
 
-function updateFilters() {
-  filters.code = document.getElementById('filterCode').value;
-  filters.section = document.getElementById('filterSection').value;
-  filters.type = document.getElementById('filterType').value;
-  filters.groupe = document.getElementById('filterGroupe').value;
-  renderMissingView();
-  renderDuplicatesView();
-}
+/**
+ * Rend les barres de complétion par pays/section.
+ */
+function renderStatsBars() {
+  const container = document.getElementById('statsBars');
+  container.innerHTML = '';
 
-function getFilteredStickers(statusFilter) {
-  return stickers.filter(s => {
-    const state = collectionState[s.ID];
-    if (!state) return false;
-    if (state.status !== statusFilter) return false;
-    if (filters.code !== 'all' && s.Code !== filters.code) return false;
-    if (filters.section !== 'all' && s.Section !== filters.section) return false;
-    if (filters.type !== 'all' && s.Type !== filters.type) return false;
-    if (filters.groupe !== 'all' && s.Groupe !== filters.groupe) return false;
-    return true;
+  // Groupement par Code pays
+  const grouped = {};
+  stickers.forEach(s => {
+    if (!grouped[s.Code]) grouped[s.Code] = { section: s.Section, flag: s.Drapeau, stickers: [] };
+    grouped[s.Code].stickers.push(s);
+  });
+
+  // Tri par taux de complétion décroissant
+  const sortedEntries = Object.entries(grouped).sort((a, b) => {
+    const getPct = (items) => {
+      const total = items.length;
+      const ok = items.filter(s => getStatus(s.ID) !== 'missing').length;
+      return ok / total;
+    };
+    return getPct(b[1].stickers) - getPct(a[1].stickers);
+  });
+
+  sortedEntries.forEach(([code, data]) => {
+    const total  = data.stickers.length;
+    const ok     = data.stickers.filter(s => getStatus(s.ID) !== 'missing').length;
+    const pct    = Math.round((ok / total) * 100);
+    const fillClass = pct === 100 ? 'full' : pct < 20 ? 'low' : '';
+
+    const row = document.createElement('div');
+    row.className = 'stat-bar-row';
+    row.innerHTML = `
+      <div class="stat-bar-label">
+        ${data.flag ? `<img src="${escHtml(data.flag)}" alt="" loading="lazy" />` : ''}
+        <span title="${escHtml(data.section)}">${escHtml(data.section)}</span>
+      </div>
+      <div class="stat-bar-track">
+        <div class="stat-bar-fill ${fillClass}" style="width:${pct}%"></div>
+      </div>
+      <div class="stat-bar-pct">${pct}%</div>
+    `;
+    container.appendChild(row);
   });
 }
 
-function generateExportText(stickerList) {
-  // Grouper par code
-  const groups = {};
-  stickerList.forEach(s => {
-    const code = s.Code || '?';
-    if (!groups[code]) groups[code] = [];
-    groups[code].push(s['N°']);
-  });
-  const lines = [];
-  Object.keys(groups).sort().forEach(code => {
-    const nums = groups[code].sort((a, b) => a - b);
-    lines.push(`${code} ${nums.join(',')}`);
-  });
-  return lines.join('\n');
+/* ═══════════════════════════════════════════════════════════════
+   14. MODULE ÉCHANGES
+   ═══════════════════════════════════════════════════════════════ */
+
+/**
+ * Analyse la liste textuelle d'un collègue et affiche les échanges possibles.
+ *
+ * Format attendu :
+ *   CODE N°1,N°2,N°3
+ *   CODE N°4,N°5
+ * Interprète chaque ligne comme les doublons du collègue (ou ses manquantes).
+ */
+function analyseEchanges() {
+  const raw = document.getElementById('colleagueInput').value.trim();
+  const resultsDiv = document.getElementById('echangeResults');
+
+  if (!raw) {
+    resultsDiv.innerHTML = `
+      <div class="echange-empty">
+        <span class="material-symbols-outlined">warning</span>
+        <p>La liste est vide. Colle la liste de ton collègue.</p>
+      </div>
+    `;
+    return;
+  }
+
+  // Parse la liste du collègue
+  const colleagueStickers = parseTextList(raw);
+
+  if (colleagueStickers.size === 0) {
+    resultsDiv.innerHTML = `
+      <div class="echange-empty">
+        <span class="material-symbols-outlined">error</span>
+        <p>Format non reconnu. Exemple attendu :<br><code>MEX 1,2,3</code></p>
+      </div>
+    `;
+    return;
+  }
+
+  // Mes manquantes : vignettes que je n'ai pas
+  const mesManquantes = new Set(
+    stickers.filter(s => getStatus(s.ID) === 'missing').map(s => s.ID)
+  );
+
+  // Mes doublons : vignettes que j'ai en surplus
+  const mesDoublons = new Set(
+    stickers.filter(s => getStatus(s.ID) === 'duplicate').map(s => s.ID)
+  );
+
+  // Ce que le collègue a (et que je cherche) : intersection(colleagueStickers, mesManquantes)
+  const ilsOntPourMoi = [...colleagueStickers].filter(id => mesManquantes.has(id));
+
+  // Ce que j'ai en doublon (et dont le collègue a besoin) : intersection(mesDoublons, manquantes du collègue)
+  // Note : on interprète la liste collée comme ses doublons OU ses manquantes.
+  // On considère ici que TOUTES les vignettes qu'il a listées = ses doublons disponibles.
+  // Ses manquantes sont les stickers non listés. Mes doublons dont il a besoin = mesDoublons - colleagueStickers.
+  const jeDonnePourLui = [...mesDoublons].filter(id => !colleagueStickers.has(id));
+
+  // Construction du rendu
+  let html = '';
+
+  // Bloc 1 : Ce que le collègue peut me donner
+  html += `<div class="echange-block ils-ont">
+    <div class="echange-block-title">
+      ✅ Il/Elle peut me donner (${ilsOntPourMoi.length})
+    </div>`;
+
+  if (ilsOntPourMoi.length === 0) {
+    html += `<p class="echange-empty" style="padding:var(--sp-sm);color:var(--outline);font-size:13px;">
+      Aucune vignette en commun.
+    </p>`;
+  } else {
+    html += `<div class="echange-sticker-tags">`;
+    ilsOntPourMoi.forEach(id => {
+      const s = stickers.find(x => x.ID === id);
+      html += `<span class="echange-tag" title="${escHtml(s?.Nom || '')}">${escHtml(id)}</span>`;
+    });
+    html += `</div>`;
+  }
+  html += `</div>`;
+
+  // Bloc 2 : Ce que je peux lui donner
+  html += `<div class="echange-block je-donne">
+    <div class="echange-block-title">
+      🔄 Je peux lui/lui donner (${jeDonnePourLui.length})
+    </div>`;
+
+  if (jeDonnePourLui.length === 0) {
+    html += `<p class="echange-empty" style="padding:var(--sp-sm);color:rgba(255,255,255,0.6);font-size:13px;">
+      Aucun doublon à lui proposer.
+    </p>`;
+  } else {
+    html += `<div class="echange-sticker-tags">`;
+    jeDonnePourLui.forEach(id => {
+      const s = stickers.find(x => x.ID === id);
+      html += `<span class="echange-tag" title="${escHtml(s?.Nom || '')}">${escHtml(id)}</span>`;
+    });
+    html += `</div>`;
+  }
+  html += `</div>`;
+
+  resultsDiv.innerHTML = html;
 }
 
-function copyExportText(type) {
-  const textarea = document.getElementById(type === 'missing' ? 'missingExportText' : 'duplicateExportText');
-  if (!textarea) return;
-  navigator.clipboard?.writeText(textarea.value).then(() => {
-    statusMsg.textContent = '✅ Liste copiée !';
-  }).catch(() => {
-    textarea.select();
-    document.execCommand('copy');
-    statusMsg.textContent = '✅ Liste copiée !';
+/**
+ * Parse une liste texte au format "CODE N°1,N°2,N°3" et retourne un Set d'IDs.
+ * @param {string} text - Texte brut à analyser
+ * @returns {Set<string>} - Ensemble des IDs reconnus
+ */
+function parseTextList(text) {
+  const ids = new Set();
+  const knownIDs = new Set(stickers.map(s => s.ID));
+
+  // Chaque ligne : "CODE n1,n2,n3" ou "CODE n1, n2, n3"
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+
+  lines.forEach(line => {
+    // Tente de matcher "CODE NUMS"
+    const match = line.match(/^([A-Z0-9]+)\s+([\d,\s]+)$/i);
+    if (!match) return;
+
+    const code = match[1].toUpperCase();
+    const nums = match[2].split(',').map(n => parseInt(n.trim(), 10)).filter(n => !isNaN(n));
+
+    nums.forEach(n => {
+      const id = `${code}${n}`;
+      if (knownIDs.has(id)) ids.add(id);
+    });
+  });
+
+  return ids;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   15. MODALE VIGNETTE
+   ═══════════════════════════════════════════════════════════════ */
+
+/**
+ * Initialise la modale et ses contrôles.
+ */
+function initModal() {
+  // Fermeture
+  document.getElementById('btnModalClose').addEventListener('click', closeModal);
+  document.getElementById('stickerModal').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) closeModal();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modalStickerID) closeModal();
+  });
+
+  // Boutons de statut
+  document.querySelectorAll('.btn-status').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const status = btn.dataset.status;
+      if (!modalStickerID) return;
+
+      setStatus(modalStickerID, status);
+      updateModalStatusButtons(status);
+      refreshStickerInView(modalStickerID);
+
+      if (status === 'duplicate') {
+        document.getElementById('modalDupControls').classList.remove('hidden');
+        document.getElementById('dupCountDisplay').textContent = getDupCount(modalStickerID);
+      } else {
+        document.getElementById('modalDupControls').classList.add('hidden');
+      }
+    });
+  });
+
+  // Contrôles de compteur doublons
+  document.getElementById('btnDupPlus').addEventListener('click', () => {
+    if (!modalStickerID) return;
+    const newCount = (collectionState[modalStickerID]?.count || 2) + 1;
+    setStatus(modalStickerID, 'duplicate', newCount);
+    document.getElementById('dupCountDisplay').textContent = newCount;
+    refreshStickerInView(modalStickerID);
+  });
+
+  document.getElementById('btnDupMinus').addEventListener('click', () => {
+    if (!modalStickerID) return;
+    const current = collectionState[modalStickerID]?.count || 2;
+    if (current <= 2) return; // minimum 2 pour un doublon
+    const newCount = current - 1;
+    setStatus(modalStickerID, 'duplicate', newCount);
+    document.getElementById('dupCountDisplay').textContent = newCount;
+    refreshStickerInView(modalStickerID);
   });
 }
 
-// ============================================================
-//  8. NAVIGATION PAR ONGLETS
-// ============================================================
-function switchTab(tabName) {
-  document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.tab === tabName);
-  });
-  Object.keys(views).forEach(key => {
-    views[key].classList.toggle('active', key === tabName);
-  });
-  // Re-render certaines vues si besoin
-  if (tabName === 'page') renderPageView();
-  if (tabName === 'pays') renderPaysView();
-  if (tabName === 'missing') renderMissingView();
-  if (tabName === 'duplicates') renderDuplicatesView();
-  if (tabName === 'stats') renderStatsView();
-  if (tabName === 'trade') renderTradeView();
+/**
+ * Ouvre la modale pour une vignette donnée.
+ * @param {string} id - ID de la vignette
+ */
+function openModal(id) {
+  const sticker = stickers.find(s => s.ID === id);
+  if (!sticker) return;
+
+  modalStickerID = id;
+  const status = getStatus(id);
+
+  // Remplissage des informations
+  document.getElementById('modalId').textContent = sticker.ID;
+  document.getElementById('modalTitle').textContent = sticker.Nom;
+  document.getElementById('modalFlag').src = sticker.Drapeau || '';
+  document.getElementById('modalFlag').alt = sticker.Section;
+
+  document.getElementById('modalMeta').innerHTML = `
+    <span>${escHtml(sticker.Section)}</span>
+    <span>${escHtml(sticker.Type)}</span>
+    ${sticker.Groupe ? `<span>Groupe ${escHtml(sticker.Groupe)}</span>` : ''}
+    <span>Page ${sticker['Page']}</span>
+  `;
+
+  // Couleur de l'en-tête selon le statut
+  const headerColors = {
+    owned:     { bg: 'var(--green-deep)',      fg: 'var(--yellow-lime)' },
+    missing:   { bg: 'var(--surface-mid)',     fg: 'var(--outline)' },
+    duplicate: { bg: 'var(--orange-vibrant)',  fg: '#fff' },
+  };
+  const colors = headerColors[status] || headerColors.missing;
+  const header = document.getElementById('modalHeader');
+  header.style.background = colors.bg;
+  header.style.color = colors.fg;
+
+  // Boutons de statut
+  updateModalStatusButtons(status);
+
+  // Compteur doublons
+  const dupControls = document.getElementById('modalDupControls');
+  if (status === 'duplicate') {
+    dupControls.classList.remove('hidden');
+    document.getElementById('dupCountDisplay').textContent = getDupCount(id);
+  } else {
+    dupControls.classList.add('hidden');
+  }
+
+  // Affichage de la modale
+  document.getElementById('stickerModal').classList.remove('hidden');
+  document.getElementById('btnModalClose').focus();
 }
 
-// Écouteurs sur les onglets
-document.querySelectorAll('.tab-btn').forEach(btn => {
-  btn.addEventListener('click', function () {
-    switchTab(this.dataset.tab);
+/**
+ * Ferme la modale.
+ */
+function closeModal() {
+  document.getElementById('stickerModal').classList.add('hidden');
+  modalStickerID = null;
+}
+
+/**
+ * Met à jour l'état visuel des boutons de statut dans la modale.
+ * @param {string} activeStatus - Statut actuellement actif
+ */
+function updateModalStatusButtons(activeStatus) {
+  document.querySelectorAll('.btn-status').forEach(btn => {
+    btn.classList.toggle('active-status', btn.dataset.status === activeStatus);
   });
-});
+}
 
-// ============================================================
-//  9. INITIALISATION
-// ============================================================
-document.addEventListener('DOMContentLoaded', () => {
-  loadData();
-});
+/**
+ * Met à jour une vignette dans la vue courante sans re-rendre toute la grille.
+ * @param {string} id - ID de la vignette à rafraîchir
+ */
+function refreshStickerInView(id) {
+  // On re-rend uniquement si la vue courante affiche cette vignette
+  // Pour les vues album et pays, on cherche la card existante et on la remplace
+  const existingCards = document.querySelectorAll(`.sticker-card[data-id="${id}"]`);
+  if (existingCards.length > 0) {
+    const sticker = stickers.find(s => s.ID === id);
+    if (!sticker) return;
+    const newCard = buildStickerCard(sticker);
+    existingCards.forEach(card => card.parentNode.replaceChild(newCard.cloneNode(true), card));
+    // Ré-attacher les événements sur le clone
+    document.querySelectorAll(`.sticker-card[data-id="${id}"]`).forEach(card => {
+      card.addEventListener('click', () => openModal(id));
+    });
+  }
 
-// Exposer certaines fonctions globalement pour les appels HTML
-window.changePage = changePage;
-window.cycleStatus = cycleStatus;
-window.setStickerStatus = setStickerStatus;
-window.incrementDuplicate = incrementDuplicate;
-window.decrementDuplicate = decrementDuplicate;
-window.exportCollection = exportCollection;
-window.importCollectionFromFile = importCollectionFromFile;
-window.switchTab = switchTab;
-window.updateFilters = updateFilters;
-window.copyExportText = copyExportText;
-window.computeTrade = computeTrade;
+  // Mise à jour des vues liste si elles sont actives
+  if (currentView === 'manquantes') renderManquantesView();
+  if (currentView === 'doublons')   renderDoublonsView();
+  if (currentView === 'stats')      renderStatsView();
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   16. BARRE DE PROGRESSION GLOBALE
+   ═══════════════════════════════════════════════════════════════ */
+
+/**
+ * Met à jour la barre de progression globale dans l'en-tête.
+ */
+function updateGlobalProgress() {
+  const total = stickers.length;
+  const owned = stickers.filter(s => getStatus(s.ID) !== 'missing').length;
+  const pct   = total > 0 ? Math.round((owned / total) * 100) : 0;
+
+  document.getElementById('progressOwned').textContent = owned;
+  document.getElementById('progressTotal').textContent = total;
+  document.getElementById('progressPct').textContent = `${pct}%`;
+  document.getElementById('progressFill').style.width = `${pct}%`;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   17. UTILITAIRES
+   ═══════════════════════════════════════════════════════════════ */
+
+/**
+ * Échappe les caractères HTML pour prévenir les injections XSS.
+ * @param {string} str - Chaîne à échapper
+ * @returns {string}
+ */
+function escHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g,  '&amp;')
+    .replace(/</g,  '&lt;')
+    .replace(/>/g,  '&gt;')
+    .replace(/"/g,  '&quot;')
+    .replace(/'/g,  '&#39;');
+}
+
+/**
+ * Retourne un libellé lisible pour un statut.
+ * @param {string} status
+ * @returns {string}
+ */
+function statusLabel(status) {
+  const labels = { owned: 'Possédée', missing: 'Manquante', duplicate: 'Doublon' };
+  return labels[status] || status;
+}
+
+/* ─── Toast ─── */
+
+let toastTimer = null;
+
+/**
+ * Affiche un message toast temporaire.
+ * @param {string} message - Message à afficher
+ * @param {number} [duration=2500] - Durée en ms
+ */
+function showToast(message, duration = 2500) {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), duration);
+}
+
+/* ─── Spinner de chargement ─── */
+
+function showLoadingSpinner() {
+  const main = document.getElementById('stickerGrid');
+  if (main) {
+    main.innerHTML = `
+      <div class="loading-spinner" style="grid-column:1/-1">
+        <div class="spinner-ring"></div>
+        <p style="font-weight:700;font-size:14px;color:var(--outline);">Chargement de la base…</p>
+      </div>
+    `;
+  }
+}
+
+function hideLoadingSpinner() {
+  // Le spinner disparaîtra au prochain renderAlbumView()
+}
