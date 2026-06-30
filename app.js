@@ -110,12 +110,9 @@ async function loadDatabase() {
 
   stickers = await response.json();
 
-  // Extraction des pages uniques pour connaître la dernière page réelle de
-  // l'album (certaines pages — couverture, stades, équipes... — n'ont pas
-  // de vignette recensée dans la base mais existent physiquement).
-  const pagesWithStickers = new Set(stickers.map(s => s['Page']));
-  const maxPage = Math.max(...pagesWithStickers);
-  albumPages = Array.from({ length: maxPage }, (_, i) => i + 1);
+  // Extraction des pages uniques, triées numériquement
+  const pagesSet = new Set(stickers.map(s => s['Page']));
+  albumPages = Array.from(pagesSet).sort((a, b) => a - b);
 
   // Initialisation de collectionState : toutes les vignettes en "missing" par défaut
   stickers.forEach(s => {
@@ -402,8 +399,11 @@ function initAlbumPageSelect() {
     }
   });
 
-  // Mise à jour du total
-  document.getElementById('albumPageTotal').textContent = albumPages.length;
+  // Mise à jour du total affiché : l'album physique compte 106 pages,
+  // même si seules certaines d'entre elles contiennent des vignettes
+  // recensées dans la base (la navigation, elle, ne porte que sur ces
+  // dernières — cf. albumPages ci-dessus).
+  document.getElementById('albumPageTotal').textContent = 106;
 }
 
 /**
@@ -1368,9 +1368,21 @@ function initGlobalSearch() {
   if (!input) return;
 
   input.addEventListener('input', () => {
+    const wasActive = searchActive;
     searchQuery = input.value.trim().toLowerCase();
     searchActive = searchQuery.length > 0;
     clearBtn.classList.toggle('hidden', !searchActive);
+
+    // Dès qu'une recherche démarre, on bascule sur la vue Album : c'est
+    // la seule vue où les résultats sont garantis d'être visibles
+    // immédiatement (sur "Stats" ou "Échanges" par exemple, rien
+    // n'apparaissait auparavant car la grille de résultats était rendue
+    // dans une vue masquée).
+    if (searchActive && !wasActive && currentView !== 'album') {
+      switchView('album'); // switchView() appelle déjà applySearchFilter()
+      return;
+    }
+
     applySearchFilter();
   });
 

@@ -66,6 +66,26 @@
   --radius-sm: 2px;
   --radius-md: 4px;
   --radius-full: 9999px;
+
+  /* ───────────────────────────────────────────────────────────
+     Couleurs des bandeaux de section (.section-banner--0 à --5)
+     Modifiable librement ici : chaque section de l'album se voit
+     assigner une de ces 6 couleurs (cf. JS, fonction
+     getSectionBannerColorIndex). Pensez à garder un bon contraste
+     entre le fond (-bg) et le texte (-fg).
+     ─────────────────────────────────────────────────────────── */
+  --section-color-0-bg: var(--red-bright);
+  --section-color-0-fg: #fff;
+  --section-color-1-bg: var(--blue-electric);
+  --section-color-1-fg: #fff;
+  --section-color-2-bg: var(--purple-psycho);
+  --section-color-2-fg: #fff;
+  --section-color-3-bg: var(--green-bright);
+  --section-color-3-fg: var(--green-deep);
+  --section-color-4-bg: var(--orange-vibrant);
+  --section-color-4-fg: #fff;
+  --section-color-5-bg: var(--cyan-neon);
+  --section-color-5-fg: var(--on-surface);
 }
 
 /* ───────────────────────────────────────────────────────────────
@@ -467,13 +487,15 @@ body {
   object-fit: cover;
 }
 
-/* Variantes de couleur — assignées en JS selon la section (palette cyclique) */
-.section-banner--0 { background: var(--red-bright);     color: #fff; }
-.section-banner--1 { background: var(--blue-electric);  color: #fff; }
-.section-banner--2 { background: var(--purple-psycho);  color: #fff; }
-.section-banner--3 { background: var(--green-bright);   color: var(--green-deep); }
-.section-banner--4 { background: var(--orange-vibrant); color: #fff; }
-.section-banner--5 { background: var(--cyan-neon);      color: var(--on-surface); }
+/* Variantes de couleur — assignées en JS selon la section (palette cyclique).
+   Pour changer une couleur, modifiez les variables --section-color-N-bg/-fg
+   dans le bloc :root en haut du fichier — pas besoin de toucher à ces règles. */
+.section-banner--0 { background: var(--section-color-0-bg); color: var(--section-color-0-fg); }
+.section-banner--1 { background: var(--section-color-1-bg); color: var(--section-color-1-fg); }
+.section-banner--2 { background: var(--section-color-2-bg); color: var(--section-color-2-fg); }
+.section-banner--3 { background: var(--section-color-3-bg); color: var(--section-color-3-fg); }
+.section-banner--4 { background: var(--section-color-4-bg); color: var(--section-color-4-fg); }
+.section-banner--5 { background: var(--section-color-5-bg); color: var(--section-color-5-fg); }
 
 /* ───────────────────────────────────────────────────────────────
    9. GRILLE DE VIGNETTES
@@ -1801,27 +1823,6 @@ body {
 }
 
 /* ───────────────────────────────────────────────────────────────
-   26. BOUTON RECHERCHE MOBILE (icône, ouvre la modale de recherche)
-   ─────────────────────────────────────────────────────────────── */
-.header-search-btn {
-  display: none; /* visible seulement sur mobile via media query */
-  flex-shrink: 0;
-}
-
-@media (max-width: 700px) {
-  /* Sur mobile, on masque la barre de recherche texte et on affiche
-     un simple bouton loupe pour ne pas entrer en conflit avec les
-     boutons d'export/import. */
-  .header-search {
-    display: none;
-  }
-
-  .header-search-btn {
-    display: inline-flex;
-  }
-}
-
-/* ───────────────────────────────────────────────────────────────
    27. BARRE DE RECHERCHE GLOBALE
    ─────────────────────────────────────────────────────────────── */
 .header-search {
@@ -1866,6 +1867,19 @@ body {
   border-color: var(--yellow-lime);
 }
 
+/* Le bouton "x" personnalisé est le seul affiché : on masque les
+   boutons natifs d'effacement que certains navigateurs ajoutent
+   automatiquement sur input[type=search] (cause des "deux croix"). */
+.search-input::-webkit-search-cancel-button,
+.search-input::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.search-input::-ms-clear {
+  display: none;
+}
+
 .search-clear {
   position: absolute;
   right: 6px;
@@ -1886,6 +1900,30 @@ body {
 
 .search-clear .material-symbols-outlined {
   font-size: 16px;
+}
+
+/* ───────────────────────────────────────────────────────────────
+   26. BOUTON RECHERCHE MOBILE (icône, ouvre la modale de recherche)
+   ─────────────────────────────────────────────────────────────── */
+.header-search-btn {
+  display: none; /* visible seulement sur mobile via media query */
+  flex-shrink: 0;
+}
+
+@media (max-width: 700px) {
+  /* Sur mobile, on masque la barre de recherche texte et on affiche
+     un simple bouton loupe pour ne pas entrer en conflit avec les
+     boutons d'export/import. Cette règle est volontairement placée
+     APRÈS la déclaration de base de .header-search ci-dessus : à
+     spécificité égale, c'est l'ordre dans le fichier qui décide,
+     donc ce display:none doit rester en dernier pour gagner. */
+  .header-search {
+    display: none;
+  }
+
+  .header-search-btn {
+    display: inline-flex;
+  }
 }
 
 /* Quand la barre de recherche est déplacée dans la modale mobile,
