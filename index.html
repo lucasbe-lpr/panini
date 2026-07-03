@@ -1,491 +1,72 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Panini WC2026 — Ma Collection</title>
-
-  <!-- Polices -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Anybody:ital,wdth,wght@0,75..125,100..900;1,75..125,100..900&family=Hanken+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
-  <!-- Icônes Material -->
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
-
-  <link rel="stylesheet" href="styles.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Album FWC 26 - Tracker</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
 </head>
 <body>
 
-  <!-- ═══════════════════════════════════════════════════
-       EN-TÊTE GLOBAL
-  ═══════════════════════════════════════════════════ -->
-  <header class="app-header">
-    <!-- Décoration cinétique ondulée -->
-    <div class="header-wave" aria-hidden="true"></div>
-
-    <div class="header-inner">
-      <!-- Logo / Titre -->
-      <div class="header-brand">
-        <div class="header-brand-text">
-          <h1 class="brand-title">FWC 2026</h1>
-          <span class="header-credit">Lucas Bessonnat v1.0</span>
-        </div>
-      </div>
-
-      <!-- Barre de progression globale -->
-      <div class="header-progress" id="headerProgress">
-        <div class="progress-label">
-          <span id="progressOwned">0</span> / <span id="progressTotal">980</span>
-          <span class="progress-pct" id="progressPct">0%</span>
-        </div>
-        <div class="progress-track">
-          <div class="progress-fill" id="progressFill" style="width:0%"></div>
-        </div>
-      </div>
-
-      <!-- Bouton recherche mobile (ouvre la modale de recherche) -->
-      <button class="btn btn-secondary btn-icon header-search-btn" id="btnMobileSearch" aria-label="Rechercher" title="Rechercher">
+  <!-- Header Sticky -->
+  <header class="header">
+    <div class="header-content">
+      <h1>Album FWC 26</h1>
+      <nav>
+        <button id="btnViewAlbum" class="btn active">Mon Album</button>
+        <button id="btnViewTrades" class="btn">Échanges</button>
+      </nav>
+      
+      <!-- Bannière de recherche -->
+      <div class="search-results-banner">
+        <input type="text" id="searchInput" placeholder="Rechercher un joueur ou un pays..." />
         <span class="material-symbols-outlined">search</span>
-      </button>
-
-      <!-- Barre de recherche globale -->
-      <div class="header-search" id="headerSearch">
-        <span class="material-symbols-outlined search-icon">search</span>
-        <input
-          type="text"
-          enterkeyhint="search"
-          id="globalSearch"
-          class="search-input"
-          placeholder="Joueur ou ID (ex: Mbappé, FRA10)"
-          autocomplete="off"
-          aria-label="Recherche globale"
-        />
-        <button class="search-clear hidden" id="searchClear" aria-label="Effacer">
-          <span class="material-symbols-outlined">close</span>
-        </button>
-      </div>
-
-      <!-- Actions globales : import / export -->
-      <div class="header-actions">
-        <button class="btn btn-secondary" id="btnExport" title="Exporter ma collection">
-          <span class="material-symbols-outlined">download</span>
-          <span class="btn-label">Exporter</span>
-        </button>
-        <label class="btn btn-secondary" title="Importer une collection">
-          <span class="material-symbols-outlined">upload</span>
-          <span class="btn-label">Importer</span>
-          <input type="file" accept=".json" id="inputImport" class="sr-only" />
-        </label>
       </div>
     </div>
   </header>
 
-  <!-- ═══════════════════════════════════════════════════
-       NAVIGATION PRINCIPALE (Desktop : onglets latéraux)
-  ═══════════════════════════════════════════════════ -->
-  <nav class="main-nav" role="navigation" aria-label="Navigation principale">
-    <button class="nav-btn active" data-view="album" aria-pressed="true">
-      <span class="material-symbols-outlined" aria-hidden="true">menu_book</span>
-      <span>Album</span>
-    </button>
-    <button class="nav-btn" data-view="pays" aria-pressed="false">
-      <span class="material-symbols-outlined" aria-hidden="true">flag</span>
-      <span>Par pays</span>
-    </button>
-    <button class="nav-btn" data-view="manquantes" aria-pressed="false">
-      <span class="material-symbols-outlined" aria-hidden="true">search_off</span>
-      <span>Manquantes</span>
-    </button>
-    <button class="nav-btn" data-view="doublons" aria-pressed="false">
-      <span class="material-symbols-outlined" aria-hidden="true">content_copy</span>
-      <span>Doublons</span>
-    </button>
-    <button class="nav-btn" data-view="stats" aria-pressed="false">
-      <span class="material-symbols-outlined" aria-hidden="true">leaderboard</span>
-      <span>Statistiques</span>
-    </button>
-    <button class="nav-btn" data-view="echanges" aria-pressed="false">
-      <span class="material-symbols-outlined" aria-hidden="true">swap_horiz</span>
-      <span>Échanges</span>
-    </button>
-  </nav>
-
-  <!-- ═══════════════════════════════════════════════════
-       ZONE DE CONTENU PRINCIPAL
-  ═══════════════════════════════════════════════════ -->
-  <main class="app-main" id="appMain">
-
-    <!-- ─────────────────────────────────────────────
-         VUE ALBUM
-    ───────────────────────────────────────────── -->
-    <section class="view" id="view-album" aria-label="Vue Album">
-
-      <!-- Contrôles de la page album -->
-      <div class="album-controls">
-        <div class="album-page-info">
-          <span class="page-label">PAGE</span>
-          <strong id="albumPageCurrent">1</strong>
-          <span class="page-sep">/</span>
-          <span id="albumPageTotal">106</span>
-        </div>
-        <div class="album-nav-btns">
-          <button class="btn btn-icon" id="btnPagePrev" aria-label="Page précédente">
-            <span class="material-symbols-outlined">chevron_left</span>
-          </button>
-          <select id="albumPageSelect" class="page-select" aria-label="Choisir une page d'album"></select>
-          <button class="btn btn-icon" id="btnPageNext" aria-label="Page suivante">
-            <span class="material-symbols-outlined">chevron_right</span>
-          </button>
-        </div>
-        <!-- Légende statuts -->
-        <div class="album-legend">
-          <span class="legend-item legend-owned">
-            <span class="legend-dot"></span>Possédée
-          </span>
-          <span class="legend-item legend-missing">
-            <span class="legend-dot"></span>Manquante
-          </span>
-          <span class="legend-item legend-duplicate">
-            <span class="legend-dot"></span>Doublon
-          </span>
-        </div>
-      </div>
-
-      <!-- Titre de section de la page courante -->
-      <div class="album-section-header" id="albumSectionHeader"></div>
-
-      <!-- Grille de vignettes -->
-      <div class="sticker-grid" id="stickerGrid" role="list" aria-label="Vignettes de la page"></div>
-
-    </section>
-
-    <!-- ─────────────────────────────────────────────
-         VUE PAR PAYS
-    ───────────────────────────────────────────── -->
-    <section class="view hidden" id="view-pays" aria-label="Vue Par pays">
-      <div class="view-header">
-        <h2 class="view-title">Par pays</h2>
-        <div class="pays-controls">
-          <select id="paysSelect" class="filter-select" aria-label="Choisir un pays"></select>
-        </div>
-      </div>
-      <div class="pays-summary" id="paysSummary"></div>
-      <div class="sticker-grid" id="paysGrid" role="list"></div>
-    </section>
-
-    <!-- ─────────────────────────────────────────────
-         VUE MANQUANTES
-    ───────────────────────────────────────────── -->
-    <section class="view hidden" id="view-manquantes" aria-label="Mes vignettes manquantes">
-      <div class="view-header">
-        <h2 class="view-title">Mes manquantes</h2>
-        <div class="list-controls">
-          <select id="manqSectionFilter" class="filter-select" aria-label="Filtrer par section">
-            <option value="">Toutes les sections</option>
-          </select>
-          <button class="btn btn-primary" id="btnExportManq">
-            <span class="material-symbols-outlined">content_paste</span>
-            Exporter liste
-          </button>
-        </div>
-      </div>
-      <div class="list-count" id="manqCount"></div>
-      <div class="sticker-list" id="manqList" role="list"></div>
-      <!-- Zone export texte -->
-      <div class="export-zone hidden" id="manqExportZone">
-        <div class="export-zone-header">
-          <span>Liste à copier-coller</span>
-          <button class="btn btn-icon" id="btnCopyManq" title="Copier">
-            <span class="material-symbols-outlined">content_copy</span>
-          </button>
-          <button class="btn btn-icon" id="btnCloseManqExport" title="Fermer">
-            <span class="material-symbols-outlined">close</span>
-          </button>
-        </div>
-        <textarea id="manqTextarea" class="export-textarea" readonly></textarea>
+  <main id="mainContent">
+    <!-- Vue Album -->
+    <section id="viewAlbum" class="view-section active">
+      <h2>Ma Collection</h2>
+      <div id="gridContainer" class="grid-container">
+        <!-- Les cartes seront générées ici par JS -->
       </div>
     </section>
 
-    <!-- ─────────────────────────────────────────────
-         VUE DOUBLONS
-    ───────────────────────────────────────────── -->
-    <section class="view hidden" id="view-doublons" aria-label="Mes doublons">
-      <div class="view-header">
-        <h2 class="view-title">Mes doublons</h2>
-        <div class="list-controls">
-          <select id="dblSectionFilter" class="filter-select" aria-label="Filtrer par section">
-            <option value="">Toutes les sections</option>
-          </select>
-          <button class="btn btn-primary" id="btnExportDbl">
-            <span class="material-symbols-outlined">content_paste</span>
-            Exporter liste
-          </button>
-        </div>
-      </div>
-      <div class="list-count" id="dblCount"></div>
-      <div class="sticker-list" id="dblList" role="list"></div>
-      <!-- Zone export texte -->
-      <div class="export-zone hidden" id="dblExportZone">
-        <div class="export-zone-header">
-          <span>Liste à copier-coller</span>
-          <button class="btn btn-icon" id="btnCopyDbl" title="Copier">
-            <span class="material-symbols-outlined">content_copy</span>
-          </button>
-          <button class="btn btn-icon" id="btnCloseDblExport" title="Fermer">
-            <span class="material-symbols-outlined">close</span>
-          </button>
-        </div>
-        <textarea id="dblTextarea" class="export-textarea" readonly></textarea>
-      </div>
-    </section>
-
-    <!-- ─────────────────────────────────────────────
-         VUE STATISTIQUES
-    ───────────────────────────────────────────── -->
-    <section class="view hidden" id="view-stats" aria-label="Statistiques de la collection">
-      <div class="view-header">
-        <h2 class="view-title">Statistiques</h2>
-      </div>
-      <!-- Compteurs globaux -->
-      <div class="stats-global" id="statsGlobal"></div>
-      <!-- Complétion par pays -->
-      <h3 class="stats-section-title">Complétion par pays</h3>
-      <div class="stats-bars" id="statsBars"></div>
-    </section>
-
-    <!-- ─────────────────────────────────────────────
-         VUE ÉCHANGES — MATCHMAKER
-    ───────────────────────────────────────────── -->
-    <section class="view hidden" id="view-echanges" aria-label="Gestion des échanges">
-      <div class="view-header">
-        <h2 class="view-title">Matchmaker</h2>
+    <!-- Vue Échanges (Matchmaker) -->
+    <section id="viewTrades" class="view-section hidden">
+      <h2>Simulateur d'échanges</h2>
+      <div class="trade-input-area">
+        <label for="friendDataInput">Collez le code de sauvegarde de votre ami :</label>
+        <textarea id="friendDataInput" rows="5" placeholder='{"FRA1": {"status": "duplicate", "count": 2} ...}'></textarea>
+        <button id="btnRunMatchmaker" class="btn primary-btn">Lancer l'analyse</button>
       </div>
 
-      <!-- Import de la collection d'un ami -->
-      <div class="matchmaker-import-block">
-        <div class="matchmaker-import-header">
-          <span class="material-symbols-outlined">person_add</span>
-          <strong>Importer la collection d'un ami</strong>
-          <span class="matchmaker-format-hint">Format JSON (.json) ou texte brut (CODE 1,2,3)</span>
-        </div>
-        <div class="matchmaker-import-row">
-          <textarea
-            id="colleagueInput"
-            class="exchange-textarea matchmaker-textarea"
-            placeholder="Colle ici le JSON de ton ami OU sa liste texte :&#10;{ &quot;FRA1&quot;: {&quot;status&quot;:&quot;owned&quot;...} }&#10;— ou —&#10;MEX 1,2,3&#10;BRA 4,5,6"
-            rows="5"
-          ></textarea>
-          <div class="matchmaker-import-actions">
-            <label class="btn btn-secondary" title="Importer un fichier JSON">
-              <span class="material-symbols-outlined">upload_file</span>
-              <span>Fichier JSON</span>
-              <input type="file" accept=".json" id="inputFriendJSON" class="sr-only" />
-            </label>
-            <button class="btn btn-primary" id="btnAnalyse">
-              <span class="material-symbols-outlined">manage_search</span>
-              Analyser
-            </button>
+      <div id="matchmakerResults" class="hidden">
+        <h3>Résultats de l'échange</h3>
+        <div class="trade-summary">
+          <div class="give-box">
+            <h4>Je donne (<span id="giveCount">0</span>)</h4>
+            <ul id="giveList"></ul>
+          </div>
+          <div class="receive-box">
+            <h4>Je reçois (<span id="receiveCount">0</span>)</h4>
+            <ul id="receiveList"></ul>
           </div>
         </div>
-      </div>
-
-      <!-- Résultats Matchmaker -->
-      <div class="matchmaker-results hidden" id="matchmakerResults">
-        <!-- En-tête résumé -->
-        <div class="matchmaker-summary" id="matchmakerSummary"></div>
-
-        <!-- Vue scindée -->
-        <div class="matchmaker-split">
-          <!-- Ce que je peux lui donner -->
-          <div class="match-panel match-give">
-            <div class="match-panel-title">
-              <span class="material-symbols-outlined">arrow_upward</span>
-              Je peux lui donner
-              <span class="match-count" id="giveCount">0</span>
-            </div>
-            <div class="match-panel-body" id="giveList"></div>
-          </div>
-
-          <!-- Ce qu'il peut me donner -->
-          <div class="match-panel match-receive">
-            <div class="match-panel-title">
-              <span class="material-symbols-outlined">arrow_downward</span>
-              Il/Elle peut me donner
-              <span class="match-count" id="receiveCount">0</span>
-            </div>
-            <div class="match-panel-body" id="receiveList"></div>
-          </div>
-        </div>
-
-        <!-- Export de l'échange -->
-        <div class="matchmaker-export">
-          <button class="btn btn-primary" id="btnExportMatch">
-            <span class="material-symbols-outlined">content_paste</span>
-            Exporter le récapitulatif
+        
+        <!-- NOUVEAU : Boutons d'action -->
+        <div class="match-actions">
+          <button id="btnValidateTrade" class="btn action-btn">
+            <span class="material-symbols-outlined">handshake</span>
+            Valider et appliquer l'échange
           </button>
-          <button class="btn btn-secondary" id="btnCopyMatch">
-            <span class="material-symbols-outlined">content_copy</span>
-            Copier
-          </button>
-        </div>
-        <div class="export-zone hidden" id="matchExportZone">
-          <div class="export-zone-header">
-            <span>Récapitulatif à envoyer</span>
-            <button class="btn btn-icon" id="btnCopyMatchText" title="Copier">
-              <span class="material-symbols-outlined">content_copy</span>
-            </button>
-            <button class="btn btn-icon" id="btnCloseMatchExport" title="Fermer">
-              <span class="material-symbols-outlined">close</span>
-            </button>
-          </div>
-          <textarea id="matchTextarea" class="export-textarea" readonly></textarea>
-        </div>
-      </div>
-
-      <!-- État vide -->
-      <div class="echange-results" id="echangeResults">
-        <div class="echange-empty">
-          <span class="material-symbols-outlined">swap_horiz</span>
-          <p>Importe la collection d'un ami et clique sur "Analyser" pour voir les échanges possibles.</p>
         </div>
       </div>
     </section>
-
   </main>
-
-  <!-- ═══════════════════════════════════════════════════
-       NAVIGATION MOBILE (barre du bas)
-  ═══════════════════════════════════════════════════ -->
-  <nav class="mobile-nav" role="navigation" aria-label="Navigation mobile">
-    <button class="mobile-nav-btn active" data-view="album">
-      <span class="material-symbols-outlined">menu_book</span>
-      <span>Album</span>
-    </button>
-    <button class="mobile-nav-btn" data-view="manquantes">
-      <span class="material-symbols-outlined">search_off</span>
-      <span>Manquantes</span>
-    </button>
-    <button class="mobile-nav-btn" data-view="doublons">
-      <span class="material-symbols-outlined">content_copy</span>
-      <span>Doublons</span>
-    </button>
-    <button class="mobile-nav-btn" data-view="stats">
-      <span class="material-symbols-outlined">leaderboard</span>
-      <span>Stats</span>
-    </button>
-    <button class="mobile-nav-btn" data-view="echanges">
-      <span class="material-symbols-outlined">swap_horiz</span>
-      <span>Échanges</span>
-    </button>
-  </nav>
-
-  <!-- ═══════════════════════════════════════════════════
-       FAB — OUVERTURE DE BOOSTER
-  ═══════════════════════════════════════════════════ -->
-  <button class="fab" id="fabBooster" aria-label="Ouvrir un booster" title="Ouvrir un booster">
-    <span class="material-symbols-outlined">stacks</span>
-  </button>
-
-  <!-- ═══════════════════════════════════════════════════
-       MODALE BOOSTER
-  ═══════════════════════════════════════════════════ -->
-  <div class="modal-overlay hidden" id="boosterModal" role="dialog" aria-modal="true" aria-labelledby="boosterTitle">
-    <div class="modal-card booster-card">
-      <div class="modal-header booster-header" id="boosterHeader">
-        <span class="modal-id" id="boosterTitle">📦 Ouvrir un booster</span>
-        <button class="btn btn-icon modal-close" id="btnBoosterClose" aria-label="Fermer">
-          <span class="material-symbols-outlined">close</span>
-        </button>
-      </div>
-      <div class="booster-body">
-        <label class="field-label" for="boosterInput">
-          Saisis les IDs séparés par des espaces :
-        </label>
-        <p class="booster-hint">Ex : <code>MEX4 FRA12 ENG2 BRA7</code></p>
-        <textarea
-          id="boosterInput"
-          class="exchange-textarea booster-textarea"
-          placeholder="MEX4 FRA12 ENG2 BRA7 ARG1..."
-          rows="4"
-        ></textarea>
-        <div class="booster-preview" id="boosterPreview"></div>
-      </div>
-      <div class="booster-footer">
-        <button class="btn btn-secondary" id="btnBoosterCancel">Annuler</button>
-        <button class="btn btn-primary" id="btnBoosterValidate">
-          <span class="material-symbols-outlined">check_circle</span>
-          Valider
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══════════════════════════════════════════════════
-       MODALE RECHERCHE (mobile)
-  ═══════════════════════════════════════════════════ -->
-  <div class="modal-overlay hidden" id="searchModal" role="dialog" aria-modal="true" aria-labelledby="searchModalTitle">
-    <div class="modal-card search-card">
-      <div class="modal-header search-header" id="searchModalHeader">
-        <span class="modal-id" id="searchModalTitle">🔍 Recherche</span>
-        <button class="btn btn-icon modal-close" id="btnSearchModalClose" aria-label="Fermer">
-          <span class="material-symbols-outlined">close</span>
-        </button>
-      </div>
-      <div class="search-modal-body" id="searchModalBody">
-        <!-- La barre de recherche existante (#headerSearch) est déplacée ici en JS à l'ouverture -->
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══════════════════════════════════════════════════
-       TOAST NOTIFICATION
-  ═══════════════════════════════════════════════════ -->
-  <div class="toast" id="toast" role="status" aria-live="polite"></div>
-
-  <!-- ═══════════════════════════════════════════════════
-       MODAL CONFIRMATION CLIC SUR VIGNETTE
-  ═══════════════════════════════════════════════════ -->
-  <div class="modal-overlay hidden" id="stickerModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-    <div class="modal-card">
-      <div class="modal-header" id="modalHeader">
-        <span class="modal-id" id="modalId"></span>
-        <button class="btn btn-icon modal-close" id="btnModalClose" aria-label="Fermer">
-          <span class="material-symbols-outlined">close</span>
-        </button>
-      </div>
-      <div class="modal-flag-wrap">
-        <img class="modal-flag" id="modalFlag" src="" alt="" />
-      </div>
-      <div class="modal-body">
-        <h3 class="modal-title" id="modalTitle"></h3>
-        <p class="modal-meta" id="modalMeta"></p>
-      </div>
-      <div class="modal-actions" id="modalActions">
-        <button class="btn btn-status status-missing" data-status="missing">
-          <span class="material-symbols-outlined">search_off</span>
-          Manquante
-        </button>
-        <button class="btn btn-status status-owned" data-status="owned">
-          <span class="material-symbols-outlined">check_circle</span>
-          Possédée
-        </button>
-        <button class="btn btn-status status-duplicate" data-status="duplicate">
-          <span class="material-symbols-outlined">content_copy</span>
-          Doublon
-        </button>
-      </div>
-      <!-- Compteur doublons -->
-      <div class="modal-dup-controls hidden" id="modalDupControls">
-        <button class="btn btn-icon" id="btnDupMinus" aria-label="Diminuer">
-          <span class="material-symbols-outlined">remove</span>
-        </button>
-        <span class="dup-count" id="dupCountDisplay">2</span>
-        <button class="btn btn-icon" id="btnDupPlus" aria-label="Augmenter">
-          <span class="material-symbols-outlined">add</span>
-        </button>
-      </div>
-    </div>
-  </div>
 
   <script src="app.js"></script>
 </body>
