@@ -1,4 +1,4 @@
-css_content = """/* ═══════════════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════════
    PANINI WC 2026 — STYLES COMPLETS
    Direction artistique : Rétro-futurisme cinétique / Op-Art 70s
    Flat design strict — zéro dégradé — color-blocking maximaliste
@@ -1000,9 +1000,3 @@ body {
 @media (min-width: 769px) {
   .header-search-btn { display: none; }
 }
-"""
-
-with open('styles.css', 'w', encoding='utf-8') as f:
-    f.write(css_content)
-
-print("styles.css generated")
