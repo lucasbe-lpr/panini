@@ -1,1918 +1,1778 @@
-/**
- * ═══════════════════════════════════════════════════════════════
- * PANINI WC 2026 — APPLICATION JAVASCRIPT COMPLÈTE
- * Logique métier, gestion d'état, rendu des vues, import/export
- * ═══════════════════════════════════════════════════════════════
- *
- * Architecture :
- *  - État global : `stickers` (données brutes) + `collectionState` (état utilisateur)
- *  - Navigation par vues (album, pays, manquantes, doublons, stats, échanges)
- *  - Chaque vue est rendue à la demande (lazy rendering)
- *  - Persistance locale via localStorage (cache) + import/export fichier JSON
- */
-
-'use strict';
-
-/* ═══════════════════════════════════════════════════════════════
-   1. CONFIGURATION GLOBALE
-   ═══════════════════════════════════════════════════════════════ */
-
-/** URL du fichier database.json — remplace par l'URL GitHub Pages en prod */
-const DATABASE_URL = 'database.json';
-
-/** Clé de stockage localStorage pour la collection */
-const LS_KEY = 'panini_wc2026_collection';
-
-/* ═══════════════════════════════════════════════════════════════
-   2. ÉTAT GLOBAL DE L'APPLICATION
-   ═══════════════════════════════════════════════════════════════ */
-
-/** Données brutes chargées depuis database.json */
-let stickers = [];
-
-/**
- * État utilisateur de la collection.
- * Structure : { [stickerID]: { status: 'owned'|'missing'|'duplicate', count: number } }
- */
-let collectionState = {};
-
-/** Vue actuellement affichée */
-let currentView = 'album';
-
-/** Page d'album actuellement affichée (index dans la liste des pages triées) */
-let currentAlbumPageIndex = 0;
-
-/** Liste triée des numéros de pages uniques */
-let albumPages = [];
-
-/** ID de la vignette actuellement ouverte dans la modale */
-let modalStickerID = null;
-
-/** Terme de recherche global actuel */
-let searchQuery = '';
-
-/** État actif de la recherche (vrai si filtre actif) */
-let searchActive = false;
-
-/** Toast anti-spam : compteur et timer */
-let toastBatchCount = 0;
-let toastBatchTimer = null;
-let toastBatchMessage = '';
-
-/* ═══════════════════════════════════════════════════════════════
-   3. INITIALISATION AU CHARGEMENT
-   ═══════════════════════════════════════════════════════════════ */
-
-document.addEventListener('DOMContentLoaded', async () => {
-  // Affichage du spinner pendant le chargement
-  showLoadingSpinner();
-
-  try {
-    // Chargement des données
-    await loadDatabase();
-
-    // Chargement de la collection depuis localStorage (cache auto)
-    loadCollectionFromLocalStorage();
-
-    // Construction de l'interface
-    initNavigation();
-    initAlbumPageSelect();
-    initPaysSelect();
-    initFilters();
-    initExportImport();
-    initModal();
-    initGlobalSearch();
-    initMobileSearchModal();
-    initBoosterModal();
-    initMatchmaker();
-
-    // Rendu initial de la vue album
-    renderCurrentView();
-    updateGlobalProgress();
-
-  } catch (err) {
-    console.error('Erreur au démarrage :', err);
-    showToast('❌ Impossible de charger la base de données.', 4000);
-    hideLoadingSpinner();
-  }
-});
-
-/* ═══════════════════════════════════════════════════════════════
-   4. CHARGEMENT DES DONNÉES
-   ═══════════════════════════════════════════════════════════════ */
-
-/**
- * Charge le fichier database.json et initialise la liste des pages.
- */
-async function loadDatabase() {
-  const response = await fetch(DATABASE_URL);
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-  stickers = await response.json();
-
-  // Extraction des pages uniques, triées numériquement
-  const pagesSet = new Set(stickers.map(s => s['Page']));
-  albumPages = Array.from(pagesSet).sort((a, b) => a - b);
-
-  // Initialisation de collectionState : toutes les vignettes en "missing" par défaut
-  stickers.forEach(s => {
-    if (!collectionState[s.ID]) {
-      collectionState[s.ID] = { status: 'missing', count: 0 };
-    }
-  });
-
-  hideLoadingSpinner();
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   5. GESTION DE L'ÉTAT DE LA COLLECTION
-   ═══════════════════════════════════════════════════════════════ */
-
-/**
- * Retourne le statut d'une vignette ('missing' par défaut).
- * @param {string} id - ID de la vignette
- */
-function getStatus(id) {
-  return collectionState[id]?.status || 'missing';
-}
-
-/**
- * Retourne le nombre de doublons d'une vignette.
- * @param {string} id - ID de la vignette
- */
-function getDupCount(id) {
-  return collectionState[id]?.count || 2;
-}
-
-/**
- * Met à jour le statut d'une vignette et sauvegarde dans localStorage.
- * @param {string} id - ID de la vignette
- * @param {string} status - 'missing' | 'owned' | 'duplicate'
- * @param {number} [count] - Nombre de doublons (si status === 'duplicate')
- */
-function setStatus(id, status, count) {
-  if (!collectionState[id]) {
-    collectionState[id] = { status: 'missing', count: 0 };
-  }
-  collectionState[id].status = status;
-  if (status === 'duplicate') {
-    collectionState[id].count = Math.max(2, count ?? collectionState[id].count ?? 2);
-  } else {
-    collectionState[id].count = 0;
-  }
-  saveCollectionToLocalStorage();
-  updateGlobalProgress();
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   6. PERSISTANCE : LOCALSTORAGE (cache automatique)
-   ═══════════════════════════════════════════════════════════════ */
-
-/** Sauvegarde l'état courant dans localStorage. */
-function saveCollectionToLocalStorage() {
-  try {
-    localStorage.setItem(LS_KEY, JSON.stringify(collectionState));
-  } catch (e) {
-    console.warn('Impossible de sauvegarder dans localStorage :', e);
-  }
-}
-
-/** Charge l'état depuis localStorage s'il existe. */
-function loadCollectionFromLocalStorage() {
-  try {
-    const raw = localStorage.getItem(LS_KEY);
-    if (!raw) return;
-
-    const parsed = JSON.parse(raw);
-    // Vérification minimale : doit être un objet
-    if (typeof parsed !== 'object' || Array.isArray(parsed)) {
-      throw new Error('Format invalide');
-    }
-
-    // Fusion avec l'état par défaut (les nouvelles vignettes restent "missing")
-    Object.keys(parsed).forEach(id => {
-      if (collectionState[id] !== undefined) {
-        collectionState[id] = parsed[id];
-      }
-    });
-  } catch (e) {
-    console.warn('Données localStorage corrompues, réinitialisation :', e);
-  }
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   7. PERSISTANCE : EXPORT / IMPORT FICHIER JSON
-   ═══════════════════════════════════════════════════════════════ */
-
-/**
- * Exporte la collection en tant que fichier JSON téléchargeable.
- * Sérialise collectionState via JSON.stringify, crée un Blob et déclenche le téléchargement.
- */
-function exportCollectionAsJSON() {
-  try {
-    const json = JSON.stringify(collectionState, null, 2);
-    const blob = new Blob([json], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-
-    // Création d'un lien virtuel pour déclencher le téléchargement
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'ma-collection-wc2026.json';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-
-    // Nettoyage de la mémoire
-    URL.revokeObjectURL(url);
-
-    showToast('✅ Collection exportée avec succès !');
-  } catch (e) {
-    console.error('Erreur lors de l\'export :', e);
-    showToast('❌ Erreur lors de l\'export.');
-  }
-}
-
-/**
- * Importe une collection depuis un fichier JSON sélectionné par l'utilisateur.
- * Utilise FileReader, vérifie la structure, puis écrase collectionState.
- * @param {File} file - Fichier .json sélectionné
- */
-function importCollectionFromJSON(file) {
-  if (!file) return;
-
-  const reader = new FileReader();
-
-  reader.onload = (event) => {
-    try {
-      const parsed = JSON.parse(event.target.result);
-
-      // Vérification minimale de structure
-      if (typeof parsed !== 'object' || Array.isArray(parsed)) {
-        throw new Error('Le fichier ne contient pas un objet JSON valide.');
-      }
-
-      // Vérification que les clés correspondent à des IDs de stickers connus
-      const knownIDs = new Set(stickers.map(s => s.ID));
-      const importedKeys = Object.keys(parsed);
-      const validKeys = importedKeys.filter(k => knownIDs.has(k));
-
-      if (validKeys.length === 0) {
-        throw new Error('Aucun sticker reconnu dans ce fichier.');
-      }
-
-      // Réinitialisation vers "missing" pour tous
-      stickers.forEach(s => {
-        collectionState[s.ID] = { status: 'missing', count: 0 };
-      });
-
-      // Application des données importées (uniquement les IDs connus)
-      validKeys.forEach(id => {
-        const entry = parsed[id];
-        if (entry && typeof entry.status === 'string') {
-          collectionState[id] = {
-            status: ['owned', 'missing', 'duplicate'].includes(entry.status) ? entry.status : 'missing',
-            count: typeof entry.count === 'number' ? entry.count : 0,
-          };
-        }
-      });
-
-      // Sauvegarde dans localStorage
-      saveCollectionToLocalStorage();
-
-      // Re-rendu complet
-      renderCurrentView();
-      updateGlobalProgress();
-
-      showToast(`✅ Collection importée ! (${validKeys.length} vignettes chargées)`);
-    } catch (e) {
-      console.error('Erreur lors de l\'import :', e);
-      showToast(`❌ Erreur d'import : ${e.message}`);
-    }
-  };
-
-  reader.onerror = () => {
-    showToast('❌ Impossible de lire le fichier.');
-  };
-
-  reader.readAsText(file);
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   8. NAVIGATION ENTRE LES VUES
-   ═══════════════════════════════════════════════════════════════ */
-
-/**
- * Initialise les boutons de navigation (desktop + mobile).
- */
-function initNavigation() {
-  // Tous les boutons nav (desktop et mobile)
-  const navBtns = document.querySelectorAll('[data-view]');
-
-  navBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const view = btn.dataset.view;
-      switchView(view);
-    });
-  });
-}
-
-/**
- * Bascule vers une vue donnée.
- * @param {string} viewName - Identifiant de la vue
- */
-function switchView(viewName) {
-  currentView = viewName;
-
-  // Mise à jour des boutons actifs
-  document.querySelectorAll('[data-view]').forEach(btn => {
-    const isActive = btn.dataset.view === viewName;
-    btn.classList.toggle('active', isActive);
-    btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
-  });
-
-  // Affichage / masquage des sections
-  document.querySelectorAll('.view').forEach(view => {
-    view.classList.toggle('hidden', view.id !== `view-${viewName}`);
-  });
-
-  // Rendu de la vue (avec filtre de recherche si actif)
-  if (searchActive) {
-    applySearchFilter();
-  } else {
-    renderCurrentView();
-  }
-}
-
-/**
- * Déclenche le rendu de la vue courante.
- */
-function renderCurrentView() {
-  switch (currentView) {
-    case 'album':      renderAlbumView();      break;
-    case 'pays':       renderPaysView();        break;
-    case 'manquantes': renderManquantesView();  break;
-    case 'doublons':   renderDoublonsView();    break;
-    case 'stats':      renderStatsView();       break;
-    case 'echanges':   /* rien à rendre d'emblée */ break;
-    default: break;
-  }
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   9. VUE ALBUM
-   ═══════════════════════════════════════════════════════════════ */
-
-/**
- * Initialise le sélecteur de page d'album.
- */
-function initAlbumPageSelect() {
-  const select = document.getElementById('albumPageSelect');
-  select.innerHTML = '';
-
-  albumPages.forEach((page, idx) => {
-    // On construit le label à partir des stickers de cette page
-    const pageStickers = stickers.filter(s => s['Page'] === page);
-    const section = pageStickers[0]?.Section || `Page ${page}`;
-    const opt = document.createElement('option');
-    opt.value = idx;
-    opt.textContent = `p.${page} — ${section}`;
-    select.appendChild(opt);
-  });
-
-  select.addEventListener('change', () => {
-    currentAlbumPageIndex = parseInt(select.value, 10);
-    renderAlbumView();
-  });
-
-  // Boutons précédent / suivant
-  document.getElementById('btnPagePrev').addEventListener('click', () => {
-    if (currentAlbumPageIndex > 0) {
-      currentAlbumPageIndex--;
-      renderAlbumView();
-    }
-  });
-
-  document.getElementById('btnPageNext').addEventListener('click', () => {
-    if (currentAlbumPageIndex < albumPages.length - 1) {
-      currentAlbumPageIndex++;
-      renderAlbumView();
-    }
-  });
-
-  // Mise à jour du total affiché : l'album physique compte 106 pages,
-  // même si seules certaines d'entre elles contiennent des vignettes
-  // recensées dans la base (la navigation, elle, ne porte que sur ces
-  // dernières — cf. albumPages ci-dessus).
-  document.getElementById('albumPageTotal').textContent = 106;
-}
-
-/**
- * Rend la vue album pour la page courante.
- */
-function renderAlbumView() {
-  const pageNum = albumPages[currentAlbumPageIndex];
-  const pageStickers = stickers.filter(s => s['Page'] === pageNum);
-
-  // Mise à jour de l'indicateur de page
-  document.getElementById('albumPageCurrent').textContent = pageNum;
-  document.getElementById('albumPageSelect').value = currentAlbumPageIndex;
-
-  // Boutons prev/next
-  document.getElementById('btnPagePrev').disabled = currentAlbumPageIndex === 0;
-  document.getElementById('btnPageNext').disabled = currentAlbumPageIndex === albumPages.length - 1;
-
-  // En-tête de section
-  renderAlbumSectionHeader(pageStickers);
-
-  // Grille de vignettes — DocumentFragment pour éviter les reflows multiples
-  const grid = document.getElementById('stickerGrid');
-  const fragment = document.createDocumentFragment();
-
-  pageStickers.forEach(sticker => {
-    fragment.appendChild(buildStickerCard(sticker));
-  });
-
-  grid.innerHTML = '';
-  grid.appendChild(fragment);
-}
-
-/**
- * Nombre de variantes de couleur disponibles pour .section-banner
- * (cf. classes .section-banner--0 à --5 dans styles.css).
- */
-const SECTION_BANNER_COLOR_COUNT = 6;
-
-/**
- * Calcule un index de couleur stable pour une section donnée, afin que
- * la même section affiche toujours la même couleur de bandeau.
- * @param {string} sectionName
- * @returns {number}
- */
-function getSectionBannerColorIndex(sectionName) {
-  let hash = 0;
-  const str = sectionName || '';
-  for (let i = 0; i < str.length; i++) {
-    hash = (hash * 31 + str.charCodeAt(i)) >>> 0;
-  }
-  return hash % SECTION_BANNER_COLOR_COUNT;
-}
-
-/**
- * Construit le bandeau de section en haut de la page d'album.
- * @param {Array} pageStickers - Vignettes de la page courante
- */
-function renderAlbumSectionHeader(pageStickers) {
-  const container = document.getElementById('albumSectionHeader');
-
-  if (!pageStickers.length) {
-    container.innerHTML = '';
-    return;
-  }
-
-  // Récupération des sections uniques sur cette page
-  const sections = [...new Set(pageStickers.map(s => s['Section']))];
-  const firstSection = sections[0];
-  const flagURL = pageStickers[0]?.Drapeau || '';
-  const groupe = pageStickers[0]?.Groupe || '';
-  const colorClass = `section-banner--${getSectionBannerColorIndex(firstSection)}`;
-
-  container.innerHTML = `
-    <div class="section-banner ${colorClass}">
-      ${flagURL ? `<img src="${escHtml(flagURL)}" alt="${escHtml(firstSection)}" />` : ''}
-      <span>${escHtml(firstSection)}</span>
-      ${groupe ? `<span style="font-size:12px;opacity:0.7;letter-spacing:0.1em;">Groupe ${escHtml(groupe)}</span>` : ''}
-    </div>
-  `;
-}
-
-/**
- * Construit et retourne un élément DOM représentant une vignette.
- * @param {Object} sticker - Données d'une vignette
- * @returns {HTMLElement}
- */
-function buildStickerCard(sticker) {
-  const status = getStatus(sticker.ID);
-  const dupCount = getDupCount(sticker.ID);
-
-  const article = document.createElement('article');
-  article.className = `sticker-card ${status}`;
-  article.setAttribute('role', 'listitem');
-  article.setAttribute('aria-label', `${sticker.ID} — ${sticker.Nom} (${statusLabel(status)})`);
-  article.dataset.id = sticker.ID;
-  article.dataset.type = sticker.Type || '';
-
-  // Badge doublon
-  const dupBadge = status === 'duplicate'
-    ? `<div class="dup-badge" aria-label="${dupCount} doublons">x${dupCount}</div>`
-    : '';
-
-  // Couleur de header selon le type
-  const typeColor = sticker.Type === 'Spécial' ? 'var(--purple-psycho)' : '';
-  const typeStyle = typeColor ? `style="background:${typeColor};color:#fff;"` : '';
-
-  article.innerHTML = `
-    ${dupBadge}
-    <div class="sticker-header" ${typeStyle}>
-      <span class="sticker-id">${escHtml(sticker.ID)}</span>
-      <span class="sticker-type-badge">${escHtml(sticker.Type === 'Spécial' ? 'SPEC' : 'STD')}</span>
-    </div>
-    <div class="sticker-flag-wrap">
-      <img
-        class="sticker-flag"
-        src="${escHtml(sticker.Drapeau || '')}"
-        alt="${escHtml(sticker.Section)}"
-        loading="lazy"
-        onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2260%22 height=%2240%22><rect width=%2260%22 height=%2240%22 fill=%22%23E3E2FF%22/></svg>'"
-      />
-    </div>
-    <div class="sticker-footer">
-      <div class="sticker-name">${escHtml(sticker.Nom)}</div>
-      <div class="sticker-section-label">${escHtml(sticker.Section)}</div>
-    </div>
-  `;
-
-  // Clic → ouverture de la modale
-  article.addEventListener('click', () => openModal(sticker.ID));
-
-  return article;
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   10. VUE PAR PAYS
-   ═══════════════════════════════════════════════════════════════ */
-
-/**
- * Initialise le sélecteur de pays.
- */
-function initPaysSelect() {
-  const select = document.getElementById('paysSelect');
-
-  // Construction de la liste des pays uniques (triés par nom de section)
-  const paysMap = {};
-  stickers.forEach(s => {
-    if (!paysMap[s.Code]) {
-      paysMap[s.Code] = s.Section;
-    }
-  });
-
-  const paysSorted = Object.entries(paysMap).sort((a, b) => a[1].localeCompare(b[1]));
-
-  paysSorted.forEach(([code, section]) => {
-    const opt = document.createElement('option');
-    opt.value = code;
-    opt.textContent = `${section} (${code})`;
-    select.appendChild(opt);
-  });
-
-  select.addEventListener('change', () => renderPaysView());
-}
-
-/**
- * Rend la vue "Par pays".
- */
-function renderPaysView() {
-  const code = document.getElementById('paysSelect').value;
-  const paysStickers = stickers.filter(s => s.Code === code);
-
-  if (!paysStickers.length) return;
-
-  // Statistiques du pays
-  const total = paysStickers.length;
-  const owned = paysStickers.filter(s => getStatus(s.ID) === 'owned' || getStatus(s.ID) === 'duplicate').length;
-  const pct = Math.round((owned / total) * 100);
-  const flagURL = paysStickers[0]?.Drapeau || '';
-  const sectionName = paysStickers[0]?.Section || code;
-
-  // Résumé pays
-  document.getElementById('paysSummary').innerHTML = `
-    <img class="pays-flag" src="${escHtml(flagURL)}" alt="${escHtml(sectionName)}" 
-         onerror="this.style.display='none'" />
-    <div class="pays-info">
-      <div class="pays-info-name">${escHtml(sectionName)}</div>
-      <div class="pays-info-stats">
-        <strong>${owned}</strong> / ${total} possédées — <strong>${pct}%</strong>
-      </div>
-    </div>
-    <div class="pays-progress-bar">
-      <div class="pays-progress-fill" style="width:${pct}%"></div>
-    </div>
-  `;
-
-  // Grille des vignettes du pays — DocumentFragment
-  const grid = document.getElementById('paysGrid');
-  const frag = document.createDocumentFragment();
-  paysStickers.forEach(s => frag.appendChild(buildStickerCard(s)));
-  grid.innerHTML = '';
-  grid.appendChild(frag);
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   11. VUE MANQUANTES
-   ═══════════════════════════════════════════════════════════════ */
-
-/**
- * Initialise les filtres communs aux vues manquantes et doublons.
- */
-function initFilters() {
-  // Filtres manquantes
-  document.getElementById('manqSectionFilter').addEventListener('change', renderManquantesView);
-
-  // Filtres doublons
-  document.getElementById('dblSectionFilter').addEventListener('change', renderDoublonsView);
-
-  // Peuplement des filtres
-  populateFilterSelects();
-}
-
-/**
- * Peuple les <select> de filtres avec les codes et sections uniques.
- */
-function populateFilterSelects() {
-  const sections = [...new Set(stickers.map(s => s.Section))].sort();
-
-  const manqSec  = document.getElementById('manqSectionFilter');
-  const dblSec   = document.getElementById('dblSectionFilter');
-
-  sections.forEach(sec => {
-    [manqSec, dblSec].forEach(sel => {
-      const opt = document.createElement('option');
-      opt.value = sec;
-      opt.textContent = sec;
-      sel.appendChild(opt);
-    });
-  });
-}
-
-/**
- * Rend la vue "Mes manquantes".
- */
-function renderManquantesView() {
-  const filterSection = document.getElementById('manqSectionFilter').value;
-
-  let missing = stickers.filter(s => getStatus(s.ID) === 'missing');
-
-  if (filterSection) missing = missing.filter(s => s.Section === filterSection);
-
-  // Compteur
-  document.getElementById('manqCount').innerHTML =
-    `<span>${missing.length}</span> vignette${missing.length > 1 ? 's' : ''} manquante${missing.length > 1 ? 's' : ''}`;
-
-  // Rendu de la liste
-  renderStickerList(document.getElementById('manqList'), missing);
-
-  // Masquer la zone d'export si on change les filtres
-  document.getElementById('manqExportZone').classList.add('hidden');
-}
-
-/**
- * Rend la vue "Mes doublons".
- */
-function renderDoublonsView() {
-  const filterSection = document.getElementById('dblSectionFilter').value;
-
-  let duplicates = stickers.filter(s => getStatus(s.ID) === 'duplicate');
-
-  if (filterSection) duplicates = duplicates.filter(s => s.Section === filterSection);
-
-  // Compteur
-  document.getElementById('dblCount').innerHTML =
-    `<span>${duplicates.length}</span> vignette${duplicates.length > 1 ? 's' : ''} en doublon`;
-
-  // Rendu de la liste
-  renderStickerList(document.getElementById('dblList'), duplicates, true);
-
-  // Masquer la zone d'export
-  document.getElementById('dblExportZone').classList.add('hidden');
-}
-
-/**
- * Rend une liste de vignettes groupées par pays.
- * @param {HTMLElement} container - Conteneur de la liste
- * @param {Array} stickersList - Vignettes à afficher
- * @param {boolean} showDupCount - Afficher le compteur de doublons
- */
-function renderStickerList(container, stickersList, showDupCount = false) {
-  // DocumentFragment pour éviter les reflows multiples
-  const frag = document.createDocumentFragment();
-
-  if (!stickersList.length) {
-    const empty = document.createElement('div');
-    empty.style.cssText = 'padding:var(--sp-lg);text-align:center;color:var(--outline);';
-    empty.innerHTML = `
-      <span class="material-symbols-outlined" style="font-size:48px;opacity:0.3;display:block;margin-bottom:12px;">check_circle</span>
-      <p style="font-weight:700;font-size:14px;">Aucune vignette dans cette catégorie.</p>
-    `;
-    frag.appendChild(empty);
-    container.innerHTML = '';
-    container.appendChild(frag);
-    return;
-  }
-
-  // Groupement par Code (pays)
-  const grouped = {};
-  stickersList.forEach(s => {
-    if (!grouped[s.Code]) grouped[s.Code] = [];
-    grouped[s.Code].push(s);
-  });
-
-  Object.entries(grouped).forEach(([code, items]) => {
-    const sectionName = items[0]?.Section || code;
-    const flagURL     = items[0]?.Drapeau || '';
-
-    const header = document.createElement('div');
-    header.className = 'list-group-header';
-    header.innerHTML = `
-      ${flagURL ? `<img src="${escHtml(flagURL)}" alt="" />` : ''}
-      <span>${escHtml(sectionName)}</span>
-      <span style="margin-left:auto;font-size:11px;color:var(--outline);">${items.length} vignette${items.length > 1 ? 's' : ''}</span>
-    `;
-    frag.appendChild(header);
-
-    items.forEach(s => {
-      const item = document.createElement('div');
-      item.className = 'list-item';
-      item.setAttribute('role', 'listitem');
-      item.dataset.id = s.ID;
-
-      const dupBadge = showDupCount
-        ? `<div class="list-item-dup-count">x${getDupCount(s.ID)}</div>`
-        : '';
-
-      item.innerHTML = `
-        <img class="list-item-flag" src="${escHtml(s.Drapeau || '')}" alt="" loading="lazy"
-             onerror="this.style.display='none'" />
-        <span class="list-item-id">${escHtml(s.ID)}</span>
-        <span class="list-item-name">${escHtml(s.Nom)}</span>
-        <span class="list-item-section">${escHtml(s.Type)}</span>
-        ${dupBadge}
-      `;
-
-      item.addEventListener('click', () => openModal(s.ID));
-      frag.appendChild(item);
-    });
-  });
-
-  container.innerHTML = '';
-  container.appendChild(frag);
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   12. EXPORT TEXTE (wantlist / tradelist)
-   ═══════════════════════════════════════════════════════════════ */
-
-/**
- * Génère le texte d'export au format "CODE N°1,N°2,N°3".
- * @param {Array} stickersList - Vignettes à exporter
- * @returns {string} - Texte formaté
- */
-function generateExportText(stickersList) {
-  // Groupement par code pays
-  const grouped = {};
-  stickersList.forEach(s => {
-    if (!grouped[s.Code]) grouped[s.Code] = [];
-    grouped[s.Code].push(s['N°']);
-  });
-
-  return Object.entries(grouped)
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([code, nums]) => `${code} ${nums.sort((a, b) => a - b).join(',')}`)
-    .join('\n');
-}
-
-/**
- * Initialise les boutons d'export texte et de copie.
- */
-function initExportImport() {
-  // --- Export / Import global (JSON) ---
-  document.getElementById('btnExport').addEventListener('click', exportCollectionAsJSON);
-
-  document.getElementById('inputImport').addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (file) importCollectionFromJSON(file);
-    e.target.value = ''; // Reset pour permettre un nouvel import du même fichier
-  });
-
-  // --- Export texte Manquantes ---
-  document.getElementById('btnExportManq').addEventListener('click', () => {
-    const filterSection = document.getElementById('manqSectionFilter').value;
-
-    let missing = stickers.filter(s => getStatus(s.ID) === 'missing');
-    if (filterSection) missing = missing.filter(s => s.Section === filterSection);
-
-    const text = generateExportText(missing);
-    document.getElementById('manqTextarea').value = text || '(Aucune vignette manquante)';
-    document.getElementById('manqExportZone').classList.remove('hidden');
-    document.getElementById('manqExportZone').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  });
-
-  document.getElementById('btnCopyManq').addEventListener('click', () => {
-    copyTextarea('manqTextarea');
-  });
-
-  document.getElementById('btnCloseManqExport').addEventListener('click', () => {
-    document.getElementById('manqExportZone').classList.add('hidden');
-  });
-
-  // --- Export texte Doublons ---
-  document.getElementById('btnExportDbl').addEventListener('click', () => {
-    const filterSection = document.getElementById('dblSectionFilter').value;
-
-    let duplicates = stickers.filter(s => getStatus(s.ID) === 'duplicate');
-    if (filterSection) duplicates = duplicates.filter(s => s.Section === filterSection);
-
-    const text = generateExportText(duplicates);
-    document.getElementById('dblTextarea').value = text || '(Aucun doublon)';
-    document.getElementById('dblExportZone').classList.remove('hidden');
-    document.getElementById('dblExportZone').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  });
-
-  document.getElementById('btnCopyDbl').addEventListener('click', () => {
-    copyTextarea('dblTextarea');
-  });
-
-  document.getElementById('btnCloseDblExport').addEventListener('click', () => {
-    document.getElementById('dblExportZone').classList.add('hidden');
-  });
-
-  // --- Module Échanges ---
-  document.getElementById('btnAnalyse').addEventListener('click', analyseEchanges);
-}
-
-/**
- * Copie le contenu d'un textarea dans le presse-papier.
- * @param {string} textareaId - ID du textarea
- */
-function copyTextarea(textareaId) {
-  const textarea = document.getElementById(textareaId);
-  navigator.clipboard.writeText(textarea.value)
-    .then(() => showToast('📋 Liste copiée dans le presse-papier !'))
-    .catch(() => {
-      // Fallback pour les environnements sans clipboard API
-      textarea.select();
-      document.execCommand('copy');
-      showToast('📋 Liste copiée !');
-    });
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   13. VUE STATISTIQUES
-   ═══════════════════════════════════════════════════════════════ */
-
-/**
- * Rend la vue Statistiques.
- */
-function renderStatsView() {
-  const total     = stickers.length;
-  const owned     = stickers.filter(s => getStatus(s.ID) === 'owned').length;
-  const duplicates = stickers.filter(s => getStatus(s.ID) === 'duplicate').length;
-  const missing   = stickers.filter(s => getStatus(s.ID) === 'missing').length;
-  // Les doublons comptent comme "possédées" pour le % de complétion
-  const ownedTotal = owned + duplicates;
-  const pct = Math.round((ownedTotal / total) * 100);
-
-  // Cartes globales
-  document.getElementById('statsGlobal').innerHTML = `
-    <div class="stat-card completion">
-      <div class="stat-card-value">${pct}%</div>
-      <div class="stat-card-label">Complétion globale</div>
-    </div>
-    <div class="stat-card owned">
-      <div class="stat-card-value">${ownedTotal}</div>
-      <div class="stat-card-label">Possédées</div>
-    </div>
-    <div class="stat-card missing">
-      <div class="stat-card-value">${missing}</div>
-      <div class="stat-card-label">Manquantes</div>
-    </div>
-    <div class="stat-card duplicate">
-      <div class="stat-card-value">${duplicates}</div>
-      <div class="stat-card-label">Doublons</div>
-    </div>
-  `;
-
-  // Barres par pays
-  renderStatsBars();
-}
-
-/**
- * Rend les barres de complétion par pays/section.
- */
-function renderStatsBars() {
-  const container = document.getElementById('statsBars');
-  container.innerHTML = '';
-
-  // Groupement par Code pays
-  const grouped = {};
-  stickers.forEach(s => {
-    if (!grouped[s.Code]) grouped[s.Code] = { section: s.Section, flag: s.Drapeau, stickers: [] };
-    grouped[s.Code].stickers.push(s);
-  });
-
-  // Tri par taux de complétion décroissant
-  const sortedEntries = Object.entries(grouped).sort((a, b) => {
-    const getPct = (items) => {
-      const total = items.length;
-      const ok = items.filter(s => getStatus(s.ID) !== 'missing').length;
-      return ok / total;
-    };
-    return getPct(b[1].stickers) - getPct(a[1].stickers);
-  });
-
-  sortedEntries.forEach(([code, data]) => {
-    const total  = data.stickers.length;
-    const ok     = data.stickers.filter(s => getStatus(s.ID) !== 'missing').length;
-    const pct    = Math.round((ok / total) * 100);
-    const fillClass = pct === 100 ? 'full' : pct < 20 ? 'low' : '';
-
-    const row = document.createElement('div');
-    row.className = 'stat-bar-row';
-    row.innerHTML = `
-      <div class="stat-bar-label">
-        ${data.flag ? `<img src="${escHtml(data.flag)}" alt="" loading="lazy" />` : ''}
-        <span title="${escHtml(data.section)}">${escHtml(data.section)}</span>
-      </div>
-      <div class="stat-bar-track">
-        <div class="stat-bar-fill ${fillClass}" style="width:${pct}%"></div>
-      </div>
-      <div class="stat-bar-pct">${pct}%</div>
-    `;
-    container.appendChild(row);
-  });
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   14. MODULE ÉCHANGES
-   ═══════════════════════════════════════════════════════════════ */
-
-/**
- * Analyse la liste textuelle d'un collègue et affiche les échanges possibles.
- *
- * Format attendu :
- *   CODE N°1,N°2,N°3
- *   CODE N°4,N°5
- * Interprète chaque ligne comme les doublons du collègue (ou ses manquantes).
- */
-function analyseEchanges() {
-  const raw = document.getElementById('colleagueInput').value.trim();
-  const resultsDiv = document.getElementById('echangeResults');
-
-  if (!raw) {
-    resultsDiv.innerHTML = `
-      <div class="echange-empty">
-        <span class="material-symbols-outlined">warning</span>
-        <p>La liste est vide. Colle la liste de ton collègue.</p>
-      </div>
-    `;
-    return;
-  }
-
-  // Parse la liste du collègue
-  const colleagueStickers = parseTextList(raw);
-
-  if (colleagueStickers.size === 0) {
-    resultsDiv.innerHTML = `
-      <div class="echange-empty">
-        <span class="material-symbols-outlined">error</span>
-        <p>Format non reconnu. Exemple attendu :<br><code>MEX 1,2,3</code></p>
-      </div>
-    `;
-    return;
-  }
-
-  // Mes manquantes : vignettes que je n'ai pas
-  const mesManquantes = new Set(
-    stickers.filter(s => getStatus(s.ID) === 'missing').map(s => s.ID)
-  );
-
-  // Mes doublons : vignettes que j'ai en surplus
-  const mesDoublons = new Set(
-    stickers.filter(s => getStatus(s.ID) === 'duplicate').map(s => s.ID)
-  );
-
-  // Ce que le collègue a (et que je cherche) : intersection(colleagueStickers, mesManquantes)
-  const ilsOntPourMoi = [...colleagueStickers].filter(id => mesManquantes.has(id));
-
-  // Ce que j'ai en doublon (et dont le collègue a besoin) : intersection(mesDoublons, manquantes du collègue)
-  // Note : on interprète la liste collée comme ses doublons OU ses manquantes.
-  // On considère ici que TOUTES les vignettes qu'il a listées = ses doublons disponibles.
-  // Ses manquantes sont les stickers non listés. Mes doublons dont il a besoin = mesDoublons - colleagueStickers.
-  const jeDonnePourLui = [...mesDoublons].filter(id => !colleagueStickers.has(id));
-
-  // Construction du rendu
-  let html = '';
-
-  // Bloc 1 : Ce que le collègue peut me donner
-  html += `<div class="echange-block ils-ont">
-    <div class="echange-block-title">
-      ✅ Il/Elle peut me donner (${ilsOntPourMoi.length})
-    </div>`;
-
-  if (ilsOntPourMoi.length === 0) {
-    html += `<p class="echange-empty" style="padding:var(--sp-sm);color:var(--outline);font-size:13px;">
-      Aucune vignette en commun.
-    </p>`;
-  } else {
-    html += `<div class="echange-sticker-tags">`;
-    ilsOntPourMoi.forEach(id => {
-      const s = stickers.find(x => x.ID === id);
-      html += `<span class="echange-tag" title="${escHtml(s?.Nom || '')}">${escHtml(id)}</span>`;
-    });
-    html += `</div>`;
-  }
-  html += `</div>`;
-
-  // Bloc 2 : Ce que je peux lui donner
-  html += `<div class="echange-block je-donne">
-    <div class="echange-block-title">
-      🔄 Je peux lui/lui donner (${jeDonnePourLui.length})
-    </div>`;
-
-  if (jeDonnePourLui.length === 0) {
-    html += `<p class="echange-empty" style="padding:var(--sp-sm);color:rgba(255,255,255,0.6);font-size:13px;">
-      Aucun doublon à lui proposer.
-    </p>`;
-  } else {
-    html += `<div class="echange-sticker-tags">`;
-    jeDonnePourLui.forEach(id => {
-      const s = stickers.find(x => x.ID === id);
-      html += `<span class="echange-tag" title="${escHtml(s?.Nom || '')}">${escHtml(id)}</span>`;
-    });
-    html += `</div>`;
-  }
-  html += `</div>`;
-
-  resultsDiv.innerHTML = html;
-}
-
-/**
- * Parse une liste texte au format "CODE N°1,N°2,N°3" et retourne un Set d'IDs.
- * @param {string} text - Texte brut à analyser
- * @returns {Set<string>} - Ensemble des IDs reconnus
- */
-function parseTextList(text) {
-  const ids = new Set();
-  const knownIDs = new Set(stickers.map(s => s.ID));
-
-  // Chaque ligne : "CODE n1,n2,n3" ou "CODE n1, n2, n3"
-  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
-
-  lines.forEach(line => {
-    // Tente de matcher "CODE NUMS"
-    const match = line.match(/^([A-Z0-9]+)\s+([\d,\s]+)$/i);
-    if (!match) return;
-
-    const code = match[1].toUpperCase();
-    const nums = match[2].split(',').map(n => parseInt(n.trim(), 10)).filter(n => !isNaN(n));
-
-    nums.forEach(n => {
-      const id = `${code}${n}`;
-      if (knownIDs.has(id)) ids.add(id);
-    });
-  });
-
-  return ids;
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   15. MODALE VIGNETTE
-   ═══════════════════════════════════════════════════════════════ */
-
-/**
- * Initialise la modale et ses contrôles.
- */
-function initModal() {
-  // Fermeture
-  document.getElementById('btnModalClose').addEventListener('click', closeModal);
-  document.getElementById('stickerModal').addEventListener('click', (e) => {
-    if (e.target === e.currentTarget) closeModal();
-  });
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && modalStickerID) closeModal();
-  });
-
-  // Boutons de statut
-  document.querySelectorAll('.btn-status').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const status = btn.dataset.status;
-      if (!modalStickerID) return;
-
-      setStatus(modalStickerID, status);
-      updateModalStatusButtons(status);
-      refreshStickerInView(modalStickerID);
-
-      if (status === 'duplicate') {
-        document.getElementById('modalDupControls').classList.remove('hidden');
-        document.getElementById('dupCountDisplay').textContent = getDupCount(modalStickerID);
-        updateDupMinusState();
-      } else {
-        document.getElementById('modalDupControls').classList.add('hidden');
-      }
-    });
-  });
-
-  // Contrôles de compteur doublons
-  document.getElementById('btnDupPlus').addEventListener('click', () => {
-    if (!modalStickerID) return;
-    const newCount = (collectionState[modalStickerID]?.count || 2) + 1;
-    setStatus(modalStickerID, 'duplicate', newCount);
-    document.getElementById('dupCountDisplay').textContent = newCount;
-    updateDupMinusState();
-    refreshStickerInView(modalStickerID);
-  });
-
-  document.getElementById('btnDupMinus').addEventListener('click', () => {
-    if (!modalStickerID) return;
-    const current = collectionState[modalStickerID]?.count || 2;
-    if (current <= 2) return; // minimum 2 pour un doublon
-    const newCount = current - 1;
-    setStatus(modalStickerID, 'duplicate', newCount);
-    document.getElementById('dupCountDisplay').textContent = newCount;
-    // Mettre à jour l'état disabled
-    document.getElementById('btnDupMinus').disabled = (newCount <= 2);
-    refreshStickerInView(modalStickerID);
-  });
-}
-
-/**
- * Met à jour l'état disabled du bouton Moins en fonction du count actuel.
- */
-function updateDupMinusState() {
-  const btnMinus = document.getElementById('btnDupMinus');
-  if (!modalStickerID) { btnMinus.disabled = false; return; }
-  const count = collectionState[modalStickerID]?.count || 2;
-  btnMinus.disabled = (count <= 2);
-}
-
-/**
- * Ouvre la modale pour une vignette donnée.
- * @param {string} id - ID de la vignette
- */
-function openModal(id) {
-  const sticker = stickers.find(s => s.ID === id);
-  if (!sticker) return;
-
-  modalStickerID = id;
-  const status = getStatus(id);
-
-  // Remplissage des informations
-  document.getElementById('modalId').textContent = sticker.ID;
-  document.getElementById('modalTitle').textContent = sticker.Nom;
-  document.getElementById('modalFlag').src = sticker.Drapeau || '';
-  document.getElementById('modalFlag').alt = sticker.Section;
-
-  document.getElementById('modalMeta').innerHTML = `
-    <span>${escHtml(sticker.Section)}</span>
-    <span>${escHtml(sticker.Type)}</span>
-    ${sticker.Groupe ? `<span>Groupe ${escHtml(sticker.Groupe)}</span>` : ''}
-    <span>Page ${sticker['Page']}</span>
-  `;
-
-  // Couleur de l'en-tête selon le statut
-  const headerColors = {
-    owned:     { bg: 'var(--green-deep)',      fg: 'var(--yellow-lime)' },
-    missing:   { bg: 'var(--surface-mid)',     fg: 'var(--outline)' },
-    duplicate: { bg: 'var(--orange-vibrant)',  fg: '#fff' },
-  };
-  const colors = headerColors[status] || headerColors.missing;
-  const header = document.getElementById('modalHeader');
-  header.style.background = colors.bg;
-  header.style.color = colors.fg;
-
-  // Boutons de statut
-  updateModalStatusButtons(status);
-
-  // Compteur doublons
-  const dupControls = document.getElementById('modalDupControls');
-  if (status === 'duplicate') {
-    dupControls.classList.remove('hidden');
-    document.getElementById('dupCountDisplay').textContent = getDupCount(id);
-    updateDupMinusState();
-  } else {
-    dupControls.classList.add('hidden');
-  }
-
-  // Affichage de la modale
-  document.getElementById('stickerModal').classList.remove('hidden');
-  document.getElementById('btnModalClose').focus();
-}
-
-/**
- * Ferme la modale.
- */
-function closeModal() {
-  document.getElementById('stickerModal').classList.add('hidden');
-  modalStickerID = null;
-}
-
-/**
- * Met à jour l'état visuel des boutons de statut dans la modale.
- * @param {string} activeStatus - Statut actuellement actif
- */
-function updateModalStatusButtons(activeStatus) {
-  document.querySelectorAll('.btn-status').forEach(btn => {
-    btn.classList.toggle('active-status', btn.dataset.status === activeStatus);
-  });
-}
-
-/**
- * Met à jour une vignette dans la vue courante sans re-rendre toute la grille.
- * @param {string} id - ID de la vignette à rafraîchir
- */
-function refreshStickerInView(id) {
-  // On re-rend uniquement si la vue courante affiche cette vignette
-  // Pour les vues album et pays, on cherche la card existante et on la remplace
-  const existingCards = document.querySelectorAll(`.sticker-card[data-id="${id}"]`);
-  if (existingCards.length > 0) {
-    const sticker = stickers.find(s => s.ID === id);
-    if (!sticker) return;
-    const newCard = buildStickerCard(sticker);
-    existingCards.forEach(card => card.parentNode.replaceChild(newCard.cloneNode(true), card));
-    // Ré-attacher les événements sur le clone
-    document.querySelectorAll(`.sticker-card[data-id="${id}"]`).forEach(card => {
-      card.addEventListener('click', () => openModal(id));
-    });
-  }
-
-  // Mise à jour des vues liste si elles sont actives
-  if (currentView === 'manquantes') renderManquantesView();
-  if (currentView === 'doublons')   renderDoublonsView();
-  if (currentView === 'stats')      renderStatsView();
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   16. BARRE DE PROGRESSION GLOBALE
-   ═══════════════════════════════════════════════════════════════ */
-
-/**
- * Met à jour la barre de progression globale dans l'en-tête.
- */
-function updateGlobalProgress() {
-  const total = stickers.length;
-  const owned = stickers.filter(s => getStatus(s.ID) !== 'missing').length;
-  const pct   = total > 0 ? Math.round((owned / total) * 100) : 0;
-
-  document.getElementById('progressOwned').textContent = owned;
-  document.getElementById('progressTotal').textContent = total;
-  document.getElementById('progressPct').textContent = `${pct}%`;
-  document.getElementById('progressFill').style.width = `${pct}%`;
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   17. UTILITAIRES
-   ═══════════════════════════════════════════════════════════════ */
-
-/**
- * Échappe les caractères HTML pour prévenir les injections XSS.
- * @param {string} str - Chaîne à échapper
- * @returns {string}
- */
-function escHtml(str) {
-  if (!str) return '';
-  return String(str)
-    .replace(/&/g,  '&amp;')
-    .replace(/</g,  '&lt;')
-    .replace(/>/g,  '&gt;')
-    .replace(/"/g,  '&quot;')
-    .replace(/'/g,  '&#39;');
-}
-
-/**
- * Retourne un libellé lisible pour un statut.
- * @param {string} status
- * @returns {string}
- */
-function statusLabel(status) {
-  const labels = { owned: 'Possédée', missing: 'Manquante', duplicate: 'Doublon' };
-  return labels[status] || status;
-}
-
-/* ─── Toast ─── */
-
-let toastTimer = null;
-
-/**
- * Affiche un message toast temporaire.
- * Anti-spam : si plusieurs toasts identiques s'enchaînent rapidement,
- * un seul toast est affiché et mis à jour avec un compteur.
- * @param {string} message - Message à afficher
- * @param {number} [duration=2500] - Durée en ms
- * @param {boolean} [batchable=false] - Si true, regroupe les appels rapides
- */
-function showToast(message, duration = 2500, batchable = false) {
-  const toast = document.getElementById('toast');
-
-  if (batchable) {
-    // Mode batch : on incrémente un compteur au lieu d'empiler les toasts
-    if (toastBatchMessage === message) {
-      toastBatchCount++;
-      const baseMsg = message.replace(/ \(\d+\)$/, '');
-      toast.textContent = toastBatchCount > 1 ? `${baseMsg} (${toastBatchCount})` : baseMsg;
-    } else {
-      toastBatchCount = 1;
-      toastBatchMessage = message;
-      toast.textContent = message;
-    }
-    toast.classList.add('show');
-    clearTimeout(toastTimer);
-    clearTimeout(toastBatchTimer);
-    toastBatchTimer = setTimeout(() => {
-      toastBatchCount = 0;
-      toastBatchMessage = '';
-    }, duration + 500);
-    toastTimer = setTimeout(() => {
-      toast.classList.remove('show');
-    }, duration);
-    return;
-  }
-
-  // Mode normal
-  toastBatchCount = 0;
-  toastBatchMessage = '';
-  toast.textContent = message;
-  toast.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toast.classList.remove('show'), duration);
-}
-
-/* ─── Spinner de chargement ─── */
-
-function showLoadingSpinner() {
-  const main = document.getElementById('stickerGrid');
-  if (main) {
-    main.innerHTML = `
-      <div class="loading-spinner" style="grid-column:1/-1">
-        <div class="spinner-ring"></div>
-        <p style="font-weight:700;font-size:14px;color:var(--outline);">Chargement de la base…</p>
-      </div>
-    `;
-  }
-}
-
-function hideLoadingSpinner() {
-  // Le spinner disparaîtra au prochain renderAlbumView()
-}
-
-
-/* ═══════════════════════════════════════════════════════════════
-   18. RECHERCHE GLOBALE
-   ═══════════════════════════════════════════════════════════════ */
-
-/**
- * Initialise la barre de recherche globale dans le header.
- * Filtre la vue courante en temps réel.
- */
-function initGlobalSearch() {
-  const input  = document.getElementById('globalSearch');
-  const clearBtn = document.getElementById('searchClear');
-
-  if (!input) return;
-
-  input.addEventListener('input', () => {
-    const wasActive = searchActive;
-    searchQuery = input.value.trim().toLowerCase();
-    searchActive = searchQuery.length > 0;
-    clearBtn.classList.toggle('hidden', !searchActive);
-
-    // Dès qu'une recherche démarre, on bascule sur la vue Album : c'est
-    // la seule vue où les résultats sont garantis d'être visibles
-    // immédiatement (sur "Stats" ou "Échanges" par exemple, rien
-    // n'apparaissait auparavant car la grille de résultats était rendue
-    // dans une vue masquée).
-    if (searchActive && !wasActive && currentView !== 'album') {
-      switchView('album'); // switchView() appelle déjà applySearchFilter()
-      return;
-    }
-
-    applySearchFilter();
-  });
-
-  clearBtn.addEventListener('click', () => {
-    input.value = '';
-    searchQuery = '';
-    searchActive = false;
-    clearBtn.classList.add('hidden');
-    applySearchFilter();
-  });
-}
-
-/**
- * Recherche mobile : sur petit écran, la barre de recherche texte est
- * masquée et remplacée par un bouton loupe. Au clic, on ouvre une modale
- * (même esprit que la modale d'ouverture de booster) et on y déplace la
- * barre de recherche existante — pas de duplication de logique, le même
- * champ #globalSearch reste l'unique source de vérité.
- */
-function initMobileSearchModal() {
-  const btn = document.getElementById('btnMobileSearch');
-  const modal = document.getElementById('searchModal');
-  const body = document.getElementById('searchModalBody');
-  const searchBar = document.getElementById('headerSearch');
-  const headerInner = document.querySelector('.header-inner');
-  const headerActions = document.querySelector('.header-actions');
-  const btnClose = document.getElementById('btnSearchModalClose');
-
-  if (!btn || !modal || !body || !searchBar || !headerInner) return;
-
-  function openSearchModal() {
-    body.appendChild(searchBar);
-    modal.classList.remove('hidden');
-    const input = document.getElementById('globalSearch');
-    if (input) input.focus();
-  }
-
-  function closeSearchModal() {
-    modal.classList.add('hidden');
-    // On replace la barre de recherche à sa position d'origine dans le header
-    if (headerActions) {
-      headerInner.insertBefore(searchBar, headerActions);
-    } else {
-      headerInner.appendChild(searchBar);
-    }
-  }
-
-  btn.addEventListener('click', openSearchModal);
-  btnClose && btnClose.addEventListener('click', closeSearchModal);
-
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) closeSearchModal();
-  });
-
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeSearchModal();
-  });
-}
-
-/**
- * Applique le filtre de recherche sur la vue courante.
- * Sur les vues grille (album/pays), filtre directement les cartes.
- * Sur les vues liste, re-rend avec filtrage.
- */
-function applySearchFilter() {
-  // Supprimer tout bandeau de recherche existant
-  document.querySelectorAll('.search-results-banner').forEach(b => b.remove());
-
-  if (!searchActive) {
-    // Restaurer la vue normale
-    renderCurrentView();
-    return;
-  }
-
-  const q = searchQuery;
-
-  // Filtrer parmi TOUTES les vignettes connues
-  const matched = stickers.filter(s => {
-    const idMatch   = s.ID.toLowerCase().includes(q);
-    const nomMatch  = (s.Nom || '').toLowerCase().includes(q);
-    const codeMatch = (s.Code || '').toLowerCase().includes(q);
-    return idMatch || nomMatch || codeMatch;
-  });
-
-  // Afficher selon la vue courante
-  if (currentView === 'album' || currentView === 'pays') {
-    renderSearchResultsGrid(matched, q);
-  } else if (currentView === 'manquantes') {
-    const filtered = matched.filter(s => getStatus(s.ID) === 'missing');
-    renderSearchResultsList(filtered, q, false);
-  } else if (currentView === 'doublons') {
-    const filtered = matched.filter(s => getStatus(s.ID) === 'duplicate');
-    renderSearchResultsList(filtered, q, true);
-  } else {
-    // Pour les autres vues, on affiche une grille globale
-    renderSearchResultsGrid(matched, q);
-  }
-}
-
-/**
- * Affiche les résultats de recherche sous forme de grille.
- * @param {Array} results - Vignettes correspondantes
- * @param {string} q - Terme recherché
- */
-function renderSearchResultsGrid(results, q) {
-  // Trouver le conteneur de grille actif
-  let grid = null;
-  let container = null;
-
-  if (currentView === 'pays') {
-    grid = document.getElementById('paysGrid');
-    container = document.getElementById('view-pays');
-  } else {
-    grid = document.getElementById('stickerGrid');
-    container = document.getElementById('view-album');
-  }
-
-  if (!grid || !container) return;
-
-  // Bandeau résultat
-  const banner = createSearchBanner(results.length, q);
-  grid.parentNode.insertBefore(banner, grid);
-
-  // Grille filtrée avec DocumentFragment
-  const frag = document.createDocumentFragment();
-  results.forEach(s => frag.appendChild(buildStickerCard(s)));
-  grid.innerHTML = '';
-  grid.appendChild(frag);
-}
-
-/**
- * Affiche les résultats de recherche sous forme de liste.
- * @param {Array} results
- * @param {string} q
- * @param {boolean} showDupCount
- */
-function renderSearchResultsList(results, q, showDupCount) {
-  const listId = currentView === 'manquantes' ? 'manqList' : 'dblList';
-  const listEl = document.getElementById(listId);
-  if (!listEl) return;
-
-  const banner = createSearchBanner(results.length, q);
-  listEl.parentNode.insertBefore(banner, listEl);
-
-  renderStickerList(listEl, results, showDupCount);
-}
-
-/**
- * Crée un bandeau d'info de résultat de recherche.
- * @param {number} count
- * @param {string} q
- * @returns {HTMLElement}
- */
-function createSearchBanner(count, q) {
-  const banner = document.createElement('div');
-  banner.className = 'search-results-banner';
-  banner.innerHTML = `
-    <span class="material-symbols-outlined" style="font-size:16px;">search</span>
-    <span><strong>${count}</strong> résultat${count !== 1 ? 's' : ''} pour "<em>${escHtml(q)}</em>"</span>
-    <button class="search-banner-clear" id="searchBannerClear">
-      <span class="material-symbols-outlined" style="font-size:14px;">close</span>
-      Effacer
-    </button>
-  `;
-  banner.querySelector('#searchBannerClear').addEventListener('click', () => {
-    const input = document.getElementById('globalSearch');
-    if (input) input.value = '';
-    searchQuery = '';
-    searchActive = false;
-    document.getElementById('searchClear').classList.add('hidden');
-    applySearchFilter();
-  });
-  return banner;
-}
-
-
-/* ═══════════════════════════════════════════════════════════════
-   19. MODE OUVERTURE DE BOOSTER
-   ═══════════════════════════════════════════════════════════════ */
-
-/**
- * Initialise le FAB et la modale d'ouverture de booster.
- */
-function initBoosterModal() {
-  const fab     = document.getElementById('fabBooster');
-  const modal   = document.getElementById('boosterModal');
-  const btnClose   = document.getElementById('btnBoosterClose');
-  const btnCancel  = document.getElementById('btnBoosterCancel');
-  const btnValidate = document.getElementById('btnBoosterValidate');
-  const input   = document.getElementById('boosterInput');
-  const preview = document.getElementById('boosterPreview');
-
-  if (!fab || !modal) return;
-
-  // Ouverture
-  fab.addEventListener('click', () => {
-    input.value = '';
-    preview.innerHTML = '';
-    modal.classList.remove('hidden');
-    input.focus();
-  });
-
-  // Fermeture
-  [btnClose, btnCancel].forEach(btn => {
-    btn && btn.addEventListener('click', closeBoosterModal);
-  });
-
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) closeBoosterModal();
-  });
-
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeBoosterModal();
-  });
-
-  // Prévisualisation en temps réel
-  input.addEventListener('input', () => {
-    updateBoosterPreview(input.value, preview);
-  });
-
-  // Validation
-  btnValidate.addEventListener('click', () => {
-    const ids = parseBoosterInput(input.value);
-    if (ids.valid.length === 0) {
-      showToast('⚠️ Aucun ID reconnu dans la saisie.');
-      return;
-    }
-
-    ids.valid.forEach(id => {
-      const current = getStatus(id);
-      if (current === 'missing') {
-        setStatus(id, 'owned');
-      } else if (current === 'owned') {
-        setStatus(id, 'duplicate', Math.max(2, (collectionState[id]?.count || 0) + 1));
-      } else if (current === 'duplicate') {
-        const newCount = (collectionState[id]?.count || 2) + 1;
-        setStatus(id, 'duplicate', newCount);
-      }
-    });
-
-    renderCurrentView();
-    closeBoosterModal();
-    showToast(`✅ ${ids.valid.length} vignette${ids.valid.length > 1 ? 's' : ''} ajoutée${ids.valid.length > 1 ? 's' : ''} !`, 3000);
-  });
-}
-
-function closeBoosterModal() {
-  document.getElementById('boosterModal').classList.add('hidden');
-}
-
-/**
- * Parse une chaîne de saisie booster (IDs séparés par espaces).
- * @param {string} raw
- * @returns {{ valid: string[], invalid: string[] }}
- */
-function parseBoosterInput(raw) {
-  const knownIDs = new Set(stickers.map(s => s.ID));
-  const tokens = raw.trim().toUpperCase().split(/\s+/).filter(Boolean);
-  const valid = [];
-  const invalid = [];
-
-  tokens.forEach(t => {
-    if (knownIDs.has(t)) {
-      valid.push(t);
-    } else {
-      invalid.push(t);
-    }
-  });
-
-  return { valid, invalid };
-}
-
-/**
- * Met à jour la prévisualisation des IDs dans la modale booster.
- * @param {string} raw
- * @param {HTMLElement} preview
- */
-function updateBoosterPreview(raw, preview) {
-  if (!raw.trim()) {
-    preview.innerHTML = '';
-    return;
-  }
-  const { valid, invalid } = parseBoosterInput(raw);
-  const frag = document.createDocumentFragment();
-
-  valid.forEach(id => {
-    const tag = document.createElement('span');
-    tag.className = 'booster-tag valid';
-    tag.textContent = id;
-    frag.appendChild(tag);
-  });
-
-  invalid.forEach(id => {
-    const tag = document.createElement('span');
-    tag.className = 'booster-tag invalid';
-    tag.textContent = id;
-    frag.appendChild(tag);
-  });
-
-  preview.innerHTML = '';
-  preview.appendChild(frag);
-}
-
-
-/* ═══════════════════════════════════════════════════════════════
-   20. MATCHMAKER — REFONTE DES ÉCHANGES
-   ═══════════════════════════════════════════════════════════════ */
-
-/** Collection parsée de l'ami (Map: id → entry) */
-let friendCollection = null;
-
-/**
- * Initialise le module Matchmaker.
- */
-function initMatchmaker() {
-  const btnAnalyse = document.getElementById('btnAnalyse');
-  const inputFriendJSON = document.getElementById('inputFriendJSON');
-  const btnExportMatch = document.getElementById('btnExportMatch');
-  const btnCopyMatch   = document.getElementById('btnCopyMatch');
-  const btnCopyMatchText = document.getElementById('btnCopyMatchText');
-  const btnCloseMatchExport = document.getElementById('btnCloseMatchExport');
-
-  if (!btnAnalyse) return;
-
-  btnAnalyse.addEventListener('click', runMatchmaker);
-
-  // Import fichier JSON ami
-  inputFriendJSON && inputFriendJSON.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      document.getElementById('colleagueInput').value = ev.target.result;
-    };
-    reader.readAsText(file);
-    e.target.value = '';
-  });
-
-  // Export récap texte
-  btnExportMatch && btnExportMatch.addEventListener('click', exportMatchSummary);
-  btnCopyMatch && btnCopyMatch.addEventListener('click', exportMatchSummary);
-
-  btnCopyMatchText && btnCopyMatchText.addEventListener('click', () => {
-    copyTextarea('matchTextarea');
-  });
-
-  btnCloseMatchExport && btnCloseMatchExport.addEventListener('click', () => {
-    document.getElementById('matchExportZone').classList.add('hidden');
-  });
-}
-
-/**
- * Parse la collection d'un ami depuis JSON ou liste texte.
- * @param {string} raw
- * @returns {Object|null} - collectionState-like object ou null si erreur
- */
-function parseFriendCollection(raw) {
-  // Tentative JSON
-  try {
-    const parsed = JSON.parse(raw);
-    if (typeof parsed === 'object' && !Array.isArray(parsed)) {
-      return parsed; // Format JSON (collectionState)
-    }
-  } catch (e) {
-    // pas du JSON, on essaie le format texte
-  }
-
-  // Format texte brut : "CODE 1,2,3\nCODE 4,5"
-  const knownIDs = new Set(stickers.map(s => s.ID));
-  const ids = parseTextList(raw);
-  if (ids.size === 0) return null;
-
-  // Convertir en format collectionState (les IDs listés = owned/duplicate)
-  const result = {};
-  stickers.forEach(s => {
-    result[s.ID] = { status: 'missing', count: 0 };
-  });
-  ids.forEach(id => {
-    if (knownIDs.has(id)) {
-      result[id] = { status: 'owned', count: 0 };
-    }
-  });
-  return result;
-}
-
-/**
- * Exécute l'analyse de correspondance (matchmaking).
- */
-function runMatchmaker() {
-  const raw = document.getElementById('colleagueInput').value.trim();
-  const resultsEl = document.getElementById('matchmakerResults');
-  const emptyEl   = document.getElementById('echangeResults');
-
-  if (!raw) {
-    showToast('⚠️ La liste de ton ami est vide.');
-    return;
-  }
-
-  friendCollection = parseFriendCollection(raw);
-
-  if (!friendCollection) {
-    showToast('❌ Format non reconnu. Utilise le JSON ou le format CODE 1,2,3.');
-    return;
-  }
-
-  const knownIDs = new Set(stickers.map(s => s.ID));
-
-  // Mes manquantes
-  const mesManquantes = new Set(
-    stickers.filter(s => getStatus(s.ID) === 'missing').map(s => s.ID)
-  );
-
-  // Mes doublons
-  const mesDoublons = new Set(
-    stickers.filter(s => getStatus(s.ID) === 'duplicate').map(s => s.ID)
-  );
-
-  // Manquantes de l'ami (statut missing dans sa collection)
-  const amiManquantes = new Set(
-    stickers.filter(s => {
-      const entry = friendCollection[s.ID];
-      return !entry || entry.status === 'missing';
-    }).map(s => s.ID)
-  );
-
-  // Doublons de l'ami
-  const amiDoublons = new Set(
-    stickers.filter(s => {
-      const entry = friendCollection[s.ID];
-      return entry && entry.status === 'duplicate';
-    }).map(s => s.ID)
-  );
-
-  // Ce que je peux lui donner : mes doublons croisés avec ses manquantes
-  const jeDonne = [...mesDoublons].filter(id => amiManquantes.has(id));
-
-  // Ce qu'il/elle peut me donner : ses doublons croisés avec mes manquantes
-  const ilDonne = [...mesManquantes].filter(id => amiDoublons.has(id));
-
-  // Affichage
-  emptyEl.classList.add('hidden');
-  resultsEl.classList.remove('hidden');
-
-  // Résumé
-  document.getElementById('matchmakerSummary').innerHTML = `
-    <div class="matchmaker-summary-stat">
-      <span class="stat-val">${jeDonne.length}</span>
-      <span class="stat-lbl">Je donne</span>
-    </div>
-    <div class="matchmaker-summary-divider"></div>
-    <div class="matchmaker-summary-stat">
-      <span class="stat-val">${ilDonne.length}</span>
-      <span class="stat-lbl">Je reçois</span>
-    </div>
-    <div class="matchmaker-summary-divider"></div>
-    <div class="matchmaker-summary-stat">
-      <span class="stat-val">${Math.min(jeDonne.length, ilDonne.length)}</span>
-      <span class="stat-lbl">Échange net possible</span>
-    </div>
-  `;
-
-  // Compteurs
-  document.getElementById('giveCount').textContent = jeDonne.length;
-  document.getElementById('receiveCount').textContent = ilDonne.length;
-
-  // Listes tags
-  renderMatchTags(document.getElementById('giveList'), jeDonne, 'give');
-  renderMatchTags(document.getElementById('receiveList'), ilDonne, 'receive');
-
-  // Cacher l'export précédent
-  document.getElementById('matchExportZone').classList.add('hidden');
-}
-
-/**
- * Rend les tags de correspondance dans un panneau.
- * @param {HTMLElement} container
- * @param {string[]} ids
- * @param {'give'|'receive'} direction
- */
-function renderMatchTags(container, ids, direction) {
-  const frag = document.createDocumentFragment();
-
-  if (ids.length === 0) {
-    const empty = document.createElement('p');
-    empty.style.cssText = 'color:var(--outline);font-size:13px;font-style:italic;padding:4px;';
-    empty.textContent = 'Aucune vignette correspondante.';
-    frag.appendChild(empty);
-  } else {
-    ids.forEach(id => {
-      const s = stickers.find(x => x.ID === id);
-      const tag = document.createElement('div');
-      tag.className = 'match-tag';
-      tag.title = `${id} — ${s?.Nom || ''}`;
-      tag.innerHTML = `
-        ${escHtml(id)}
-        <span class="tag-name">${escHtml(s?.Nom || '')}</span>
-      `;
-      tag.addEventListener('click', () => openModal(id));
-      frag.appendChild(tag);
-    });
-  }
-
-  container.innerHTML = '';
-  container.appendChild(frag);
-}
-
-/**
- * Génère et affiche l'export texte du récapitulatif d'échange.
- */
-function exportMatchSummary() {
-  const giveList    = Array.from(document.getElementById('giveList').querySelectorAll('.match-tag')).map(t => t.title.split(' — ')[0]);
-  const receiveList = Array.from(document.getElementById('receiveList').querySelectorAll('.match-tag')).map(t => t.title.split(' — ')[0]);
-
-  const giveText    = giveList.length ? giveList.join(', ') : 'Aucun doublon à donner';
-  const receiveText = receiveList.length ? receiveList.join(', ') : 'Aucune vignette à recevoir';
-
-  const text = [
-    '=== RÉCAPITULATIF ÉCHANGE PANINI WC2026 ===',
-    '',
-    `Ce que je peux te donner (${giveList.length}) :`,
-    giveText,
-    '',
-    `Ce que tu peux me donner (${receiveList.length}) :`,
-    receiveText,
-    '',
-    `Généré le ${new Date().toLocaleDateString('fr-FR')} via Panini WC2026 Tracker`,
-  ].join('\n');
-
-  document.getElementById('matchTextarea').value = text;
-  const zone = document.getElementById('matchExportZone');
-  zone.classList.remove('hidden');
-  zone.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-}
+--- a/app.js
++++ b/app.js
+@@ -65,7 +65,6 @@
+ 
+     // Construction de l'interface
+     initNavigation();
+-    initAlbumPageSelect();
+     initAlbumPageSelect();
+     initPaysSelect();
+     initFilters();
+@@ -154,12 +153,6 @@
+    NAVIGATION ENTRE LES VUES
+    ═══════════════════════════════════════════════════════════════ */
+ 
+-/**
+- * Initialise les boutons de navigation (desktop + mobile).
+- */
+-function initNavigation() {
+-  // Tous les boutons nav (desktop et mobile)
+   const navBtns = document.querySelectorAll('[data-view]');
+ 
+   navBtns.forEach(btn => {
+@@ -168,19 +161,6 @@ function initNavigation() {
+       switchView(view);
+     });
+   });
+-}
+-
+-/**
+- * Bascule vers une vue donnée.
+- * @param {string} viewName - Identifiant de la vue
+- */
+-function switchView(viewName) {
+-  currentView = viewName;
+-
+-  // Mise à jour des boutons actifs
+-  document.querySelectorAll('[data-view]').forEach(btn => {
+-    const isActive = btn.dataset.view === viewName;
+-    btn.classList.toggle('active', isActive);
+-    btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+-  });
+-
+-  // Affichage / masquage des sections
+-  document.querySelectorAll('.view').forEach(view => {
+-    view.classList.toggle('hidden', view.id !== `view-${viewName}`);
+-  });
+-
+-  // Rendu de la vue (avec filtre de recherche si actif)
+-  if (searchActive) {
+-    applySearchFilter();
+-  } else {
+-    renderCurrentView();
+-  }
+-}
+-
+-/**
+- * Déclenche le rendu de la vue courante.
+- */
+-function renderCurrentView() {
+-  switch (currentView) {
+-    case 'album':      renderAlbumView();      break;
+-    case 'pays':       renderPaysView();        break;
+-    case 'manquantes': renderManquantesView();  break;
+-    case 'doublons':   renderDoublonsView();    break;
+-    case 'stats':      renderStatsView();       break;
+-    case 'echanges':   /* rien à rendre d'emblée */ break;
+-    default: break;
+-  }
+-}
+-
+-/* ═══════════════════════════════════════════════════════════════
+-   9. VUE ALBUM
+-   ═══════════════════════════════════════════════════════════════ */
+-
+-/**
+- * Initialise le sélecteur de page d'album.
+- */
+-function initAlbumPageSelect() {
+-  const select = document.getElementById('albumPageSelect');
+-  select.innerHTML = '';
+-
+-  albumPages.forEach((page, idx) => {
+-    // On construit le label à partir des stickers de cette page
+-    const pageStickers = stickers.filter(s => s['Page'] === page);
+-    const section = pageStickers[0]?.Section || `Page ${page}`;
+-    const opt = document.createElement('option');
+-    opt.value = idx;
+-    opt.textContent = `p.${page} — ${section}`;
+-    select.appendChild(opt);
+-  });
+-
+-  select.addEventListener('change', () => {
+-    currentAlbumPageIndex = parseInt(select.value, 10);
+-    renderAlbumView();
+-  });
+-
+-  // Boutons précédent / suivant
+-  document.getElementById('btnPagePrev').addEventListener('click', () => {
+-    if (currentAlbumPageIndex > 0) {
+-      currentAlbumPageIndex--;
+-      renderAlbumView();
+-    }
+-  });
+-
+-  document.getElementById('btnPageNext').addEventListener('click', () => {
+-    if (currentAlbumPageIndex < albumPages.length - 1) {
+-      currentAlbumPageIndex++;
+-      renderAlbumView();
+-    }
+-  });
+-
+-  // Mise à jour du total affiché : l'album physique compte 106 pages,
+-  // même si seules certaines d'entre elles contiennent des vignettes
+-  // recensées dans la base (la navigation, elle, ne porte que sur ces
+-  // dernières — cf. albumPages ci-dessus).
+-  document.getElementById('albumPageTotal').textContent = 106;
+-}
+-
+-/**
+- * Rend la vue album pour la page courante.
+- */
+-function renderAlbumView() {
+-  const pageNum = albumPages[currentAlbumPageIndex];
+-  const pageStickers = stickers.filter(s => s['Page'] === pageNum);
+-
+-  // Mise à jour de l'indicateur de page
+-  document.getElementById('albumPageCurrent').textContent = pageNum;
+-  document.getElementById('albumPageSelect').value = currentAlbumPageIndex;
+-
+-  // Boutons prev/next
+-  document.getElementById('btnPagePrev').disabled = currentAlbumPageIndex === 0;
+-  document.getElementById('btnPageNext').disabled = currentAlbumPageIndex === albumPages.length - 1;
+-
+-  // En-tête de section
+-  renderAlbumSectionHeader(pageStickers);
+-
+-  // Grille de vignettes — DocumentFragment pour éviter les reflows multiples
+-  const grid = document.getElementById('stickerGrid');
+-  const fragment = document.createDocumentFragment();
+-
+-  pageStickers.forEach(sticker => {
+-    fragment.appendChild(buildStickerCard(sticker));
+-  });
+-
+-  grid.innerHTML = '';
+-  grid.appendChild(fragment);
+-}
+-
+-/**
+- * Nombre de variantes de couleur disponibles pour .section-banner
+- * (cf. classes .section-banner--0 à --5 dans styles.css).
+- */
+-const SECTION_BANNER_COLOR_COUNT = 6;
+-
+-/**
+- * Calcule un index de couleur stable pour une section donnée, afin que
+- * la même section affiche toujours la même couleur de bandeau.
+- * @param {string} sectionName
+- * @returns {number}
+- */
+-function getSectionBannerColorIndex(sectionName) {
+-  let hash = 0;
+-  const str = sectionName || '';
+-  for (let i = 0; i < str.length; i++) {
+-    hash = (hash * 31 + str.charCodeAt(i)) >>> 0;
+-  }
+-  return hash % SECTION_BANNER_COLOR_COUNT;
+-}
+-
+-/**
+- * Construit le bandeau de section en haut de la page d'album.
+- * @param {Array} pageStickers - Vignettes de la page courante
+- */
+-function renderAlbumSectionHeader(pageStickers) {
+-  const container = document.getElementById('albumSectionHeader');
+-
+-  if (!pageStickers.length) {
+-    container.innerHTML = '';
+-    return;
+-  }
+-
+-  // Récupération des sections uniques sur cette page
+-  const sections = [...new Set(pageStickers.map(s => s['Section']))];
+-  const firstSection = sections[0];
+-  const flagURL = pageStickers[0]?.Drapeau || '';
+-  const groupe = pageStickers[0]?.Groupe || '';
+-  const colorClass = `section-banner--${getSectionBannerColorIndex(firstSection)}`;
+-
+-  container.innerHTML = `
+-    <div class="section-banner ${colorClass}">
+-      ${flagURL ? `<img src="${escHtml(flagURL)}" alt="${escHtml(firstSection)}" />` : ''}
+-      <span>${escHtml(firstSection)}</span>
+-      ${groupe ? `<span style="font-size:12px;opacity:0.7;letter-spacing:0.1em;">Groupe ${escHtml(groupe)}</span>` : ''}
+-    </div>
+-  `;
+-}
+-
+-/**
+- * Construit et retourne un élément DOM représentant une vignette.
+- * @param {Object} sticker - Données d'une vignette
+- * @returns {HTMLElement}
+- */
+-function buildStickerCard(sticker) {
+-  const status = getStatus(sticker.ID);
+-  const dupCount = getDupCount(sticker.ID);
+-
+-  const article = document.createElement('article');
+-  article.className = `sticker-card ${status}`;
+-  article.setAttribute('role', 'listitem');
+-  article.setAttribute('aria-label', `${sticker.ID} — ${sticker.Nom} (${statusLabel(status)})`);
+-  article.dataset.id = sticker.ID;
+-  article.dataset.type = sticker.Type || '';
+-
+-  // Badge doublon
+-  const dupBadge = status === 'duplicate'
+-    ? `<div class="dup-badge" aria-label="${dupCount} doublons">x${dupCount}</div>`
+-    : '';
+-
+-  // Couleur de header selon le type
+-  const typeColor = sticker.Type === 'Spécial' ? 'var(--purple-psycho)' : '';
+-  const typeStyle = typeColor ? `style="background:${typeColor};color:#fff;"` : '';
+-
+-  article.innerHTML = `
+-    ${dupBadge}
+-    <div class="sticker-header" ${typeStyle}>
+-      <span class="sticker-id">${escHtml(sticker.ID)}</span>
+-      <span class="sticker-type-badge">${escHtml(sticker.Type === 'Spécial' ? 'SPEC' : 'STD')}</span>
+-    </div>
+-    <div class="sticker-flag-wrap">
+-      <img
+-        class="sticker-flag"
+-        src="${escHtml(sticker.Drapeau || '')}"
+-        alt="${escHtml(sticker.Section)}"
+-        loading="lazy"
+-        onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2260%22 height=%2240%22><rect width=%2260%22 height=%2240%22 fill=%22%23E3E2FF%22/></svg>'"
+-      />
+-    </div>
+-    <div class="sticker-footer">
+-      <div class="sticker-name">${escHtml(sticker.Nom)}</div>
+-      <div class="sticker-section-label">${escHtml(sticker.Section)}</div>
+-    </div>
+-  `;
+-
+-  // Clic → ouverture de la modale
+-  article.addEventListener('click', () => openModal(sticker.ID));
+-
+-  return article;
+-}
+-
+-/* ═══════════════════════════════════════════════════════════════
+-   10. VUE PAR PAYS
+-   ═══════════════════════════════════════════════════════════════ */
+-
+-/**
+- * Initialise le sélecteur de pays.
+- */
+-function initPaysSelect() {
+-  const select = document.getElementById('paysSelect');
+-
+-  // Construction de la liste des pays uniques (triés par nom de section)
+-  const paysMap = {};
+-  stickers.forEach(s => {
+-    if (!paysMap[s.Code]) {
+-      paysMap[s.Code] = s.Section;
+-    }
+-  });
+-
+-  const paysSorted = Object.entries(paysMap).sort((a, b) => a[1].localeCompare(b[1]));
+-
+-  paysSorted.forEach(([code, section]) => {
+-    const opt = document.createElement('option');
+-    opt.value = code;
+-    opt.textContent = `${section} (${code})`;
+-    select.appendChild(opt);
+-  });
+-
+-  select.addEventListener('change', () => renderPaysView());
+-}
+-
+-/**
+- * Rend la vue "Par pays".
+- */
+-function renderPaysView() {
+-  const code = document.getElementById('paysSelect').value;
+-  const paysStickers = stickers.filter(s => s.Code === code);
+-
+-  if (!paysStickers.length) return;
+-
+-  // Statistiques du pays
+-  const total = paysStickers.length;
+-  const owned = paysStickers.filter(s => getStatus(s.ID) === 'owned' || getStatus(s.ID) === 'duplicate').length;
+-  const pct = Math.round((owned / total) * 100);
+-  const flagURL = paysStickers[0]?.Drapeau || '';
+-  const sectionName = paysStickers[0]?.Section || code;
+-
+-  // Résumé pays
+-  document.getElementById('paysSummary').innerHTML = `
+-    <img class="pays-flag" src="${escHtml(flagURL)}" alt="${escHtml(sectionName)}" 
+-         onerror="this.style.display='none'" />
+-    <div class="pays-info">
+-      <div class="pays-info-name">${escHtml(sectionName)}</div>
+-      <div class="pays-info-stats">
+-        <strong>${owned}</strong> / ${total} possédées — <strong>${pct}%</strong>
+-      </div>
+-    </div>
+-    <div class="pays-progress-bar">
+-      <div class="pays-progress-fill" style="width:${pct}%"></div>
+-    </div>
+-  `;
+-
+-  // Grille des vignettes du pays — DocumentFragment
+-  const grid = document.getElementById('paysGrid');
+-  const frag = document.createDocumentFragment();
+-  paysStickers.forEach(s => frag.appendChild(buildStickerCard(s)));
+-  grid.innerHTML = '';
+-  grid.appendChild(frag);
+-}
+-
+-/* ═══════════════════════════════════════════════════════════════
+-   11. VUE MANQUANTES
+-   ═══════════════════════════════════════════════════════════════ */
+-
+-/**
+- * Initialise les filtres communs aux vues manquantes et doublons.
+- */
+-function initFilters() {
+-  // Filtres manquantes
+-  document.getElementById('manqSectionFilter').addEventListener('change', renderManquantesView);
+-
+-  // Filtres doublons
+-  document.getElementById('dblSectionFilter').addEventListener('change', renderDoublonsView);
+-
+-  // Peuplement des filtres
+-  populateFilterSelects();
+-}
+-
+-/**
+- * Peuple les <select> de filtres avec les codes et sections uniques.
+- */
+-function populateFilterSelects() {
+-  const sections = [...new Set(stickers.map(s => s.Section))].sort();
+-
+-  const manqSec  = document.getElementById('manqSectionFilter');
+-  const dblSec   = document.getElementById('dblSectionFilter');
+-
+-  sections.forEach(sec => {
+-    [manqSec, dblSec].forEach(sel => {
+-      const opt = document.createElement('option');
+-      opt.value = sec;
+-      opt.textContent = sec;
+-      sel.appendChild(opt);
+-    });
+-  });
+-}
+-
+-/**
+- * Rend la vue "Mes manquantes".
+- */
+-function renderManquantesView() {
+-  const filterSection = document.getElementById('manqSectionFilter').value;
+-
+-  let missing = stickers.filter(s => getStatus(s.ID) === 'missing');
+-
+-  if (filterSection) missing = missing.filter(s => s.Section === filterSection);
+-
+-  // Compteur
+-  document.getElementById('manqCount').innerHTML =
+-    `<span>${missing.length}</span> vignette${missing.length > 1 ? 's' : ''} manquante${missing.length > 1 ? 's' : ''}`;
+-
+-  // Rendu de la liste
+-  renderStickerList(document.getElementById('manqList'), missing);
+-
+-  // Masquer la zone d'export si on change les filtres
+-  document.getElementById('manqExportZone').classList.add('hidden');
+-}
+-
+-/**
+- * Rend la vue "Mes doublons".
+- */
+-function renderDoublonsView() {
+-  const filterSection = document.getElementById('dblSectionFilter').value;
+-
+-  let duplicates = stickers.filter(s => getStatus(s.ID) === 'duplicate');
+-
+-  if (filterSection) duplicates = duplicates.filter(s => s.Section === filterSection);
+-
+-  // Compteur
+-  document.getElementById('dblCount').innerHTML =
+-    `<span>${duplicates.length}</span> vignette${duplicates.length > 1 ? 's' : ''} en doublon`;
+-
+-  // Rendu de la liste
+-  renderStickerList(document.getElementById('dblList'), duplicates, true);
+-
+-  // Masquer la zone d'export
+-  document.getElementById('dblExportZone').classList.add('hidden');
+-}
+-
+-/**
+- * Rend une liste de vignettes groupées par pays.
+- * @param {HTMLElement} container - Conteneur de la liste
+- * @param {Array} stickersList - Vignettes à afficher
+- * @param {boolean} showDupCount - Afficher le compteur de doublons
+- */
+-function renderStickerList(container, stickersList, showDupCount = false) {
+-  // DocumentFragment pour éviter les reflows multiples
+-  const frag = document.createDocumentFragment();
+-
+-  if (!stickersList.length) {
+-    const empty = document.createElement('div');
+-    empty.style.cssText = 'padding:var(--sp-lg);text-align:center;color:var(--outline);';
+-    empty.innerHTML = `
+-      <span class="material-symbols-outlined" style="font-size:48px;opacity:0.3;display:block;margin-bottom:12px;">check_circle</span>
+-      <p style="font-weight:700;font-size:14px;">Aucune vignette dans cette catégorie.</p>
+-    `;
+-    frag.appendChild(empty);
+-    container.innerHTML = '';
+-    container.appendChild(frag);
+-    return;
+-  }
+-
+-  // Groupement par Code (pays)
+-  const grouped = {};
+-  stickersList.forEach(s => {
+-    if (!grouped[s.Code]) grouped[s.Code] = [];
+-    grouped[s.Code].push(s);
+-  });
+-
+-  Object.entries(grouped).forEach(([code, items]) => {
+-    const sectionName = items[0]?.Section || code;
+-    const flagURL     = items[0]?.Drapeau || '';
+-
+-    const header = document.createElement('div');
+-    header.className = 'list-group-header';
+-    header.innerHTML = `
+-      ${flagURL ? `<img src="${escHtml(flagURL)}" alt="" />` : ''}
+-      <span>${escHtml(sectionName)}</span>
+-      <span style="margin-left:auto;font-size:11px;color:var(--outline);">${items.length} vignette${items.length > 1 ? 's' : ''}</span>
+-    `;
+-    frag.appendChild(header);
+-
+-    items.forEach(s => {
+-      const item = document.createElement('div');
+-      item.className = 'list-item';
+-      item.setAttribute('role', 'listitem');
+-      item.dataset.id = s.ID;
+-
+-      const dupBadge = showDupCount
+-        ? `<div class="list-item-dup-count">x${getDupCount(s.ID)}</div>`
+-        : '';
+-
+-      item.innerHTML = `
+-        <img class="list-item-flag" src="${escHtml(s.Drapeau || '')}" alt="" loading="lazy"
+-             onerror="this.style.display='none'" />
+-        <span class="list-item-id">${escHtml(s.ID)}</span>
+-        <span class="list-item-name">${escHtml(s.Nom)}</span>
+-        <span class="list-item-section">${escHtml(s.Type)}</span>
+-        ${dupBadge}
+-      `;
+-
+-      item.addEventListener('click', () => openModal(s.ID));
+-      frag.appendChild(item);
+-    });
+-  });
+-
+-  container.innerHTML = '';
+-  container.appendChild(frag);
+-}
+-
+-/* ═══════════════════════════════════════════════════════════════
+-   12. EXPORT TEXTE (wantlist / tradelist)
+-   ═══════════════════════════════════════════════════════════════ */
+-
+-/**
+- * Génère le texte d'export au format "CODE N°1,N°2,N°3".
+- * @param {Array} stickersList - Vignettes à exporter
+- * @returns {string} - Texte formaté
+- */
+-function generateExportText(stickersList) {
+-  // Groupement par code pays
+-  const grouped = {};
+-  stickersList.forEach(s => {
+-    if (!grouped[s.Code]) grouped[s.Code] = [];
+-    grouped[s.Code].push(s['N°']);
+-  });
+-
+-  return Object.entries(grouped)
+-    .sort(([a], [b]) => a.localeCompare(b))
+-    .map(([code, nums]) => `${code} ${nums.sort((a, b) => a - b).join(',')}`)
+-    .join('\n');
+-}
+-
+-/**
+- * Initialise les boutons d'export texte et de copie.
+- */
+-function initExportImport() {
+-  // --- Export / Import global (JSON) ---
+-  document.getElementById('btnExport').addEventListener('click', exportCollectionAsJSON);
+-
+-  document.getElementById('inputImport').addEventListener('change', (e) => {
+-    const file = e.target.files[0];
+-    if (file) importCollectionFromJSON(file);
+-    e.target.value = ''; // Reset pour permettre un nouvel import du même fichier
+-  });
+-
+-  // --- Export texte Manquantes ---
+-  document.getElementById('btnExportManq').addEventListener('click', () => {
+-    const filterSection = document.getElementById('manqSectionFilter').value;
+-
+-    let missing = stickers.filter(s => getStatus(s.ID) === 'missing');
+-    if (filterSection) missing = missing.filter(s => s.Section === filterSection);
+-
+-    const text = generateExportText(missing);
+-    document.getElementById('manqTextarea').value = text || '(Aucune vignette manquante)';
+-    document.getElementById('manqExportZone').classList.remove('hidden');
+-    document.getElementById('manqExportZone').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+-  });
+-
+-  document.getElementById('btnCopyManq').addEventListener('click', () => {
+-    copyTextarea('manqTextarea');
+-  });
+-
+-  document.getElementById('btnCloseManqExport').addEventListener('click', () => {
+-    document.getElementById('manqExportZone').classList.add('hidden');
+-  });
+-
+-  // --- Export texte Doublons ---
+-  document.getElementById('btnExportDbl').addEventListener('click', () => {
+-    const filterSection = document.getElementById('dblSectionFilter').value;
+-
+-    let duplicates = stickers.filter(s => getStatus(s.ID) === 'duplicate');
+-    if (filterSection) duplicates = duplicates.filter(s => s.Section === filterSection);
+-
+-    const text = generateExportText(duplicates);
+-    document.getElementById('dblTextarea').value = text || '(Aucun doublon)';
+-    document.getElementById('dblExportZone').classList.remove('hidden');
+-    document.getElementById('dblExportZone').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+-  });
+-
+-  document.getElementById('btnCopyDbl').addEventListener('click', () => {
+-    copyTextarea('dblTextarea');
+-  });
+-
+-  document.getElementById('btnCloseDblExport').addEventListener('click', () => {
+-    document.getElementById('dblExportZone').classList.add('hidden');
+-  });
+-
+-  // --- Module Échanges ---
+-  document.getElementById('btnAnalyse').addEventListener('click', analyseEchanges);
+-}
+-
+-/**
+- * Copie le contenu d'un textarea dans le presse-papier.
+- * @param {string} textareaId - ID du textarea
+- */
+-function copyTextarea(textareaId) {
+-  const textarea = document.getElementById(textareaId);
+-  navigator.clipboard.writeText(textarea.value)
+-    .then(() => showToast('📋 Liste copiée dans le presse-papier !'))
+-    .catch(() => {
+-      // Fallback pour les environnements sans clipboard API
+-      textarea.select();
+-      document.execCommand('copy');
+-      showToast('📋 Liste copiée !');
+-    });
+-}
+-
+-/* ═══════════════════════════════════════════════════════════════
+-   13. VUE STATISTIQUES
+-   ═══════════════════════════════════════════════════════════════ */
+-
+-/**
+- * Rend la vue Statistiques.
+- */
+-function renderStatsView() {
+-  const total     = stickers.length;
+-  const owned     = stickers.filter(s => getStatus(s.ID) === 'owned').length;
+-  const duplicates = stickers.filter(s => getStatus(s.ID) === 'duplicate').length;
+-  const missing   = stickers.filter(s => getStatus(s.ID) === 'missing').length;
+-  // Les doublons comptent comme "possédées" pour le % de complétion
+-  const ownedTotal = owned + duplicates;
+-  const pct = Math.round((ownedTotal / total) * 100);
+-
+-  // Cartes globales
+-  document.getElementById('statsGlobal').innerHTML = `
+-    <div class="stat-card completion">
+-      <div class="stat-card-value">${pct}%</div>
+-      <div class="stat-card-label">Complétion globale</div>
+-    </div>
+-    <div class="stat-card owned">
+-      <div class="stat-card-value">${ownedTotal}</div>
+-      <div class="stat-card-label">Possédées</div>
+-    </div>
+-    <div class="stat-card missing">
+-      <div class="stat-card-value">${missing}</div>
+-      <div class="stat-card-label">Manquantes</div>
+-    </div>
+-    <div class="stat-card duplicate">
+-      <div class="stat-card-value">${duplicates}</div>
+-      <div class="stat-card-label">Doublons</div>
+-    </div>
+-  `;
+-
+-  // Barres par pays
+-  renderStatsBars();
+-}
+-
+-/**
+- * Rend les barres de complétion par pays/section.
+- */
+-function renderStatsBars() {
+-  const container = document.getElementById('statsBars');
+-  container.innerHTML = '';
+-
+-  // Groupement par Code pays
+-  const grouped = {};
+-  stickers.forEach(s => {
+-    if (!grouped[s.Code]) grouped[s.Code] = { section: s.Section, flag: s.Drapeau, stickers: [] };
+-    grouped[s.Code].stickers.push(s);
+-  });
+-
+-  // Tri par taux de complétion décroissant
+-  const sortedEntries = Object.entries(grouped).sort((a, b) => {
+-    const getPct = (items) => {
+-      const total = items.length;
+-      const ok = items.filter(s => getStatus(s.ID) !== 'missing').length;
+-      return ok / total;
+-    };
+-    return getPct(b[1].stickers) - getPct(a[1].stickers);
+-  });
+-
+-  sortedEntries.forEach(([code, data]) => {
+-    const total  = data.stickers.length;
+-    const ok     = data.stickers.filter(s => getStatus(s.ID) !== 'missing').length;
+-    const pct    = Math.round((ok / total) * 100);
+-    const fillClass = pct === 100 ? 'full' : pct < 20 ? 'low' : '';
+-
+-    const row = document.createElement('div');
+-    row.className = 'stat-bar-row';
+-    row.innerHTML = `
+-      <div class="stat-bar-label">
+-        ${data.flag ? `<img src="${escHtml(data.flag)}" alt="" loading="lazy" />` : ''}
+-        <span title="${escHtml(data.section)}">${escHtml(data.section)}</span>
+-      </div>
+-      <div class="stat-bar-track">
+-        <div class="stat-bar-fill ${fillClass}" style="width:${pct}%"></div>
+-      </div>
+-      <div class="stat-bar-pct">${pct}%</div>
+-    `;
+-    container.appendChild(row);
+-  });
+-}
+-
+-/* ═══════════════════════════════════════════════════════════════
+-   14. MODULE ÉCHANGES
+-   ═══════════════════════════════════════════════════════════════ */
+-
+-/**
+- * Analyse la liste textuelle d'un collègue et affiche les échanges possibles.
+- *
+- * Format attendu :
+- *   CODE N°1,N°2,N°3
+- *   CODE N°4,N°5
+- * Interprète chaque ligne comme les doublons du collègue (ou ses manquantes).
+- */
+-function analyseEchanges() {
+-  const raw = document.getElementById('colleagueInput').value.trim();
+-  const resultsDiv = document.getElementById('echangeResults');
+-
+-  if (!raw) {
+-    resultsDiv.innerHTML = `
+-      <div class="echange-empty">
+-        <span class="material-symbols-outlined">warning</span>
+-        <p>La liste est vide. Colle la liste de ton collègue.</p>
+-      </div>
+-    `;
+-    return;
+-  }
+-
+-  // Parse la liste du collègue
+-  const colleagueStickers = parseTextList(raw);
+-
+-  if (colleagueStickers.size === 0) {
+-    resultsDiv.innerHTML = `
+-      <div class="echange-empty">
+-        <span class="material-symbols-outlined">error</span>
+-        <p>Format non reconnu. Exemple attendu :<br><code>MEX 1,2,3</code></p>
+-      </div>
+-    `;
+-    return;
+-  }
+-
+-  // Mes manquantes : vignettes que je n'ai pas
+-  const mesManquantes = new Set(
+-    stickers.filter(s => getStatus(s.ID) === 'missing').map(s => s.ID)
+-  );
+-
+-  // Mes doublons : vignettes que j'ai en surplus
+-  const mesDoublons = new Set(
+-    stickers.filter(s => getStatus(s.ID) === 'duplicate').map(s => s.ID)
+-  );
+-
+-  // Ce que le collègue a (et que je cherche) : intersection(colleagueStickers, mesManquantes)
+-  const ilsOntPourMoi = [...colleagueStickers].filter(id => mesManquantes.has(id));
+-
+-  // Ce que j'ai en doublon (et dont le collègue a besoin) : intersection(mesDoublons, manquantes du collègue)
+-  // Note : on interprète la liste collée comme ses doublons OU ses manquantes.
+-  // On considère ici que TOUTES les vignettes qu'il a listées = ses doublons disponibles.
+-  // Ses manquantes sont les stickers non listés. Mes doublons dont il a besoin = mesDoublons - colleagueStickers.
+-  const jeDonnePourLui = [...mesDoublons].filter(id => !colleagueStickers.has(id));
+-
+-  // Construction du rendu
+-  let html = '';
+-
+-  // Bloc 1 : Ce que le collègue peut me donner
+-  html += `<div class="echange-block ils-ont">
+-    <div class="echange-block-title">
+-      ✅ Il/Elle peut me donner (${ilsOntPourMoi.length})
+-    </div>`;
+-
+-  if (ilsOntPourMoi.length === 0) {
+-    html += `<p class="echange-empty" style="padding:var(--sp-sm);color:var(--outline);font-size:13px;">
+-      Aucune vignette en commun.
+-    </p>`;
+-  } else {
+-    html += `<div class="echange-sticker-tags">`;
+-    ilsOntPourMoi.forEach(id => {
+-      const s = stickers.find(x => x.ID === id);
+-      html += `<span class="echange-tag" title="${escHtml(s?.Nom || '')}">${escHtml(id)}</span>`;
+-    });
+-    html += `</div>`;
+-  }
+-  html += `</div>`;
+-
+-  // Bloc 2 : Ce que je peux lui donner
+-  html += `<div class="echange-block je-donne">
+-    <div class="echange-block-title">
+-      🔄 Je peux lui/lui donner (${jeDonnePourLui.length})
+-    </div>`;
+-
+-  if (jeDonnePourLui.length === 0) {
+-    html += `<p class="echange-empty" style="padding:var(--sp-sm);color:rgba(255,255,255,0.6);font-size:13px;">
+-      Aucun doublon à lui proposer.
+-    </p>`;
+-  } else {
+-    html += `<div class="echange-sticker-tags">`;
+-    jeDonnePourLui.forEach(id => {
+-      const s = stickers.find(x => x.ID === id);
+-      html += `<span class="echange-tag" title="${escHtml(s?.Nom || '')}">${escHtml(id)}</span>`;
+-    });
+-    html += `</div>`;
+-  }
+-  html += `</div>`;
+-
+-  resultsDiv.innerHTML = html;
+-}
+-
+-/**
+- * Parse une liste texte au format "CODE N°1,N°2,N°3" et retourne un Set d'IDs.
+- * @param {string} text - Texte brut à analyser
+- * @returns {Set<string>} - Ensemble des IDs reconnus
+- */
+-function parseTextList(text) {
+-  const ids = new Set();
+-  const knownIDs = new Set(stickers.map(s => s.ID));
+-
+-  // Chaque ligne : "CODE n1,n2,n3" ou "CODE n1, n2, n3"
+-  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+-
+-  lines.forEach(line => {
+-    // Tente de matcher "CODE NUMS"
+-    const match = line.match(/^([A-Z0-9]+)\s+([\d,\s]+)$/i);
+-    if (!match) return;
+-
+-    const code = match[1].toUpperCase();
+-    const nums = match[2].split(',').map(n => parseInt(n.trim(), 10)).filter(n => !isNaN(n));
+-
+-    nums.forEach(n => {
+-      const id = `${code}${n}`;
+-      if (knownIDs.has(id)) ids.add(id);
+-    });
+-  });
+-
+-  return ids;
+-}
+-
+-/* ═══════════════════════════════════════════════════════════════
+-   15. MODALE VIGNETTE
+-   ═══════════════════════════════════════════════════════════════ */
+-
+-/**
+- * Initialise la modale et ses contrôles.
+- */
+-function initModal() {
+-  // Fermeture
+-  document.getElementById('btnModalClose').addEventListener('click', closeModal);
+-  document.getElementById('stickerModal').addEventListener('click', (e) => {
+-    if (e.target === e.currentTarget) closeModal();
+-  });
+-  document.addEventListener('keydown', (e) => {
+-    if (e.key === 'Escape' && modalStickerID) closeModal();
+-  });
+-
+-  // Boutons de statut
+-  document.querySelectorAll('.btn-status').forEach(btn => {
+-    btn.addEventListener('click', () => {
+-      const status = btn.dataset.status;
+-      if (!modalStickerID) return;
+-
+-      setStatus(modalStickerID, status);
+-      updateModalStatusButtons(status);
+-      refreshStickerInView(modalStickerID);
+-
+-      if (status === 'duplicate') {
+-        document.getElementById('modalDupControls').classList.remove('hidden');
+-        document.getElementById('dupCountDisplay').textContent = getDupCount(modalStickerID);
+-        updateDupMinusState();
+-      } else {
+-        document.getElementById('modalDupControls').classList.add('hidden');
+-      }
+-    });
+-  });
+-
+-  // Contrôles de compteur doublons
+-  document.getElementById('btnDupPlus').addEventListener('click', () => {
+-    if (!modalStickerID) return;
+-    const newCount = (collectionState[modalStickerID]?.count || 2) + 1;
+-    setStatus(modalStickerID, 'duplicate', newCount);
+-    document.getElementById('dupCountDisplay').textContent = newCount;
+-    updateDupMinusState();
+-    refreshStickerInView(modalStickerID);
+-  });
+-
+-  document.getElementById('btnDupMinus').addEventListener('click', () => {
+-    if (!modalStickerID) return;
+-    const current = collectionState[modalStickerID]?.count || 2;
+-    if (current <= 2) return; // minimum 2 pour un doublon
+-    const newCount = current - 1;
+-    setStatus(modalStickerID, 'duplicate', newCount);
+-    document.getElementById('dupCountDisplay').textContent = newCount;
+-    // Mettre à jour l'état disabled
+-    document.getElementById('btnDupMinus').disabled = (newCount <= 2);
+-    refreshStickerInView(modalStickerID);
+-  });
+-}
+-
+-/**
+- * Met à jour l'état disabled du bouton Moins en fonction du count actuel.
+- */
+-function updateDupMinusState() {
+-  const btnMinus = document.getElementById('btnDupMinus');
+-  if (!modalStickerID) { btnMinus.disabled = false; return; }
+-  const count = collectionState[modalStickerID]?.count || 2;
+-  btnMinus.disabled = (count <= 2);
+-}
+-
+-/**
+- * Ouvre la modale pour une vignette donnée.
+- * @param {string} id - ID de la vignette
+- */
+-function openModal(id) {
+-  const sticker = stickers.find(s => s.ID === id);
+-  if (!sticker) return;
+-
+-  modalStickerID = id;
+-  const status = getStatus(id);
+-
+-  // Remplissage des informations
+-  document.getElementById('modalId').textContent = sticker.ID;
+-  document.getElementById('modalTitle').textContent = sticker.Nom;
+-  document.getElementById('modalFlag').src = sticker.Drapeau || '';
+-  document.getElementById('modalFlag').alt = sticker.Section;
+-
+-  document.getElementById('modalMeta').innerHTML = `
+-    <span>${escHtml(sticker.Section)}</span>
+-    <span>${escHtml(sticker.Type)}</span>
+-    ${sticker.Groupe ? `<span>Groupe ${escHtml(sticker.Groupe)}</span>` : ''}
+-    <span>Page ${sticker['Page']}</span>
+-  `;
+-
+-  // Couleur de l'en-tête selon le statut
+-  const headerColors = {
+-    owned:     { bg: 'var(--green-deep)',      fg: 'var(--yellow-lime)' },
+-    missing:   { bg: 'var(--surface-mid)',     fg: 'var(--outline)' },
+-    duplicate: { bg: 'var(--orange-vibrant)',  fg: '#fff' },
+-  };
+-  const colors = headerColors[status] || headerColors.missing;
+-  const header = document.getElementById('modalHeader');
+-  header.style.background = colors.bg;
+-  header.style.color = colors.fg;
+-
+-  // Boutons de statut
+-  updateModalStatusButtons(status);
+-
+-  // Compteur doublons
+-  const dupControls = document.getElementById('modalDupControls');
+-  if (status === 'duplicate') {
+-    dupControls.classList.remove('hidden');
+-    document.getElementById('dupCountDisplay').textContent = getDupCount(id);
+-    updateDupMinusState();
+-  } else {
+-    dupControls.classList.add('hidden');
+-  }
+-
+-  // Affichage de la modale
+-  document.getElementById('stickerModal').classList.remove('hidden');
+-  document.getElementById('btnModalClose').focus();
+-}
+-
+-/**
+- * Ferme la modale.
+- */
+-function closeModal() {
+-  document.getElementById('stickerModal').classList.add('hidden');
+-  modalStickerID = null;
+-}
+-
+-/**
+- * Met à jour l'état visuel des boutons de statut dans la modale.
+- * @param {string} activeStatus - Statut actuellement actif
+- */
+-function updateModalStatusButtons(activeStatus) {
+-  document.querySelectorAll('.btn-status').forEach(btn => {
+-    btn.classList.toggle('active-status', btn.dataset.status === activeStatus);
+-  });
+-}
+-
+-/**
+- * Met à jour une vignette dans la vue courante sans re-rendre toute la grille.
+- * @param {string} id - ID de la vignette à rafraîchir
+- */
+-function refreshStickerInView(id) {
+-  // On re-rend uniquement si la vue courante affiche cette vignette
+-  // Pour les vues album et pays, on cherche la card existante et on la remplace
+-  const existingCards = document.querySelectorAll(`.sticker-card[data-id="${id}"]`);
+-  if (existingCards.length > 0) {
+-    const sticker = stickers.find(s => s.ID === id);
+-    if (!sticker) return;
+-    const newCard = buildStickerCard(sticker);
+-    existingCards.forEach(card => card.parentNode.replaceChild(newCard.cloneNode(true), card));
+-    // Ré-attacher les événements sur le clone
+-    document.querySelectorAll(`.sticker-card[data-id="${id}"]`).forEach(card => {
+-      card.addEventListener('click', () => openModal(id));
+-    });
+-  }
+-
+-  // Mise à jour des vues liste si elles sont actives
+-  if (currentView === 'manquantes') renderManquantesView();
+-  if (currentView === 'doublons')   renderDoublonsView();
+-  if (currentView === 'stats')      renderStatsView();
+-}
+-
+-/* ═══════════════════════════════════════════════════════════════
+-   16. BARRE DE PROGRESSION GLOBALE
+-   ═══════════════════════════════════════════════════════════════ */
+-
+-/**
+- * Met à jour la barre de progression globale dans l'en-tête.
+- */
+-function updateGlobalProgress() {
+-  const total = stickers.length;
+-  const owned = stickers.filter(s => getStatus(s.ID) !== 'missing').length;
+-  const pct   = total > 0 ? Math.round((owned / total) * 100) : 0;
+-
+-  document.getElementById('progressOwned').textContent = owned;
+-  document.getElementById('progressTotal').textContent = total;
+-  document.getElementById('progressPct').textContent = `${pct}%`;
+-  document.getElementById('progressFill').style.width = `${pct}%`;
+-}
+-
+-/* ═══════════════════════════════════════════════════════════════
+-   17. UTILITAIRES
+-   ═══════════════════════════════════════════════════════════════ */
+-
+-/**
+- * Échappe les caractères HTML pour prévenir les injections XSS.
+- * @param {string} str - Chaîne à échapper
+- * @returns {string}
+- */
+-function escHtml(str) {
+-  if (!str) return '';
+-  return String(str)
+-    .replace(/&/g,  '&amp;')
+-    .replace(/</g,  '&lt;')
+-    .replace(/>/g,  '&gt;')
+-    .replace(/"/g,  '&quot;')
+-    .replace(/'/g,  '&#39;');
+-}
+-
+-/**
+- * Retourne un libellé lisible pour un statut.
+- * @param {string} status
+- * @returns {string}
+- */
+-function statusLabel(status) {
+-  const labels = { owned: 'Possédée', missing: 'Manquante', duplicate: 'Doublon' };
+-  return labels[status] || status;
+-}
+-
+-/* ─── Toast ─── */
+-
+-let toastTimer = null;
+-
+-/**
+- * Affiche un message toast temporaire.
+- * Anti-spam : si plusieurs toasts identiques s'enchaînent rapidement,
+- * un seul toast est affiché et mis à jour avec un compteur.
+- * @param {string} message - Message à afficher
+- * @param {number} [duration=2500] - Durée en ms
+- * @param {boolean} [batchable=false] - Si true, regroupe les appels rapides
+- */
+-function showToast(message, duration = 2500, batchable = false) {
+-  const toast = document.getElementById('toast');
+-
+-  if (batchable) {
+-    // Mode batch : on incrémente un compteur au lieu d'empiler les toasts
+-    if (toastBatchMessage === message) {
+-      toastBatchCount++;
+-      const baseMsg = message.replace(/ \(\d+\)$/, '');
+-      toast.textContent = toastBatchCount > 1 ? `${baseMsg} (${toastBatchCount})` : baseMsg;
+-    } else {
+-      toastBatchCount = 1;
+-      toastBatchMessage = message;
+-      toast.textContent = message;
+-    }
+-    toast.classList.add('show');
+-    clearTimeout(toastTimer);
+-    clearTimeout(toastBatchTimer);
+-    toastBatchTimer = setTimeout(() => {
+-      toastBatchCount = 0;
+-      toastBatchMessage = '';
+-    }, duration + 500);
+-    toastTimer = setTimeout(() => {
+-      toast.classList.remove('show');
+-    }, duration);
+-    return;
+-  }
+-
+-  // Mode normal
+-  toastBatchCount = 0;
+-  toastBatchMessage = '';
+-  toast.textContent = message;
+-  toast.classList.add('show');
+-  clearTimeout(toastTimer);
+-  toastTimer = setTimeout(() => toast.classList.remove('show'), duration);
+-}
+-
+-/* ─── Spinner de chargement ─── */
+-
+-function showLoadingSpinner() {
+-  const main = document.getElementById('stickerGrid');
+-  if (main) {
+-    main.innerHTML = `
+-      <div class="loading-spinner" style="grid-column:1/-1">
+-        <div class="spinner-ring"></div>
+-        <p style="font-weight:700;font-size:14px;color:var(--outline);">Chargement de la base…</p>
+-      </div>
+-    `;
+-  }
+-}
+-
+-function hideLoadingSpinner() {
+-  // Le spinner disparaîtra au prochain renderAlbumView()
+-}
+-
+-
+-/* ═══════════════════════════════════════════════════════════════
+-   18. RECHERCHE GLOBALE
+-   ═══════════════════════════════════════════════════════════════ */
+-
+-/**
+- * Initialise la barre de recherche globale dans le header.
+- * Filtre la vue courante en temps réel.
+- */
+-function initGlobalSearch() {
+-  const input  = document.getElementById('globalSearch');
+-  const clearBtn = document.getElementById('searchClear');
+-
+-  if (!input) return;
+-
+-  input.addEventListener('input', () => {
+-    const wasActive = searchActive;
+-    searchQuery = input.value.trim().toLowerCase();
+-    searchActive = searchQuery.length > 0;
+-    clearBtn.classList.toggle('hidden', !searchActive);
+-
+-    // Dès qu'une recherche démarre, on bascule sur la vue Album : c'est
+-    // la seule vue où les résultats sont garantis d'être visibles
+-    // immédiatement (sur "Stats" ou "Échanges" par exemple, rien
+-    // n'apparaissait auparavant car la grille de résultats était rendue
+-    // dans une vue masquée).
+-    if (searchActive && !wasActive && currentView !== 'album') {
+-      switchView('album'); // switchView() appelle déjà applySearchFilter()
+-      return;
+-    }
+-
+-    applySearchFilter();
+-  });
+-
+-  clearBtn.addEventListener('click', () => {
+-    input.value = '';
+-    searchQuery = '';
+-    searchActive = false;
+-    clearBtn.classList.add('hidden');
+-    applySearchFilter();
+-  });
+-}
+-
+-/**
+- * Recherche mobile : sur petit écran, la barre de recherche texte est
+- * masquée et remplacée par un bouton loupe. Au clic, on ouvre une modale
+- * (même esprit que la modale d'ouverture de booster) et on y déplace la
+- * barre de recherche existante — pas de duplication de logique, le même
+- * champ #globalSearch reste l'unique source de vérité.
+- */
+-function initMobileSearchModal() {
+-  const btn = document.getElementById('btnMobileSearch');
+-  const modal = document.getElementById('searchModal');
+-  const body = document.getElementById('searchModalBody');
+-  const searchBar = document.getElementById('headerSearch');
+-  const headerInner = document.querySelector('.header-inner');
+-  const headerActions = document.querySelector('.header-actions');
+-  const btnClose = document.getElementById('btnSearchModalClose');
+-
+-  if (!btn || !modal || !body || !searchBar || !headerInner) return;
+-
+-  function openSearchModal() {
+-    body.appendChild(searchBar);
+-    modal.classList.remove('hidden');
+-    const input = document.getElementById('globalSearch');
+-    if (input) input.focus();
+-  }
+-
+-  function closeSearchModal() {
+-    modal.classList.add('hidden');
+-    // On replace la barre de recherche à sa position d'origine dans le header
+-    if (headerActions) {
+-      headerInner.insertBefore(searchBar, headerActions);
+-    } else {
+-      headerInner.appendChild(searchBar);
+-    }
+-  }
+-
+-  btn.addEventListener('click', openSearchModal);
+-  btnClose && btnClose.addEventListener('click', closeSearchModal);
+-
+-  modal.addEventListener('click', (e) => {
+-    if (e.target === modal) closeSearchModal();
+-  });
+-
+-  document.addEventListener('keydown', (e) => {
+-    if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeSearchModal();
+-  });
+-}
+-
+-/**
+- * Applique le filtre de recherche sur la vue courante.
+- * Sur les vues grille (album/pays), filtre directement les cartes.
+- * Sur les vues liste, re-rend avec filtrage.
+- */
+-function applySearchFilter() {
+-  // Supprimer tout bandeau de recherche existant
+-  document.querySelectorAll('.search-results-banner').forEach(b => b.remove());
+-
+-  if (!searchActive) {
+-    // Restaurer la vue normale
+-    renderCurrentView();
+-    return;
+-  }
+-
+-  const q = searchQuery;
+-
+-  // Filtrer parmi TOUTES les vignettes connues
+-  const matched = stickers.filter(s => {
+-    const idMatch   = s.ID.toLowerCase().includes(q);
+-    const nomMatch  = (s.Nom || '').toLowerCase().includes(q);
+-    const codeMatch = (s.Code || '').toLowerCase().includes(q);
+-    return idMatch || nomMatch || codeMatch;
+-  });
+-
+-  // Afficher selon la vue courante
+-  if (currentView === 'album' || currentView === 'pays') {
+-    renderSearchResultsGrid(matched, q);
+-  } else if (currentView === 'manquantes') {
+-    const filtered = matched.filter(s => getStatus(s.ID) === 'missing');
+-    renderSearchResultsList(filtered, q, false);
+-  } else if (currentView === 'doublons') {
+-    const filtered = matched.filter(s => getStatus(s.ID) === 'duplicate');
+-    renderSearchResultsList(filtered, q, true);
+-  } else {
+-    // Pour les autres vues, on affiche une grille globale
+-    renderSearchResultsGrid(matched, q);
+-  }
+-}
+-
+-/**
+- * Affiche les résultats de recherche sous forme de grille.
+- * @param {Array} results - Vignettes correspondantes
+- * @param {string} q - Terme recherché
+- */
+-function renderSearchResultsGrid(results, q) {
+-  // Trouver le conteneur de grille actif
+-  let grid = null;
+-  let container = null;
+-
+-  if (currentView === 'pays') {
+-    grid = document.getElementById('paysGrid');
+-    container = document.getElementById('view-pays');
+-  } else {
+-    grid = document.getElementById('stickerGrid');
+-    container = document.getElementById('view-album');
+-  }
+-
+-  if (!grid || !container) return;
+-
+-  // Bandeau résultat
+-  const banner = createSearchBanner(results.length, q);
+-  grid.parentNode.insertBefore(banner, grid);
+-
+-  // Grille filtrée avec DocumentFragment
+-  const frag = document.createDocumentFragment();
+-  results.forEach(s => frag.appendChild(buildStickerCard(s)));
+-  grid.innerHTML = '';
+-  grid.appendChild(frag);
+-}
+-
+-/**
+- * Affiche les résultats de recherche sous forme de liste.
+- * @param {Array} results
+- * @param {string} q
+- * @param {boolean} showDupCount
+- */
+-function renderSearchResultsList(results, q, showDupCount) {
+-  const listId = currentView === 'manquantes' ? 'manqList' : 'dblList';
+-  const listEl = document.getElementById(listId);
+-  if (!listEl) return;
+-
+-  const banner = createSearchBanner(results.length, q);
+-  listEl.parentNode.insertBefore(banner, listEl);
+-
+-  renderStickerList(listEl, results, showDupCount);
+-}
+-
+-/**
+- * Crée un bandeau d'info de résultat de recherche.
+- * @param {number} count
+- * @param {string} q
+- * @returns {HTMLElement}
+- */
+-function createSearchBanner(count, q) {
+-  const banner = document.createElement('div');
+-  banner.className = 'search-results-banner';
+-  banner.innerHTML = `
+-    <span class="material-symbols-outlined" style="font-size:16px;">search</span>
+-    <span><strong>${count}</strong> résultat${count !== 1 ? 's' : ''} pour "<em>${escHtml(q)}</em>"</span>
+-    <button class="search-banner-clear" id="searchBannerClear">
+-      <span class="material-symbols-outlined" style="font-size:14px;">close</span>
+-      Effacer
+-    </button>
+-  `;
+-  banner.querySelector('#searchBannerClear').addEventListener('click', () => {
+-    const input = document.getElementById('globalSearch');
+-    if (input) input.value = '';
+-    searchQuery = '';
+-    searchActive = false;
+-    document.getElementById('searchClear').classList.add('hidden');
+-    applySearchFilter();
+-  });
+-  return banner;
+-}
+-
+-
+-/* ═══════════════════════════════════════════════════════════════
+-   19. MODE OUVERTURE DE BOOSTER
+-   ═══════════════════════════════════════════════════════════════ */
+-
+-/**
+- * Initialise le FAB et la modale d'ouverture de booster.
+- */
+-function initBoosterModal() {
+-  const fab     = document.getElementById('fabBooster');
+-  const modal   = document.getElementById('boosterModal');
+-  const btnClose   = document.getElementById('btnBoosterClose');
+-  const btnCancel  = document.getElementById('btnBoosterCancel');
+-  const btnValidate = document.getElementById('btnBoosterValidate');
+-  const input   = document.getElementById('boosterInput');
+-  const preview = document.getElementById('boosterPreview');
+-
+-  if (!fab || !modal) return;
+-
+-  // Ouverture
+-  fab.addEventListener('click', () => {
+-    input.value = '';
+-    preview.innerHTML = '';
+-    modal.classList.remove('hidden');
+-    input.focus();
+-  });
+-
+-  // Fermeture
+-  [btnClose, btnCancel].forEach(btn => {
+-    btn && btn.addEventListener('click', closeBoosterModal);
+-  });
+-
+-  modal.addEventListener('click', (e) => {
+-    if (e.target === modal) closeBoosterModal();
+-  });
+-
+-  document.addEventListener('keydown', (e) => {
+-    if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeBoosterModal();
+-  });
+-
+-  // Prévisualisation en temps réel
+-  input.addEventListener('input', () => {
+-    updateBoosterPreview(input.value, preview);
+-  });
+-
+-  // Validation
+-  btnValidate.addEventListener('click', () => {
+-    const ids = parseBoosterInput(input.value);
+-    if (ids.valid.length === 0) {
+-      showToast('⚠️ Aucun ID reconnu dans la saisie.');
+-      return;
+-    }
+-
+-    ids.valid.forEach(id => {
+-      const current = getStatus(id);
+-      if (current === 'missing') {
+-        setStatus(id, 'owned');
+-      } else if (current === 'owned') {
+-        setStatus(id, 'duplicate', Math.max(2, (collectionState[id]?.count || 0) + 1));
+-      } else if (current === 'duplicate') {
+-        const newCount = (collectionState[id]?.count || 2) + 1;
+-        setStatus(id, 'duplicate', newCount);
+-      }
+-    });
+-
+-    renderCurrentView();
+-    closeBoosterModal();
+-    showToast(`✅ ${ids.valid.length} vignette${ids.valid.length > 1 ? 's' : ''} ajoutée${ids.valid.length > 1 ? 's' : ''} !`, 3000);
+-  });
+-}
+-
+-function closeBoosterModal() {
+-  document.getElementById('boosterModal').classList.add('hidden');
+-}
+-
+-/**
+- * Parse une chaîne de saisie booster (IDs séparés par espaces).
+- * @param {string} raw
+- * @returns {{ valid: string[], invalid: string[] }}
+- */
+-function parseBoosterInput(raw) {
+-  const knownIDs = new Set(stickers.map(s => s.ID));
+-  const tokens = raw.trim().toUpperCase().split(/\s+/).filter(Boolean);
+-  const valid = [];
+-  const invalid = [];
+-
+-  tokens.forEach(t => {
+-    if (knownIDs.has(t)) {
+-      valid.push(t);
+-    } else {
+-      invalid.push(t);
+-    }
+-  });
+-
+-  return { valid, invalid };
+-}
+-
+-/**
+- * Met à jour la prévisualisation des IDs dans la modale booster.
+- * @param {string} raw
+- * @param {HTMLElement} preview
+- */
+-function updateBoosterPreview(raw, preview) {
+-  if (!raw.trim()) {
+-    preview.innerHTML = '';
+-    return;
+-  }
+-  const { valid, invalid } = parseBoosterInput(raw);
+-  const frag = document.createDocumentFragment();
+-
+-  valid.forEach(id => {
+-    const tag = document.createElement('span');
+-    tag.className = 'booster-tag valid';
+-    tag.textContent = id;
+-    frag.appendChild(tag);
+-  });
+-
+-  invalid.forEach(id => {
+-    const tag = document.createElement('span');
+-    tag.className = 'booster-tag invalid';
+-    tag.textContent = id;
+-    frag.appendChild(tag);
+-  });
+-
+-  preview.innerHTML = '';
+-  preview.appendChild(frag);
+-}
+-
+-
+-/* ═══════════════════════════════════════════════════════════════
+-   20. MATCHMAKER — REFONTE DES ÉCHANGES
+-   ═══════════════════════════════════════════════════════════════ */
+-
+-/** Collection parsée de l'ami (Map: id → entry) */
+-let friendCollection = null;
+-
+-/**
+- * Initialise le module Matchmaker.
+- */
+-function initMatchmaker() {
+-  const btnAnalyse = document.getElementById('btnAnalyse');
+-  const inputFriendJSON = document.getElementById('inputFriendJSON');
+-  const btnExportMatch = document.getElementById('btnExportMatch');
+-  const btnCopyMatch   = document.getElementById('btnCopyMatch');
+-  const btnCopyMatchText = document.getElementById('btnCopyMatchText');
+-  const btnCloseMatchExport = document.getElementById('btnCloseMatchExport');
+-
+-  if (!btnAnalyse) return;
+-
+-  btnAnalyse.addEventListener('click', runMatchmaker);
+-
+-  // Import fichier JSON ami
+-  inputFriendJSON && inputFriendJSON.addEventListener('change', (e) => {
+-    const file = e.target.files[0];
+-    if (!file) return;
+-    const reader = new FileReader();
+-    reader.onload = (ev) => {
+-      document.getElementById('colleagueInput').value = ev.target.result;
+-    };
+-    reader.readAsText(file);
+-    e.target.value = '';
+-  });
+-
+-  // Export récap texte
+-  btnExportMatch && btnExportMatch.addEventListener('click', exportMatchSummary);
+-  btnCopyMatch && btnCopyMatch.addEventListener('click', exportMatchSummary);
+-
+-  btnCopyMatchText && btnCopyMatchText.addEventListener('click', () => {
+-    copyTextarea('matchTextarea');
+-  });
+-
+-  btnCloseMatchExport && btnCloseMatchExport.addEventListener('click', () => {
+-    document.getElementById('matchExportZone').classList.add('hidden');
+-  });
+-}
+-
+-/**
+- * Parse la collection d'un ami depuis JSON ou liste texte.
+- * @param {string} raw
+- * @returns {Object|null} - collectionState-like object ou null si erreur
+- */
+-function parseFriendCollection(raw) {
+-  // Tentative JSON
+-  try {
+-    const parsed = JSON.parse(raw);
+-    if (typeof parsed === 'object' && !Array.isArray(parsed)) {
+-      return parsed; // Format JSON (collectionState)
+-    }
+-  } catch (e) {
+-    // pas du JSON, on essaie le format texte
+-  }
+-
+-  // Format texte brut : "CODE 1,2,3\nCODE 4,5"
+-  const knownIDs = new Set(stickers.map(s => s.ID));
+-  const ids = parseTextList(raw);
+-  if (ids.size === 0) return null;
+-
+-  // Convertir en format collectionState (les IDs listés = owned/duplicate)
+-  const result = {};
+-  stickers.forEach(s => {
+-    result[s.ID] = { status: 'missing', count: 0 };
+-  });
+-  ids.forEach(id => {
+-    if (knownIDs.has(id)) {
+-      result[id] = { status: 'owned', count: 0 };
+-    }
+-  });
+-  return result;
+-}
+-
+-/**
+- * Exécute l'analyse de correspondance (matchmaking).
+- */
+-function runMatchmaker() {
+-  const raw = document.getElementById('colleagueInput').value.trim();
+-  const resultsEl = document.getElementById('matchmakerResults');
+-  const emptyEl   = document.getElementById('echangeResults');
+-
+-  if (!raw) {
+-    showToast('⚠️ La liste de ton ami est vide.');
+-    return;
+-  }
+-
+-  friendCollection = parseFriendCollection(raw);
+-
+-  if (!friendCollection) {
+-    showToast('❌ Format non reconnu. Utilise le JSON ou le format CODE 1,2,3.');
+-    return;
+-  }
+-
+-  const knownIDs = new Set(stickers.map(s => s.ID));
+-
+-  // Mes manquantes
+-  const mesManquantes = new Set(
+-    stickers.filter(s => getStatus(s.ID) === 'missing').map(s => s.ID)
+-  );
+-
+-  // Mes doublons
+-  const mesDoublons = new Set(
+-    stickers.filter(s => getStatus(s.ID) === 'duplicate').map(s => s.ID)
+-  );
+-
+-  // Manquantes de l'ami (statut missing dans sa collection)
+-  const amiManquantes = new Set(
+-    stickers.filter(s => {
+-      const entry = friendCollection[s.ID];
+-      return !entry || entry.status === 'missing';
+-    }).map(s => s.ID)
+-  );
+-
+-  // Doublons de l'ami
+-  const amiDoublons = new Set(
+-    stickers.filter(s => {
+-      const entry = friendCollection[s.ID];
+-      return entry && entry.status === 'duplicate';
+-    }).map(s => s.ID)
+-  );
+-
+-  // Ce que je peux lui donner : mes doublons croisés avec ses manquantes
+-  const jeDonne = [...mesDoublons].filter(id => amiManquantes.has(id));
+-
+-  // Ce qu'il/elle peut me donner : ses doublons croisés avec mes manquantes
+-  const ilDonne = [...mesManquantes].filter(id => amiDoublons.has(id));
+-
+-  // Affichage
+-  emptyEl.classList.add('hidden');
+-  resultsEl.classList.remove('hidden');
+-
+-  // Résumé
+-  document.getElementById('matchmakerSummary').innerHTML = `
+-    <div class="matchmaker-summary-stat">
+-      <span class="stat-val">${jeDonne.length}</span>
+-      <span class="stat-lbl">Je donne</span>
+-    </div>
+-    <div class="matchmaker-summary-divider"></div>
+-    <div class="matchmaker-summary-stat">
+-      <span class="stat-val">${ilDonne.length}</span>
+-      <span class="stat-lbl">Je reçois</span>
+-    </div>
+-    <div class="matchmaker-summary-divider"></div>
+-    <div class="matchmaker-summary-stat">
+-      <span class="stat-val">${Math.min(jeDonne.length, ilDonne.length)}</span>
+-      <span class="stat-lbl">Échange net possible</span>
+-    </div>
+-  `;
+-
+-  // Compteurs
+-  document.getElementById('giveCount').textContent = jeDonne.length;
+-  document.getElementById('receiveCount').textContent = ilDonne.length;
+-
+-  // Listes tags
+-  renderMatchTags(document.getElementById('giveList'), jeDonne, 'give');
+-  renderMatchTags(document.getElementById('receiveList'), ilDonne, 'receive');
+-
+-  // Cacher l'export précédent
+-  document.getElementById('matchExportZone').classList.add('hidden');
+-}
+-
+-/**
+- * Rend les tags de correspondance dans un panneau.
+- * @param {HTMLElement} container
+- * @param {string[]} ids
+- * @param {'give'|'receive'} direction
+- */
+-function renderMatchTags(container, ids, direction) {
+-  const frag = document.createDocumentFragment();
+-
+-  if (ids.length === 0) {
+-    const empty = document.createElement('p');
+-    empty.style.cssText = 'color:var(--outline);font-size:13px;font-style:italic;padding:4px;';
+-    empty.textContent = 'Aucune vignette correspondante.';
+-    frag.appendChild(empty);
+-  } else {
+-    ids.forEach(id => {
+-      const s = stickers.find(x => x.ID === id);
+-      const tag = document.createElement('div');
+-      tag.className = `match-tag match-tag--${direction}`;
+-      tag.title = `${id} — ${s?.Nom || ''}`;
+-      tag.dataset.id = id;
+-      tag.dataset.direction = direction;
+-      tag.innerHTML = `
+-        ${escHtml(id)}
+-        <span class="tag-name">${escHtml(s?.Nom || '')}</span>
+-      `;
+-      tag.addEventListener('click', () => toggleMatchSelection(tag));
+-      frag.appendChild(tag);
+-    });
+-  }
+-
+-  container.innerHTML = '';
+-  container.appendChild(frag);
+-}
+-
+-/**
+- * Bascule la sélection d'un tag d'échange.
+- * @param {HTMLElement} tag
+- */
+-function toggleMatchSelection(tag) {
+-  tag.classList.toggle('selected');
+-}
+-
+-/**
+- * Valide l'échange : met à jour la collection et génère le fichier pour l'ami.
+- */
+-function validateExchange() {
+-  const giveTags = document.querySelectorAll('#giveList .match-tag.selected');
+-  const receiveTags = document.querySelectorAll('#receiveList .match-tag.selected');
+-
+-  if (giveTags.length === 0 && receiveTags.length === 0) {
+-    showToast('⚠️ Sélectionne au moins une carte à échanger.');
+-    return;
+-  }
+-
+-  // Récupération des IDs
+-  const giveIds = Array.from(giveTags).map(el => el.dataset.id);
+-  const receiveIds = Array.from(receiveTags).map(el => el.dataset.id);
+-
+-  // Vérification : on ne peut donner que des doublons
+-  const invalidGive = giveIds.filter(id => getStatus(id) !== 'duplicate');
+-  if (invalidGive.length > 0) {
+-    showToast(`❌ Les cartes ${invalidGive.join(', ')} ne sont pas en double.`);
+-    return;
+-  }
+-
+-  // Application des modifications sur ma collection
+-  giveIds.forEach(id => {
+-    const current = collectionState[id];
+-    if (current.status === 'duplicate') {
+-      const newCount = current.count - 1;
+-      if (newCount <= 1) {
+-        // Il reste un exemplaire => on passe à owned
+-        setStatus(id, 'owned');
+-      } else {
+-        setStatus(id, 'duplicate', newCount);
+-      }
+-    }
+-  });
+-
+-  receiveIds.forEach(id => {
+-    const current = getStatus(id);
+-    if (current === 'missing') {
+-      setStatus(id, 'owned');
+-    } else if (current === 'owned') {
+-      // On reçoit un doublon supplémentaire
+-      setStatus(id, 'duplicate', 2);
+-    } else {
+-      // déjà doublon, on incrémente
+-      const newCount = (collectionState[id]?.count || 2) + 1;
+-      setStatus(id, 'duplicate', newCount);
+-    }
+-  });
+-
+-  // Mise à jour de la collection de l'ami (friendCollection)
+-  if (friendCollection) {
+-    // On retire les cartes qu'il nous a données (receiveIds) de sa collection
+-    receiveIds.forEach(id => {
+-      if (friendCollection[id]) {
+-        const entry = friendCollection[id];
+-        if (entry.status === 'duplicate') {
+-          const newCount = entry.count - 1;
+-          if (newCount <= 1) {
+-            friendCollection[id] = { status: 'owned', count: 0 };
+-          } else {
+-            friendCollection[id] = { status: 'duplicate', count: newCount };
+-          }
+-        } else {
+-          // owned -> missing
+-          friendCollection[id] = { status: 'missing', count: 0 };
+-        }
+-      }
+-    });
+-
+-    // On ajoute les cartes qu'on lui donne (giveIds) à sa collection
+-    giveIds.forEach(id => {
+-      if (friendCollection[id]) {
+-        const entry = friendCollection[id];
+-        if (entry.status === 'missing') {
+-          friendCollection[id] = { status: 'owned', count: 0 };
+-        } else if (entry.status === 'owned') {
+-          friendCollection[id] = { status: 'duplicate', count: 2 };
+-        } else {
+-          // duplicate -> incrément
+-          friendCollection[id].count = (entry.count || 2) + 1;
+-        }
+-      }
+-    });
+-  }
+-
+-  // Sauvegarde locale
+-  saveCollectionToLocalStorage();
+-
+-  // Re-rendu des vues
+-  renderCurrentView();
+-  updateGlobalProgress();
+-
+-  // Export du fichier pour l'ami
+-  if (friendCollection) {
+-    exportFriendCollection();
+-  }
+-
+-  showToast(`✅ Échange validé ! ${giveIds.length} donnée(s), ${receiveIds.length} reçue(s).`);
+-}
+-
+-/**
+- * Exporte la collection mise à jour de l'ami en fichier JSON.
+- */
+-function exportFriendCollection() {
+-  if (!friendCollection) {
+-    showToast('❌ Aucune collection d\'ami à exporter.');
+-    return;
+-  }
+-
+-  const json = JSON.stringify(friendCollection, null, 2);
+-  const blob = new Blob([json], { type: 'application/json' });
+-  const url = URL.createObjectURL(blob);
+-
+-  const a = document.createElement('a');
+-  a.href = url;
+-  a.download = 'collection-ami-mise-a-jour.json';
+-  document.body.appendChild(a);
+-  a.click();
+-  document.body.removeChild(a);
+-
+-  URL.revokeObjectURL(url);
+-
+-  showToast('📦 Collection de l\'ami exportée !');
+-}
+-
+-/**
+- * Réinitialise la sélection des tags dans l'échange.
+- */
+-function resetExchangeSelection() {
+-  document.querySelectorAll('#giveList .match-tag.selected, #receiveList .match-tag.selected')
+-    .forEach(tag => tag.classList.remove('selected'));
+-  showToast('🔄 Sélection réinitialisée.');
+-}
+-
+-/* ═══════════════════════════════════════════════════════════════
+-   21. GESTION DES ÉVÉNEMENTS DES NOUVEAUX BOUTONS
+-   ═══════════════════════════════════════════════════════════════ */
+-
+-/**
+- * Initialise les boutons ajoutés pour l'échange.
+- */
+-function initExchangeActions() {
+-  const btnValidate = document.getElementById('btnValidateExchange');
+-  const btnReset = document.getElementById('btnResetExchangeSelection');
+-  const btnExportFriend = document.getElementById('btnExportFriendCollection');
+-
+-  if (btnValidate) {
+-    btnValidate.addEventListener('click', validateExchange);
+-  }
+-
+-  if (btnReset) {
+-    btnReset.addEventListener('click', resetExchangeSelection);
+-  }
+-
+-  if (btnExportFriend) {
+-    btnExportFriend.addEventListener('click', exportFriendCollection);
+-  }
+-}
+-
+-// À appeler dans DOMContentLoaded après initMatchmaker
+-// initExchangeActions();
+-
+-/* ==============================================================
+-   Fin des modifications
+-   ============================================================== */
