@@ -88,10 +88,6 @@
       <span class="material-symbols-outlined" aria-hidden="true">menu_book</span>
       <span>Album</span>
     </button>
-    <button class="nav-btn" data-view="pays" aria-pressed="false">
-      <span class="material-symbols-outlined" aria-hidden="true">flag</span>
-      <span>Par pays</span>
-    </button>
     <button class="nav-btn" data-view="manquantes" aria-pressed="false">
       <span class="material-symbols-outlined" aria-hidden="true">search_off</span>
       <span>Manquantes</span>
@@ -157,20 +153,6 @@
       <!-- Grille de vignettes -->
       <div class="sticker-grid" id="stickerGrid" role="list" aria-label="Vignettes de la page"></div>
 
-    </section>
-
-    <!-- ─────────────────────────────────────────────
-         VUE PAR PAYS
-    ───────────────────────────────────────────── -->
-    <section class="view hidden" id="view-pays" aria-label="Vue Par pays">
-      <div class="view-header">
-        <h2 class="view-title">Par pays</h2>
-        <div class="pays-controls">
-          <select id="paysSelect" class="filter-select" aria-label="Choisir un pays"></select>
-        </div>
-      </div>
-      <div class="pays-summary" id="paysSummary"></div>
-      <div class="sticker-grid" id="paysGrid" role="list"></div>
     </section>
 
     <!-- ─────────────────────────────────────────────
@@ -326,6 +308,18 @@
           <button class="btn btn-secondary" id="btnCopyMatch">
             <span class="material-symbols-outlined">content_copy</span>
             Copier
+          </button>
+          <button class="btn btn-primary" id="btnValidateExchange" style="background:var(--green-bright);color:var(--green-deep);border-color:var(--green-deep);">
+            <span class="material-symbols-outlined">swap_horiz</span>
+            Valider l'échange
+          </button>
+          <button class="btn btn-secondary" id="btnExportFriendCollection">
+            <span class="material-symbols-outlined">download</span>
+            Exporter la collection de l'ami
+          </button>
+          <button class="btn btn-secondary" id="btnResetExchangeSelection">
+            <span class="material-symbols-outlined">restart_alt</span>
+            Réinitialiser la sélection
           </button>
         </div>
         <div class="export-zone hidden" id="matchExportZone">
