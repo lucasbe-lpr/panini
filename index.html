@@ -20,6 +20,7 @@
        EN-TÊTE GLOBAL
   ═══════════════════════════════════════════════════ -->
   <header class="app-header">
+    <!-- Décoration cinétique ondulée -->
     <div class="header-wave" aria-hidden="true"></div>
 
     <div class="header-inner">
@@ -42,7 +43,7 @@
         </div>
       </div>
 
-      <!-- Bouton recherche mobile -->
+      <!-- Bouton recherche mobile (ouvre la modale de recherche) -->
       <button class="btn btn-secondary btn-icon header-search-btn" id="btnMobileSearch" aria-label="Rechercher" title="Rechercher">
         <span class="material-symbols-outlined">search</span>
       </button>
@@ -80,7 +81,7 @@
   </header>
 
   <!-- ═══════════════════════════════════════════════════
-       NAVIGATION PRINCIPALE (Desktop)
+       NAVIGATION PRINCIPALE (Desktop : onglets latéraux)
   ═══════════════════════════════════════════════════ -->
   <nav class="main-nav" role="navigation" aria-label="Navigation principale">
     <button class="nav-btn active" data-view="album" aria-pressed="true">
@@ -298,7 +299,7 @@
           </div>
         </div>
 
-        <!-- Actions d'échange -->
+        <!-- Export de l'échange -->
         <div class="matchmaker-export">
           <button class="btn btn-primary" id="btnExportMatch">
             <span class="material-symbols-outlined">content_paste</span>
@@ -307,10 +308,6 @@
           <button class="btn btn-secondary" id="btnCopyMatch">
             <span class="material-symbols-outlined">content_copy</span>
             Copier
-          </button>
-          <button class="btn btn-success" id="btnApplyExchange">
-            <span class="material-symbols-outlined">check_circle</span>
-            Valider l’échange
           </button>
         </div>
         <div class="export-zone hidden" id="matchExportZone">
@@ -324,24 +321,6 @@
             </button>
           </div>
           <textarea id="matchTextarea" class="export-textarea" readonly></textarea>
-        </div>
-        <!-- Zone de téléchargement pour l'autre échangeur -->
-        <div class="export-zone hidden" id="exchangeDownloadZone">
-          <div class="export-zone-header">
-            <span>Fichier pour l’autre échangeur</span>
-            <button class="btn btn-icon" id="btnCloseExchangeDownload" title="Fermer">
-              <span class="material-symbols-outlined">close</span>
-            </button>
-          </div>
-          <div style="padding:var(--sp-sm);background:var(--surface-low);">
-            <button class="btn btn-primary" id="btnDownloadExchangeFile">
-              <span class="material-symbols-outlined">download</span>
-              Télécharger le fichier JSON
-            </button>
-            <p style="font-size:12px;margin-top:6px;color:var(--outline);">
-              Ce fichier contient l’état de la collection après l’échange, à importer par votre ami.
-            </p>
-          </div>
         </div>
       </div>
 
@@ -435,7 +414,7 @@
         </button>
       </div>
       <div class="search-modal-body" id="searchModalBody">
-        <!-- La barre de recherche existante est déplacée ici en JS -->
+        <!-- La barre de recherche existante (#headerSearch) est déplacée ici en JS à l'ouverture -->
       </div>
     </div>
   </div>
@@ -446,7 +425,7 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <!-- ═══════════════════════════════════════════════════
-       MODALE CONFIRMATION CLIC SUR VIGNETTE
+       MODAL CONFIRMATION CLIC SUR VIGNETTE
   ═══════════════════════════════════════════════════ -->
   <div class="modal-overlay hidden" id="stickerModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-card">
