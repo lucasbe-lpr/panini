@@ -8,60 +8,45 @@
    1. TOKENS DE DESIGN (Variables CSS :root)
    ─────────────────────────────────────────────────────────────── */
 :root {
-  /* ───────────────────────────────────────────────────────────
-     PALETTE STRICTE — Coupe du Monde 2026 / rétro seventies
-     Ces 13 couleurs (+ blanc) sont les SEULES couleurs "pleines"
-     de la maquette. Les tons neutres (surfaces, texte secondaire,
-     bordures fines) sont dérivés d'entre elles via color-mix(),
-     jamais de teintes inventées hors de cette liste.
-     ─────────────────────────────────────────────────────────── */
+  /* Palette officielle WC2026 */
+  --blue-dark:       #1B2789;
+  --blue-electric:   #375AFE;
   --blue-light:      #8DBAFE;
   --red-dark:        #801211;
   --red-bright:      #DC0203;
   --orange-vibrant:  #FE4502;
   --green-deep:      #025649;
   --green-bright:    #04CF5C;
-  --blue-dark:       #1B2789;
-  --blue-electric:   #3659FF;
-  --yellow-lime:     #EFFD45;
+  --yellow-lime:     #BAEE06;
+  --purple-psycho:   #6101E9;
+  --cyan-neon:       #04BEA7;
   --yellow-light:    #EFFD45;
-  --purple-psycho:   #6300E9;
-  --cyan-neon:       #67FEDB;
-  --lavender:        #B486FF;
-  --salmon:          #B486FF; /* alias conservé pour compat ascendante, repointé sur le lavande */
+  --teal:            #004C40;
+  --mint:            #67FFD9;
+  --salmon:          #FF9D80;
 
-  /* Nouvelle direction artistique : terre-cuite/maroon en couleur
-     principale (header) + vert profond "pelouse" (nav), à la place
-     du bleu marine qui dominait tout l'écran auparavant. */
-  --brand-primary:   var(--red-dark);
-  --brand-secondary: var(--green-deep);
-  --brand-accent:    var(--orange-vibrant);
-  --brand-highlight: var(--yellow-lime);
-
-  /* Couleurs sémantiques dérivées (mélanges des couleurs ci-dessus + blanc) */
-  --surface:         color-mix(in srgb, var(--blue-light) 6%,  #FFFFFF);
-  --surface-low:     color-mix(in srgb, var(--blue-light) 14%, #FFFFFF);
-  --surface-mid:     color-mix(in srgb, var(--blue-light) 26%, #FFFFFF);
-  --on-surface:      var(--blue-dark);
-  --border-heavy:    var(--blue-dark);
-  --border-light:    color-mix(in srgb, var(--blue-dark) 22%, #FFFFFF);
-  --outline:         color-mix(in srgb, var(--blue-dark) 55%, #FFFFFF);
+  /* Couleurs sémantiques dérivées */
+  --surface:         #FBFAFF;
+  --surface-low:     #F0EFFF;
+  --surface-mid:     #E3E2FF;
+  --on-surface:      #000964;
+  --border-heavy:    #1B2789;
+  --border-light:    #C4C5D9;
+  --outline:         #747688;
 
   /* Statuts vignettes */
-  --status-owned-bg:     var(--green-bright);
-  --status-owned-fg:     var(--green-deep);
-  --status-missing-bg:   var(--surface);
-  --status-missing-fg:   var(--outline);
-  --status-dup-bg:       var(--orange-vibrant);
+  --status-owned-bg:     #BAEE06;
+  --status-owned-fg:     #025649;
+  --status-missing-bg:   #FBFAFF;
+  --status-missing-fg:   #747688;
+  --status-dup-bg:       #FE4502;
   --status-dup-fg:       #FFFFFF;
 
   /* Typographie */
   --font-display:  'Anybody', sans-serif;
   --font-body:     'Hanken Grotesk', sans-serif;
 
-  /* Ombres hard (flat depth) — encre conservée en bleu marine pour
-     que tous les blocs de couleur (rouge, vert, orange...) gardent
-     un contour cohérent d'un composant à l'autre. */
+  /* Ombres hard (flat depth) */
   --shadow-sm:  3px 3px 0 var(--blue-dark);
   --shadow-md:  5px 5px 0 var(--blue-dark);
   --shadow-lg:  8px 8px 0 var(--blue-dark);
@@ -100,7 +85,7 @@
   --section-color-4-bg: var(--orange-vibrant);
   --section-color-4-fg: #fff;
   --section-color-5-bg: var(--cyan-neon);
-  --section-color-5-fg: var(--blue-dark);
+  --section-color-5-fg: var(--on-surface);
 }
 
 /* ───────────────────────────────────────────────────────────────
@@ -154,26 +139,19 @@ body {
    ─────────────────────────────────────────────────────────────── */
 .app-header {
   grid-area: header;
-  background: var(--brand-primary);
-  border-bottom: 5px solid var(--brand-highlight);
+  background: var(--blue-dark);
+  border-bottom: 4px solid var(--blue-electric);
   position: relative;
   overflow: hidden;
   z-index: 100;
 }
 
-/* Décoration : bandes diagonales façon fanion vintage, au lieu de la
-   trame de points ; le motif est volontairement discret (opacité
-   faible) pour ne pas nuire à la lisibilité du texte par-dessus. */
+/* Décoration géométrique en arrière-plan */
 .header-wave {
   position: absolute;
   inset: 0;
-  background-image: repeating-linear-gradient(
-    -35deg,
-    rgba(254, 69, 2, 0.16) 0px,
-    rgba(254, 69, 2, 0.16) 10px,
-    transparent 10px,
-    transparent 34px
-  );
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Crect x='10' y='10' width='4' height='4' fill='%23375AFE' opacity='0.22' rx='1'/%3E%3C/svg%3E");
+  background-size: 24px 24px;
   pointer-events: none;
 }
 
@@ -195,23 +173,6 @@ body {
   align-items: center;
   gap: 14px;
   flex-shrink: 0;
-  position: relative;
-  padding-left: 14px;
-}
-
-/* Pastille ronde décorative façon ballon/soleil des affiches 70s */
-.header-brand::before {
-  content: '';
-  position: absolute;
-  left: -10px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 34px;
-  height: 34px;
-  border-radius: var(--radius-full);
-  background: var(--brand-accent);
-  border: 3px solid var(--brand-highlight);
-  z-index: -1;
 }
 
 /* Wrapper texte titre + crédit */
@@ -308,61 +269,52 @@ body {
    ─────────────────────────────────────────────────────────────── */
 .main-nav {
   grid-area: nav;
-  background: var(--brand-secondary);
-  border-right: 4px solid var(--blue-dark);
+  background: var(--on-surface);
+  border-right: 4px solid var(--blue-electric);
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: var(--sp-sm) 10px;
+  gap: 4px;
+  padding: var(--sp-sm) 8px;
   overflow-y: auto;
   position: sticky;
   top: 0;
   height: 100vh;
-  /* Motif "pelouse" : fines rayures verticales alternées au lieu de
-     la trame de points, pour évoquer un terrain tondu. */
-  background-image: repeating-linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.05) 0px,
-    rgba(255, 255, 255, 0.05) 18px,
-    transparent 18px,
-    transparent 36px
-  );
+  /* Motif de fond géométrique */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Crect x='10' y='10' width='4' height='4' fill='%23375AFE' opacity='0.18' rx='1'/%3E%3C/svg%3E");
+  background-size: 24px 24px;
 }
 
 .nav-btn {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 12px var(--sp-xs) 12px 14px;
+  padding: 12px var(--sp-xs);
   background: transparent;
   color: var(--blue-light);
   border: 2px solid transparent;
-  border-left: 4px solid transparent;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-md);
   cursor: pointer;
   font-family: var(--font-body);
   font-weight: 700;
   font-size: 13px;
   letter-spacing: 0.03em;
   text-align: left;
-  transition: background 0.15s, color 0.15s, border-color 0.15s, box-shadow 0.15s, transform 0.1s;
+  transition: background 0.15s, color 0.15s, border-color 0.15s, box-shadow 0.15s;
   width: 100%;
 }
 
 .nav-btn:hover {
-  background: rgba(239, 253, 69, 0.12);
-  color: var(--brand-highlight);
-  border-left-color: var(--brand-highlight);
+  background: var(--blue-electric);
+  color: #fff;
+  border-color: var(--yellow-lime);
 }
 
 .nav-btn.active {
-  background: var(--brand-accent);
-  color: #fff;
-  border-color: var(--blue-dark);
-  border-left-color: var(--brand-highlight);
+  background: var(--blue-electric);
+  color: var(--yellow-light);
+  border-color: var(--yellow-lime);
   box-shadow: var(--shadow-sm);
   font-weight: 900;
-  transform: translate(-2px, -2px);
 }
 
 .nav-btn .material-symbols-outlined {
@@ -829,7 +781,7 @@ body {
 }
 
 .btn-primary {
-  background: var(--brand-accent);
+  background: var(--blue-electric);
   color: #fff;
   border-color: var(--blue-dark);
 }
@@ -907,6 +859,94 @@ body {
   align-items: center;
   flex-wrap: wrap;
   gap: var(--sp-xs);
+}
+
+.pays-controls {
+  display: flex;
+  gap: var(--sp-xs);
+  align-items: center;
+}
+
+/* ───────────────────────────────────────────────────────────────
+   12. RÉSUMÉ PAYS
+   ─────────────────────────────────────────────────────────────── */
+.pays-summary {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  margin-bottom: var(--sp-md);
+  padding: var(--sp-sm);
+  background: var(--blue-dark);
+  border: 3px solid var(--blue-electric);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.pays-summary {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  margin-bottom: var(--sp-md);
+  padding: var(--sp-sm);
+  background: var(--blue-dark);
+  border: 3px solid var(--blue-electric);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  flex-wrap: wrap;
+}
+
+.pays-flag {
+  height: 48px;
+  width: auto;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-radius: var(--radius-sm);
+  order: 1;
+  flex-shrink: 0;
+}
+
+.pays-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  order: 2;
+  flex-shrink: 0;
+}
+
+.pays-info-name {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 22px;
+  color: var(--yellow-light);
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+}
+
+.pays-info-stats {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--blue-light);
+}
+
+.pays-info-stats strong {
+  color: var(--yellow-lime);
+}
+
+.pays-progress-bar {
+  flex: 1;
+  min-width: 80px;
+  height: 12px;
+  background: var(--blue-electric);
+  border: 2px solid rgba(255,255,255,0.2);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  order: 3;
+}
+
+.pays-progress-fill {
+  height: 100%;
+  background: var(--green-bright);
+  transition: width 0.3s;
 }
 
 /* ───────────────────────────────────────────────────────────────
@@ -1523,8 +1563,8 @@ body {
   right: 0;
   height: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom));
   padding-bottom: env(safe-area-inset-bottom);
-  background: var(--brand-secondary);
-  border-top: 4px solid var(--brand-accent);
+  background: var(--on-surface);
+  border-top: 4px solid var(--blue-electric);
   z-index: 200;
   justify-content: space-around;
   align-items: center;
@@ -1556,8 +1596,8 @@ body {
 }
 
 .mobile-nav-btn.active {
-  background: var(--brand-accent);
-  color: #fff;
+  background: var(--blue-electric);
+  color: var(--yellow-light);
   border-color: var(--yellow-lime);
 }
 
@@ -1745,6 +1785,35 @@ body {
     gap: var(--sp-sm);
     padding: 0 var(--sp-sm);
   }
+
+  /* Pays summary : progress bar entre nom et stats */
+  .pays-summary {
+    gap: 10px;
+  }
+
+  .pays-flag {
+    order: 1;
+  }
+
+  .pays-info {
+    order: 2;
+    flex: 1 1 100%;
+  }
+
+  .pays-info-name {
+    font-size: 18px;
+  }
+
+  .pays-progress-bar {
+    order: 3;
+    flex: 1 1 100%;
+    min-width: unset;
+    height: 10px;
+  }
+
+  .pays-info-stats {
+    order: 4;
+  }
 }
 
 @media (max-width: 420px) {
@@ -1915,9 +1984,6 @@ body {
   align-items: center;
   gap: 10px;
   letter-spacing: 0.02em;
-  /* Léger espace avant la grille/liste de résultats qui suit */
-  margin-bottom: var(--sp-sm);
-  border-radius: var(--radius-sm);
 }
 
 .search-results-banner .search-banner-clear {
@@ -1944,7 +2010,7 @@ body {
   right: 20px;
   width: 56px;
   height: 56px;
-  background: var(--purple-psycho);
+  background: var(--red-bright);
   color: #fff;
   border: 3px solid var(--blue-dark);
   border-radius: var(--radius-full);
@@ -1960,7 +2026,7 @@ body {
 .fab:hover {
   transform: translate(-2px, -2px) rotate(10deg);
   box-shadow: var(--shadow-lg);
-  background: var(--lavender);
+  background: var(--orange-vibrant);
 }
 
 .fab:active {
@@ -1991,7 +2057,7 @@ body {
 }
 
 .booster-header {
-  background: var(--purple-psycho) !important;
+  background: var(--red-bright) !important;
   color: #fff !important;
 }
 

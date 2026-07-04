@@ -6,7 +6,7 @@
  *
  * Architecture :
  *  - État global : `stickers` (données brutes) + `collectionState` (état utilisateur)
- *  - Navigation par vues (album, manquantes, doublons, stats, échanges)
+ *  - Navigation par vues (album, pays, manquantes, doublons, stats, échanges)
  *  - Chaque vue est rendue à la demande (lazy rendering)
  *  - Persistance locale via localStorage (cache) + import/export fichier JSON
  */
@@ -77,6 +77,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Construction de l'interface
     initNavigation();
     initAlbumPageSelect();
+    initPaysSelect();
     initFilters();
     initExportImport();
     initModal();
@@ -348,6 +349,7 @@ function switchView(viewName) {
 function renderCurrentView() {
   switch (currentView) {
     case 'album':      renderAlbumView();      break;
+    case 'pays':       renderPaysView();        break;
     case 'manquantes': renderManquantesView();  break;
     case 'doublons':   renderDoublonsView();    break;
     case 'stats':      renderStatsView();       break;
@@ -536,7 +538,76 @@ function buildStickerCard(sticker) {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   10. VUE MANQUANTES
+   10. VUE PAR PAYS
+   ═══════════════════════════════════════════════════════════════ */
+
+/**
+ * Initialise le sélecteur de pays.
+ */
+function initPaysSelect() {
+  const select = document.getElementById('paysSelect');
+
+  // Construction de la liste des pays uniques (triés par nom de section)
+  const paysMap = {};
+  stickers.forEach(s => {
+    if (!paysMap[s.Code]) {
+      paysMap[s.Code] = s.Section;
+    }
+  });
+
+  const paysSorted = Object.entries(paysMap).sort((a, b) => a[1].localeCompare(b[1]));
+
+  paysSorted.forEach(([code, section]) => {
+    const opt = document.createElement('option');
+    opt.value = code;
+    opt.textContent = `${section} (${code})`;
+    select.appendChild(opt);
+  });
+
+  select.addEventListener('change', () => renderPaysView());
+}
+
+/**
+ * Rend la vue "Par pays".
+ */
+function renderPaysView() {
+  const code = document.getElementById('paysSelect').value;
+  const paysStickers = stickers.filter(s => s.Code === code);
+
+  if (!paysStickers.length) return;
+
+  // Statistiques du pays
+  const total = paysStickers.length;
+  const owned = paysStickers.filter(s => getStatus(s.ID) === 'owned' || getStatus(s.ID) === 'duplicate').length;
+  const pct = Math.round((owned / total) * 100);
+  const flagURL = paysStickers[0]?.Drapeau || '';
+  const sectionName = paysStickers[0]?.Section || code;
+
+  // Résumé pays
+  document.getElementById('paysSummary').innerHTML = `
+    <img class="pays-flag" src="${escHtml(flagURL)}" alt="${escHtml(sectionName)}" 
+         onerror="this.style.display='none'" />
+    <div class="pays-info">
+      <div class="pays-info-name">${escHtml(sectionName)}</div>
+      <div class="pays-info-stats">
+        <strong>${owned}</strong> / ${total} possédées — <strong>${pct}%</strong>
+      </div>
+    </div>
+    <div class="pays-progress-bar">
+      <div class="pays-progress-fill" style="width:${pct}%"></div>
+    </div>
+  `;
+
+  // Grille des vignettes du pays — DocumentFragment
+  const grid = document.getElementById('paysGrid');
+  const frag = document.createDocumentFragment();
+  paysStickers.forEach(s => frag.appendChild(buildStickerCard(s)));
+  grid.innerHTML = '';
+  grid.appendChild(frag);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   11. VUE MANQUANTES
    ═══════════════════════════════════════════════════════════════ */
 
 /**
@@ -1149,7 +1220,7 @@ function updateModalStatusButtons(activeStatus) {
  */
 function refreshStickerInView(id) {
   // On re-rend uniquement si la vue courante affiche cette vignette
-  // Pour la vue album, on cherche la card existante et on la remplace
+  // Pour les vues album et pays, on cherche la card existante et on la remplace
   const existingCards = document.querySelectorAll(`.sticker-card[data-id="${id}"]`);
   if (existingCards.length > 0) {
     const sticker = stickers.find(s => s.ID === id);
@@ -1302,15 +1373,12 @@ function initGlobalSearch() {
     searchActive = searchQuery.length > 0;
     clearBtn.classList.toggle('hidden', !searchActive);
 
-    // Toute recherche active en dehors de la vue Album doit rediriger
-    // vers Album : c'est la seule vue où les résultats sont garantis
-    // d'être visibles immédiatement (sur "Stats" ou "Échanges" par
-    // exemple, rien n'apparaissait auparavant). On ne se limite plus au
-    // seul passage inactif → actif : si l'utilisateur change de vue
-    // pendant qu'une recherche est déjà active, puis relance une
-    // nouvelle recherche (nouvelle frappe), on doit aussi rediriger.
-    void wasActive; // conservé pour lisibilité, plus utilisé dans la condition
-    if (searchActive && currentView !== 'album') {
+    // Dès qu'une recherche démarre, on bascule sur la vue Album : c'est
+    // la seule vue où les résultats sont garantis d'être visibles
+    // immédiatement (sur "Stats" ou "Échanges" par exemple, rien
+    // n'apparaissait auparavant car la grille de résultats était rendue
+    // dans une vue masquée).
+    if (searchActive && !wasActive && currentView !== 'album') {
       switchView('album'); // switchView() appelle déjà applySearchFilter()
       return;
     }
@@ -1376,7 +1444,7 @@ function initMobileSearchModal() {
 
 /**
  * Applique le filtre de recherche sur la vue courante.
- * Sur la vue grille (album), filtre directement les cartes.
+ * Sur les vues grille (album/pays), filtre directement les cartes.
  * Sur les vues liste, re-rend avec filtrage.
  */
 function applySearchFilter() {
@@ -1400,7 +1468,7 @@ function applySearchFilter() {
   });
 
   // Afficher selon la vue courante
-  if (currentView === 'album') {
+  if (currentView === 'album' || currentView === 'pays') {
     renderSearchResultsGrid(matched, q);
   } else if (currentView === 'manquantes') {
     const filtered = matched.filter(s => getStatus(s.ID) === 'missing');
@@ -1420,9 +1488,17 @@ function applySearchFilter() {
  * @param {string} q - Terme recherché
  */
 function renderSearchResultsGrid(results, q) {
-  // Conteneur de grille actif (uniquement la vue Album désormais)
-  const grid = document.getElementById('stickerGrid');
-  const container = document.getElementById('view-album');
+  // Trouver le conteneur de grille actif
+  let grid = null;
+  let container = null;
+
+  if (currentView === 'pays') {
+    grid = document.getElementById('paysGrid');
+    container = document.getElementById('view-pays');
+  } else {
+    grid = document.getElementById('stickerGrid');
+    container = document.getElementById('view-album');
+  }
 
   if (!grid || !container) return;
 

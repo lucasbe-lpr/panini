@@ -88,6 +88,10 @@
       <span class="material-symbols-outlined" aria-hidden="true">menu_book</span>
       <span>Album</span>
     </button>
+    <button class="nav-btn" data-view="pays" aria-pressed="false">
+      <span class="material-symbols-outlined" aria-hidden="true">flag</span>
+      <span>Par pays</span>
+    </button>
     <button class="nav-btn" data-view="manquantes" aria-pressed="false">
       <span class="material-symbols-outlined" aria-hidden="true">search_off</span>
       <span>Manquantes</span>
@@ -153,6 +157,20 @@
       <!-- Grille de vignettes -->
       <div class="sticker-grid" id="stickerGrid" role="list" aria-label="Vignettes de la page"></div>
 
+    </section>
+
+    <!-- ─────────────────────────────────────────────
+         VUE PAR PAYS
+    ───────────────────────────────────────────── -->
+    <section class="view hidden" id="view-pays" aria-label="Vue Par pays">
+      <div class="view-header">
+        <h2 class="view-title">Par pays</h2>
+        <div class="pays-controls">
+          <select id="paysSelect" class="filter-select" aria-label="Choisir un pays"></select>
+        </div>
+      </div>
+      <div class="pays-summary" id="paysSummary"></div>
+      <div class="sticker-grid" id="paysGrid" role="list"></div>
     </section>
 
     <!-- ─────────────────────────────────────────────
