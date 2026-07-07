@@ -86,6 +86,11 @@
       <span class="material-symbols-outlined" aria-hidden="true">swap_horiz</span>
       <span>Échanges</span>
     </button>
+    <!-- NOUVEAU : Mode d'emploi -->
+    <button class="nav-btn" data-view="aide" aria-pressed="false">
+      <span class="material-symbols-outlined" aria-hidden="true">help</span>
+      <span>Mode d'emploi</span>
+    </button>
   </nav>
 
   <!-- ═══════════════════════════════════════════════════
@@ -302,6 +307,24 @@
           </div>
         </div>
 
+        <!-- AJOUT : Validation d'échange -->
+        <div class="matchmaker-exchange-controls hidden" id="exchangeControls">
+          <div class="exchange-selection-prompt">
+            <span class="material-symbols-outlined">checklist</span>
+            <span>Coche les vignettes que tu veux échanger (une de chaque côté)</span>
+          </div>
+          <div class="exchange-actions">
+            <button class="btn btn-primary" id="btnValidateExchange">
+              <span class="material-symbols-outlined">swap_horiz</span>
+              Valider l'échange sélectionné
+            </button>
+            <button class="btn btn-secondary" id="btnUnselectAll">
+              <span class="material-symbols-outlined">clear</span>
+              Tout désélectionner
+            </button>
+          </div>
+        </div>
+
         <!-- Export de l'échange -->
         <div class="matchmaker-export">
           <button class="btn btn-primary" id="btnExportMatch">
@@ -336,6 +359,46 @@
       </div>
     </section>
 
+    <!-- ─────────────────────────────────────────────
+         VUE MODE D'EMPLOI (NOUVEAU)
+    ───────────────────────────────────────────── -->
+    <section class="view hidden" id="view-aide" aria-label="Mode d'emploi de l'application">
+      <div class="view-header">
+        <h2 class="view-title">📖 Mode d'emploi</h2>
+      </div>
+      <div class="aide-content">
+        <div class="aide-block">
+          <h3>🏠 Album</h3>
+          <p>Navigue page par page et clique sur une vignette pour changer son statut : <strong>Manquante</strong>, <strong>Possédée</strong> ou <strong>Doublon</strong>. Les doublons peuvent être comptabilisés (×2, ×3, …).</p>
+        </div>
+        <div class="aide-block">
+          <h3>🔍 Mes manquantes / Mes doublons</h3>
+          <p>Liste toutes les vignettes que tu n'as pas ou que tu as en double. Filtre par section et exporte la liste au format texte <code>CODE 1,2,3</code> pour échanger facilement.</p>
+        </div>
+        <div class="aide-block">
+          <h3>📊 Statistiques</h3>
+          <p>Visualise ta progression globale et par pays. Idéal pour suivre ta collection.</p>
+        </div>
+        <div class="aide-block">
+          <h3>🔄 Échanges (Matchmaker)</h3>
+          <p>Importe la collection d'un ami (JSON ou texte). L'outil détecte automatiquement :</p>
+          <ul>
+            <li><span class="highlight-give">Ce que tu peux lui donner</span> (tes doublons qu'il lui manque)</li>
+            <li><span class="highlight-receive">Ce qu'il peut te donner</span> (ses doublons qui te manquent)</li>
+          </ul>
+          <p><strong>Nouveau :</strong> Coche les vignettes que tu souhaites échanger (une par ligne) et clique sur <strong>Valider l'échange</strong>. Ta collection et celle de ton ami seront mises à jour automatiquement. Tu pourras télécharger le fichier JSON à lui envoyer pour qu'il mette à jour sa propre collection.</p>
+        </div>
+        <div class="aide-block">
+          <h3>📦 Booster</h3>
+          <p>Ouvre un booster en saisissant les IDs des vignettes obtenues, séparés par des espaces. L'application les ajoute à ta collection (doublons gérés automatiquement).</p>
+        </div>
+        <div class="aide-block">
+          <h3>💾 Importer / Exporter</h3>
+          <p>Exporte ta collection en fichier JSON pour la sauvegarder ou l'importer sur un autre appareil. L'import écrase ta collection actuelle.</p>
+        </div>
+      </div>
+    </section>
+
   </main>
 
   <!-- ═══════════════════════════════════════════════════
@@ -361,6 +424,11 @@
     <button class="mobile-nav-btn" data-view="echanges">
       <span class="material-symbols-outlined">swap_horiz</span>
       <span>Échanges</span>
+    </button>
+    <!-- NOUVEAU : Mode d'emploi -->
+    <button class="mobile-nav-btn" data-view="aide">
+      <span class="material-symbols-outlined">help</span>
+      <span>Aide</span>
     </button>
   </nav>
 
@@ -404,7 +472,7 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <!-- ═══════════════════════════════════════════════════
-       MODAL CONFIRMATION CLIC SUR VIGNETTE
+       MODALE CONFIRMATION CLIC SUR VIGNETTE
   ═══════════════════════════════════════════════════ -->
   <div class="modal-overlay hidden" id="stickerModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-card">
