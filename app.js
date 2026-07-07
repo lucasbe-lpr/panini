@@ -213,26 +213,32 @@ function loadCollectionFromLocalStorage() {
    ═══════════════════════════════════════════════════════════════ */
 
 /**
+ * Déclenche le téléchargement d'un objet sérialisé en JSON.
+ * @param {Object} data - Objet à sérialiser (format collectionState)
+ * @param {string} filename - Nom du fichier téléchargé
+ */
+function downloadJSONFile(data, filename) {
+  const json = JSON.stringify(data, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+
+  URL.revokeObjectURL(url);
+}
+
+/**
  * Exporte la collection en tant que fichier JSON téléchargeable.
  * Sérialise collectionState via JSON.stringify, crée un Blob et déclenche le téléchargement.
  */
 function exportCollectionAsJSON() {
   try {
-    const json = JSON.stringify(collectionState, null, 2);
-    const blob = new Blob([json], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-
-    // Création d'un lien virtuel pour déclencher le téléchargement
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'ma-collection-wc2026.json';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-
-    // Nettoyage de la mémoire
-    URL.revokeObjectURL(url);
-
+    downloadJSONFile(collectionState, 'ma-collection-wc2026.json');
     showToast('✅ Collection exportée avec succès !');
   } catch (e) {
     console.error('Erreur lors de l\'export :', e);
@@ -1221,6 +1227,16 @@ function escHtml(str) {
 }
 
 /**
+ * Retourne la date du jour au format AAAA-MM-JJ, utilisable dans un nom de fichier.
+ * @returns {string}
+ */
+function dateStamp() {
+  const d = new Date();
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+/**
  * Retourne un libellé lisible pour un statut.
  * @param {string} status
  * @returns {string}
@@ -1597,6 +1613,10 @@ function initMatchmaker() {
   const btnCopyMatch   = document.getElementById('btnCopyMatch');
   const btnCopyMatchText = document.getElementById('btnCopyMatchText');
   const btnCloseMatchExport = document.getElementById('btnCloseMatchExport');
+  const btnValidateExchange = document.getElementById('btnValidateExchange');
+  const btnSelectAllMatches = document.getElementById('btnSelectAllMatches');
+  const btnSelectNoneMatches = document.getElementById('btnSelectNoneMatches');
+  const resultsEl = document.getElementById('matchmakerResults');
 
   if (!btnAnalyse) return;
 
@@ -1621,6 +1641,21 @@ function initMatchmaker() {
   btnCopyMatchText && btnCopyMatchText.addEventListener('click', () => {
     copyTextarea('matchTextarea');
   });
+
+  // Cases à cocher "carte échangée" : mise à jour du style + du compteur
+  resultsEl && resultsEl.addEventListener('change', (e) => {
+    if (!e.target.classList.contains('match-tag-check')) return;
+    const tag = e.target.closest('.match-tag');
+    tag && tag.classList.toggle('excluded', !e.target.checked);
+    updateValidateHint();
+  });
+
+  // Tout cocher / tout décocher
+  btnSelectAllMatches && btnSelectAllMatches.addEventListener('click', () => setAllMatchChecks(true));
+  btnSelectNoneMatches && btnSelectNoneMatches.addEventListener('click', () => setAllMatchChecks(false));
+
+  // Validation de l'échange effectué
+  btnValidateExchange && btnValidateExchange.addEventListener('click', validateExchange);
 
   btnCloseMatchExport && btnCloseMatchExport.addEventListener('click', () => {
     document.getElementById('matchExportZone').classList.add('hidden');
@@ -1662,26 +1697,39 @@ function parseFriendCollection(raw) {
 }
 
 /**
- * Exécute l'analyse de correspondance (matchmaking).
+ * Exécute l'analyse de correspondance (matchmaking) à partir du texte collé.
  */
 function runMatchmaker() {
   const raw = document.getElementById('colleagueInput').value.trim();
-  const resultsEl = document.getElementById('matchmakerResults');
-  const emptyEl   = document.getElementById('echangeResults');
 
   if (!raw) {
     showToast('⚠️ La liste de ton ami est vide.');
     return;
   }
 
-  friendCollection = parseFriendCollection(raw);
+  const parsed = parseFriendCollection(raw);
 
-  if (!friendCollection) {
+  if (!parsed) {
     showToast('❌ Format non reconnu. Utilise le JSON ou le format CODE 1,2,3.');
     return;
   }
 
-  const knownIDs = new Set(stickers.map(s => s.ID));
+  friendCollection = parsed;
+  refreshMatchResults();
+}
+
+/**
+ * Recalcule et réaffiche les correspondances (give/receive) à partir de
+ * l'état courant de `collectionState` et `friendCollection`, sans reparser
+ * le texte collé. Utilisé après l'analyse initiale, mais aussi après une
+ * validation d'échange pour rafraîchir les listes sans perdre les
+ * changements déjà appliqués à `friendCollection`.
+ */
+function refreshMatchResults() {
+  if (!friendCollection) return;
+
+  const resultsEl = document.getElementById('matchmakerResults');
+  const emptyEl   = document.getElementById('echangeResults');
 
   // Mes manquantes
   const mesManquantes = new Set(
@@ -1741,21 +1789,25 @@ function runMatchmaker() {
   document.getElementById('giveCount').textContent = jeDonne.length;
   document.getElementById('receiveCount').textContent = ilDonne.length;
 
-  // Listes tags
-  renderMatchTags(document.getElementById('giveList'), jeDonne, 'give');
-  renderMatchTags(document.getElementById('receiveList'), ilDonne, 'receive');
+  // Listes tags (cases à cocher, toutes cochées par défaut)
+  renderMatchTags(document.getElementById('giveList'), jeDonne);
+  renderMatchTags(document.getElementById('receiveList'), ilDonne);
 
   // Cacher l'export précédent
   document.getElementById('matchExportZone').classList.add('hidden');
+
+  updateValidateHint();
 }
 
 /**
- * Rend les tags de correspondance dans un panneau.
+ * Rend les tags de correspondance (avec case à cocher "sera échangée")
+ * dans un panneau. Une carte cochée sera prise en compte lors de la
+ * validation de l'échange ; décocher permet d'exclure une carte qui, en
+ * pratique, n'a pas été échangée.
  * @param {HTMLElement} container
  * @param {string[]} ids
- * @param {'give'|'receive'} direction
  */
-function renderMatchTags(container, ids, direction) {
+function renderMatchTags(container, ids) {
   const frag = document.createDocumentFragment();
 
   if (ids.length === 0) {
@@ -1766,14 +1818,15 @@ function renderMatchTags(container, ids, direction) {
   } else {
     ids.forEach(id => {
       const s = stickers.find(x => x.ID === id);
-      const tag = document.createElement('div');
+      const tag = document.createElement('label');
       tag.className = 'match-tag';
-      tag.title = `${id} — ${s?.Nom || ''}`;
+      tag.dataset.id = id;
+      tag.title = `${id} — ${s?.Nom || ''} (décoche si non échangée)`;
       tag.innerHTML = `
-        ${escHtml(id)}
+        <input type="checkbox" class="match-tag-check" checked />
+        <span class="match-tag-code">${escHtml(id)}</span>
         <span class="tag-name">${escHtml(s?.Nom || '')}</span>
       `;
-      tag.addEventListener('click', () => openModal(id));
       frag.appendChild(tag);
     });
   }
@@ -1783,11 +1836,118 @@ function renderMatchTags(container, ids, direction) {
 }
 
 /**
+ * Coche ou décoche toutes les cases "carte échangée" des deux panneaux.
+ * @param {boolean} checked
+ */
+function setAllMatchChecks(checked) {
+  document.querySelectorAll('#matchmakerResults .match-tag-check').forEach(cb => {
+    cb.checked = checked;
+    cb.closest('.match-tag')?.classList.toggle('excluded', !checked);
+  });
+  updateValidateHint();
+}
+
+/**
+ * Met à jour le texte d'aide au-dessus du bouton de validation, en
+ * fonction du nombre de cartes actuellement cochées.
+ */
+function updateValidateHint() {
+  const hint = document.getElementById('validateHint');
+  if (!hint) return;
+
+  const giveChecked = document.querySelectorAll('#giveList .match-tag-check:checked').length;
+  const receiveChecked = document.querySelectorAll('#receiveList .match-tag-check:checked').length;
+  const total = giveChecked + receiveChecked;
+
+  if (total === 0) {
+    hint.textContent = 'Décoche les cartes qui n\'ont pas été échangées, puis valide pour mettre à jour ta collection.';
+  } else {
+    hint.textContent = `${total} vignette${total > 1 ? 's' : ''} seront marquées comme échangées : ${giveChecked} donnée${giveChecked > 1 ? 's' : ''}, ${receiveChecked} reçue${receiveChecked > 1 ? 's' : ''}.`;
+  }
+}
+
+/**
+ * Valide l'échange : met à jour ma collection en fonction des cartes
+ * cochées, met à jour en mémoire la collection de l'ami, puis génère et
+ * télécharge un fichier JSON prêt à être importé par l'ami dans son
+ * propre tracker.
+ */
+function validateExchange() {
+  if (!friendCollection) {
+    showToast('❌ Analyse d\'abord la collection de ton ami.');
+    return;
+  }
+
+  const selectedGive = Array.from(document.querySelectorAll('#giveList .match-tag'))
+    .filter(tag => tag.querySelector('.match-tag-check')?.checked)
+    .map(tag => tag.dataset.id);
+
+  const selectedReceive = Array.from(document.querySelectorAll('#receiveList .match-tag'))
+    .filter(tag => tag.querySelector('.match-tag-check')?.checked)
+    .map(tag => tag.dataset.id);
+
+  if (selectedGive.length === 0 && selectedReceive.length === 0) {
+    showToast('⚠️ Sélectionne au moins une vignette échangée.');
+    return;
+  }
+
+  // 1. Mise à jour de MA collection ---------------------------------------
+  selectedGive.forEach(id => {
+    // Je donne un de mes doublons : je perds une copie
+    const current = collectionState[id]?.count || 2;
+    const next = current - 1;
+    if (next <= 1) {
+      setStatus(id, 'owned');
+    } else {
+      setStatus(id, 'duplicate', next);
+    }
+  });
+
+  selectedReceive.forEach(id => {
+    // Je reçois une vignette qui me manquait
+    setStatus(id, 'owned');
+  });
+
+  // 2. Mise à jour (en mémoire) de la collection de mon ami ---------------
+  selectedGive.forEach(id => {
+    // Il/elle reçoit ce que je lui donne
+    friendCollection[id] = { status: 'owned', count: 0 };
+  });
+
+  selectedReceive.forEach(id => {
+    // Il/elle donne un de ses doublons : il/elle perd une copie
+    const entry = friendCollection[id];
+    const current = entry?.count || 2;
+    const next = current - 1;
+    friendCollection[id] = next <= 1
+      ? { status: 'owned', count: 0 }
+      : { status: 'duplicate', count: next };
+  });
+
+  // 3. Génération et téléchargement du fichier pour l'ami -----------------
+  downloadJSONFile(friendCollection, `collection-ami-apres-echange-${dateStamp()}.json`);
+
+  // 4. Rafraîchissement de l'UI --------------------------------------------
+  renderCurrentView();
+  updateGlobalProgress();
+  refreshMatchResults();
+
+  const total = selectedGive.length + selectedReceive.length;
+  showToast(`✅ Échange validé : ${total} vignette${total > 1 ? 's' : ''} mise${total > 1 ? 's' : ''} à jour. Fichier pour ton ami téléchargé !`, 3500);
+}
+
+/**
  * Génère et affiche l'export texte du récapitulatif d'échange.
+ * Ne reprend que les vignettes actuellement cochées (celles qui seront/ont
+ * été réellement échangées).
  */
 function exportMatchSummary() {
-  const giveList    = Array.from(document.getElementById('giveList').querySelectorAll('.match-tag')).map(t => t.title.split(' — ')[0]);
-  const receiveList = Array.from(document.getElementById('receiveList').querySelectorAll('.match-tag')).map(t => t.title.split(' — ')[0]);
+  const giveList = Array.from(document.getElementById('giveList').querySelectorAll('.match-tag'))
+    .filter(t => t.querySelector('.match-tag-check')?.checked)
+    .map(t => t.dataset.id);
+  const receiveList = Array.from(document.getElementById('receiveList').querySelectorAll('.match-tag'))
+    .filter(t => t.querySelector('.match-tag-check')?.checked)
+    .map(t => t.dataset.id);
 
   const giveText    = giveList.length ? giveList.join(', ') : 'Aucun doublon à donner';
   const receiveText = receiveList.length ? receiveList.join(', ') : 'Aucune vignette à recevoir';

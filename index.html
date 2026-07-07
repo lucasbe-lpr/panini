@@ -302,6 +302,22 @@
           </div>
         </div>
 
+        <!-- Validation de l'échange effectué -->
+        <div class="matchmaker-validate">
+          <div class="matchmaker-validate-bulk">
+            <button type="button" class="btn-link" id="btnSelectAllMatches">Tout sélectionner</button>
+            <span class="matchmaker-validate-sep">·</span>
+            <button type="button" class="btn-link" id="btnSelectNoneMatches">Tout désélectionner</button>
+          </div>
+          <p class="matchmaker-validate-hint" id="validateHint">
+            Décoche les cartes qui n'ont pas été échangées, puis valide pour mettre à jour ta collection.
+          </p>
+          <button class="btn btn-primary" id="btnValidateExchange">
+            <span class="material-symbols-outlined">check_circle</span>
+            Valider l'échange effectué
+          </button>
+        </div>
+
         <!-- Export de l'échange -->
         <div class="matchmaker-export">
           <button class="btn btn-primary" id="btnExportMatch">

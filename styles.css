@@ -2086,10 +2086,11 @@ body {
 }
 
 .match-tag {
+  position: relative;
   display: inline-flex;
   flex-direction: column;
   align-items: center;
-  padding: 4px 8px;
+  padding: 4px 8px 4px 22px;
   font-family: var(--font-display);
   font-weight: 900;
   font-size: 11px;
@@ -2099,11 +2100,26 @@ body {
   color: var(--on-surface);
   box-shadow: 2px 2px 0 var(--blue-dark);
   cursor: pointer;
-  transition: transform 0.1s;
+  transition: transform 0.1s, opacity 0.15s;
 }
 
 .match-tag:hover {
   transform: translate(-1px, -1px);
+}
+
+.match-tag-check {
+  position: absolute;
+  left: 6px;
+  top: 6px;
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  cursor: pointer;
+  accent-color: var(--blue-electric);
+}
+
+.match-tag .match-tag-code {
+  pointer-events: none;
 }
 
 .match-tag .tag-name {
@@ -2117,6 +2133,65 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  pointer-events: none;
+}
+
+/* Carte décochée : exclue de l'échange à valider */
+.match-tag.excluded {
+  opacity: 0.45;
+  box-shadow: none;
+  background: transparent;
+}
+
+.match-tag.excluded .match-tag-code,
+.match-tag.excluded .tag-name {
+  text-decoration: line-through;
+}
+
+/* ───────────────────────────────────────────────────────────────
+   31. VALIDATION DE L'ÉCHANGE
+   ─────────────────────────────────────────────────────────────── */
+.matchmaker-validate {
+  background: var(--surface-low);
+  border: 3px solid var(--green-bright);
+  border-radius: var(--radius-md);
+  padding: var(--sp-sm);
+  margin-bottom: var(--sp-sm);
+  box-shadow: var(--shadow-sm);
+}
+
+.matchmaker-validate-bulk {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.matchmaker-validate-sep {
+  color: var(--outline);
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--blue-electric);
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 12px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.btn-link:hover {
+  color: var(--blue-dark);
+}
+
+.matchmaker-validate-hint {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--outline);
+  margin-bottom: var(--sp-xs);
 }
 
 .matchmaker-export {
