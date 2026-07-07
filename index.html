@@ -17,17 +17,17 @@
 <body>
 
   <!-- ═══════════════════════════════════════════════════
-       EN-TÊTE GLOBAL
+       EN-TÊTE GLOBAL – redesigned
   ═══════════════════════════════════════════════════ -->
   <header class="app-header">
-    <!-- Décoration cinétique ondulée -->
-    <div class="header-wave" aria-hidden="true"></div>
-
     <div class="header-inner">
       <!-- Logo / Titre -->
       <div class="header-brand">
+        <div class="brand-icon" aria-hidden="true">
+          <span class="material-symbols-outlined">sports_soccer</span>
+        </div>
         <div class="header-brand-text">
-          <h1 class="brand-title">FWC 2026</h1>
+          <h1 class="brand-title">PANINI <span>WC 2026</span></h1>
           <span class="header-credit">Lucas Bessonnat v1.0</span>
         </div>
       </div>
@@ -60,10 +60,12 @@
         </label>
       </div>
     </div>
+    <!-- Décoration cinétique -->
+    <div class="header-wave" aria-hidden="true"></div>
   </header>
 
   <!-- ═══════════════════════════════════════════════════
-       NAVIGATION PRINCIPALE (Desktop : onglets latéraux)
+       NAVIGATION PRINCIPALE (Desktop) – redesigned
   ═══════════════════════════════════════════════════ -->
   <nav class="main-nav" role="navigation" aria-label="Navigation principale">
     <button class="nav-btn active" data-view="album" aria-pressed="true">
@@ -80,7 +82,7 @@
     </button>
     <button class="nav-btn" data-view="stats" aria-pressed="false">
       <span class="material-symbols-outlined" aria-hidden="true">leaderboard</span>
-      <span>Statistiques</span>
+      <span>Stats</span>
     </button>
     <button class="nav-btn" data-view="echanges" aria-pressed="false">
       <span class="material-symbols-outlined" aria-hidden="true">swap_horiz</span>
@@ -94,11 +96,11 @@
   <main class="app-main" id="appMain">
 
     <!-- ─────────────────────────────────────────────
-         VUE ALBUM
+         VUE ALBUM (redesigned)
     ───────────────────────────────────────────── -->
     <section class="view" id="view-album" aria-label="Vue Album">
 
-      <!-- Slot d'accueil de la barre de recherche (voir #viewSearchBar plus bas) -->
+      <!-- Slot de la barre de recherche -->
       <div class="view-search-slot" id="searchSlot-album">
         <div class="view-search" id="viewSearchBar">
           <span class="material-symbols-outlined search-icon">search</span>
@@ -107,7 +109,7 @@
             enterkeyhint="search"
             id="globalSearch"
             class="search-input"
-            placeholder="Joueur ou ID (ex: Mbappé, FRA10)"
+            placeholder="Rechercher un joueur ou un ID (ex: Mbappé, FRA10)"
             autocomplete="off"
             aria-label="Recherche globale"
           />
@@ -120,7 +122,7 @@
       <!-- Contrôles de la page album -->
       <div class="album-controls">
         <div class="album-page-info">
-          <span class="page-label">PAGE</span>
+          <span class="page-label">Page</span>
           <strong id="albumPageCurrent">1</strong>
           <span class="page-sep">/</span>
           <span id="albumPageTotal">106</span>
@@ -157,19 +159,19 @@
     </section>
 
     <!-- ─────────────────────────────────────────────
-         VUE MANQUANTES
+         VUE MANQUANTES (redesigned)
     ───────────────────────────────────────────── -->
     <section class="view hidden" id="view-manquantes" aria-label="Mes vignettes manquantes">
       <div class="view-search-slot" id="searchSlot-manquantes"></div>
       <div class="view-header">
-        <h2 class="view-title">Mes manquantes</h2>
+        <h2 class="view-title">Manquantes</h2>
         <div class="list-controls">
           <select id="manqSectionFilter" class="filter-select" aria-label="Filtrer par section">
             <option value="">Toutes les sections</option>
           </select>
           <button class="btn btn-primary" id="btnExportManq">
             <span class="material-symbols-outlined">content_paste</span>
-            Exporter liste
+            Exporter
           </button>
         </div>
       </div>
@@ -191,19 +193,19 @@
     </section>
 
     <!-- ─────────────────────────────────────────────
-         VUE DOUBLONS
+         VUE DOUBLONS (redesigned)
     ───────────────────────────────────────────── -->
     <section class="view hidden" id="view-doublons" aria-label="Mes doublons">
       <div class="view-search-slot" id="searchSlot-doublons"></div>
       <div class="view-header">
-        <h2 class="view-title">Mes doublons</h2>
+        <h2 class="view-title">Doublons</h2>
         <div class="list-controls">
           <select id="dblSectionFilter" class="filter-select" aria-label="Filtrer par section">
             <option value="">Toutes les sections</option>
           </select>
           <button class="btn btn-primary" id="btnExportDbl">
             <span class="material-symbols-outlined">content_paste</span>
-            Exporter liste
+            Exporter
           </button>
         </div>
       </div>
@@ -225,7 +227,7 @@
     </section>
 
     <!-- ─────────────────────────────────────────────
-         VUE STATISTIQUES
+         VUE STATISTIQUES (redesigned)
     ───────────────────────────────────────────── -->
     <section class="view hidden" id="view-stats" aria-label="Statistiques de la collection">
       <div class="view-header">
@@ -239,7 +241,7 @@
     </section>
 
     <!-- ─────────────────────────────────────────────
-         VUE ÉCHANGES — MATCHMAKER
+         VUE ÉCHANGES — MATCHMAKER (redesigned)
     ───────────────────────────────────────────── -->
     <section class="view hidden" id="view-echanges" aria-label="Gestion des échanges">
       <div class="view-header">
@@ -251,19 +253,19 @@
         <div class="matchmaker-import-header">
           <span class="material-symbols-outlined">person_add</span>
           <strong>Importer la collection d'un ami</strong>
-          <span class="matchmaker-format-hint">Format JSON (.json) ou texte brut (CODE 1,2,3)</span>
+          <span class="matchmaker-format-hint">JSON ou texte (CODE 1,2,3)</span>
         </div>
         <div class="matchmaker-import-row">
           <textarea
             id="colleagueInput"
             class="exchange-textarea matchmaker-textarea"
-            placeholder="Colle ici le JSON de ton ami OU sa liste texte :&#10;{ &quot;FRA1&quot;: {&quot;status&quot;:&quot;owned&quot;...} }&#10;— ou —&#10;MEX 1,2,3&#10;BRA 4,5,6"
+            placeholder="Colle ici le JSON de ton ami ou sa liste texte :&#10;{ &quot;FRA1&quot;: {&quot;status&quot;:&quot;owned&quot;...} }&#10;— ou —&#10;MEX 1,2,3&#10;BRA 4,5,6"
             rows="5"
           ></textarea>
           <div class="matchmaker-import-actions">
             <label class="btn btn-secondary" title="Importer un fichier JSON">
               <span class="material-symbols-outlined">upload_file</span>
-              <span>Fichier JSON</span>
+              <span>Fichier</span>
               <input type="file" accept=".json" id="inputFriendJSON" class="sr-only" />
             </label>
             <button class="btn btn-primary" id="btnAnalyse">
@@ -285,7 +287,7 @@
           <div class="match-panel match-give">
             <div class="match-panel-title">
               <span class="material-symbols-outlined">arrow_upward</span>
-              Je peux lui donner
+              Je donne
               <span class="match-count" id="giveCount">0</span>
             </div>
             <div class="match-panel-body" id="giveList"></div>
@@ -295,7 +297,7 @@
           <div class="match-panel match-receive">
             <div class="match-panel-title">
               <span class="material-symbols-outlined">arrow_downward</span>
-              Il/Elle peut me donner
+              Je reçois
               <span class="match-count" id="receiveCount">0</span>
             </div>
             <div class="match-panel-body" id="receiveList"></div>
@@ -314,7 +316,7 @@
           </p>
           <button class="btn btn-primary" id="btnValidateExchange">
             <span class="material-symbols-outlined">check_circle</span>
-            Valider l'échange effectué
+            Valider l'échange
           </button>
         </div>
 
@@ -322,7 +324,7 @@
         <div class="matchmaker-export">
           <button class="btn btn-primary" id="btnExportMatch">
             <span class="material-symbols-outlined">content_paste</span>
-            Exporter le récapitulatif
+            Exporter le récap
           </button>
           <button class="btn btn-secondary" id="btnCopyMatch">
             <span class="material-symbols-outlined">content_copy</span>
@@ -355,7 +357,7 @@
   </main>
 
   <!-- ═══════════════════════════════════════════════════
-       NAVIGATION MOBILE (barre du bas)
+       NAVIGATION MOBILE (barre du bas) – redesigned
   ═══════════════════════════════════════════════════ -->
   <nav class="mobile-nav" role="navigation" aria-label="Navigation mobile">
     <button class="mobile-nav-btn active" data-view="album">
@@ -364,11 +366,11 @@
     </button>
     <button class="mobile-nav-btn" data-view="manquantes">
       <span class="material-symbols-outlined">search_off</span>
-      <span>Manquantes</span>
+      <span>Manqu.</span>
     </button>
     <button class="mobile-nav-btn" data-view="doublons">
       <span class="material-symbols-outlined">content_copy</span>
-      <span>Doublons</span>
+      <span>Dubl.</span>
     </button>
     <button class="mobile-nav-btn" data-view="stats">
       <span class="material-symbols-outlined">leaderboard</span>
@@ -381,12 +383,12 @@
   </nav>
 
   <!-- ═══════════════════════════════════════════════════
-       MODALE BOOSTER
+       MODALE BOOSTER (redesigned)
   ═══════════════════════════════════════════════════ -->
   <div class="modal-overlay hidden" id="boosterModal" role="dialog" aria-modal="true" aria-labelledby="boosterTitle">
     <div class="modal-card booster-card">
       <div class="modal-header booster-header" id="boosterHeader">
-        <span class="modal-id" id="boosterTitle">📦 Ouvrir un booster</span>
+        <span class="modal-id" id="boosterTitle">Ouvrir un booster</span>
         <button class="btn btn-icon modal-close" id="btnBoosterClose" aria-label="Fermer">
           <span class="material-symbols-outlined">close</span>
         </button>
@@ -420,7 +422,7 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <!-- ═══════════════════════════════════════════════════
-       MODAL CONFIRMATION CLIC SUR VIGNETTE
+       MODALE VIGNETTE (redesigned)
   ═══════════════════════════════════════════════════ -->
   <div class="modal-overlay hidden" id="stickerModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-card">
