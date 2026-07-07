@@ -23,6 +23,13 @@ const DATABASE_URL = 'database.json';
 /** Clé de stockage localStorage pour la collection */
 const LS_KEY = 'panini_wc2026_collection';
 
+/**
+ * Vues dans lesquelles la barre de recherche est présente et où le filtre
+ * de recherche doit s'appliquer (Statistiques et Échanges n'ont pas de
+ * barre de recherche : la recherche n'y a aucun effet).
+ */
+const SEARCHABLE_VIEWS = ['album', 'manquantes', 'doublons'];
+
 /* ═══════════════════════════════════════════════════════════════
    2. ÉTAT GLOBAL DE L'APPLICATION
    ═══════════════════════════════════════════════════════════════ */
@@ -340,8 +347,10 @@ function switchView(viewName) {
   // plus dans le header) : on la déplace vers la vue qui vient de s'afficher.
   moveSearchBarToView(viewName);
 
-  // Rendu de la vue (avec filtre de recherche si actif)
-  if (searchActive) {
+  // Rendu de la vue (avec filtre de recherche uniquement sur les vues qui
+  // possèdent une barre de recherche — Statistiques et Échanges s'affichent
+  // toujours normalement)
+  if (searchActive && SEARCHABLE_VIEWS.includes(viewName)) {
     applySearchFilter();
   } else {
     renderCurrentView();
@@ -1294,10 +1303,10 @@ function hideLoadingSpinner() {
 
 /**
  * Initialise la barre de recherche globale.
- * La barre (#viewSearchBar) vit désormais directement dans les vues (et non
- * plus dans le header) : elle est déplacée d'une vue à l'autre par
+ * La barre (#viewSearchBar) vit directement dans les vues (et non plus dans
+ * le header) : elle est déplacée d'une vue à l'autre par
  * moveSearchBarToView(), appelée au chargement et à chaque switchView().
- * Filtre la vue courante en temps réel.
+ * Filtre la vue actuellement affichée en temps réel.
  */
 function initGlobalSearch() {
   const input  = document.getElementById('globalSearch');
@@ -1309,18 +1318,6 @@ function initGlobalSearch() {
     searchQuery = input.value.trim().toLowerCase();
     searchActive = searchQuery.length > 0;
     clearBtn.classList.toggle('hidden', !searchActive);
-
-    // Toute recherche (nouvelle saisie ou modification d'une recherche déjà
-    // active) doit systématiquement rediriger vers la vue Album : c'est la
-    // seule vue où les résultats sont garantis d'être visibles
-    // immédiatement. Ceci couvre aussi le cas où l'utilisateur a changé de
-    // vue manuellement pendant qu'une recherche était active : la prochaine
-    // frappe le ramène toujours sur Album.
-    if (searchActive && currentView !== 'album') {
-      switchView('album'); // switchView() appelle déjà applySearchFilter()
-      return;
-    }
-
     applySearchFilter();
   });
 
@@ -1349,8 +1346,9 @@ function moveSearchBarToView(viewName) {
 
 /**
  * Applique le filtre de recherche sur la vue courante.
- * Sur la vue grille (album), filtre directement les cartes.
- * Sur les vues liste, re-rend avec filtrage.
+ * Seules les vues Album, Manquantes et Doublons possèdent une barre de
+ * recherche (cf. SEARCHABLE_VIEWS) : Statistiques et Échanges ne sont
+ * jamais affectées.
  */
 function applySearchFilter() {
   // Supprimer tout bandeau de recherche existant
@@ -1381,9 +1379,6 @@ function applySearchFilter() {
   } else if (currentView === 'doublons') {
     const filtered = matched.filter(s => getStatus(s.ID) === 'duplicate');
     renderSearchResultsList(filtered, q, true);
-  } else {
-    // Pour les autres vues, on affiche une grille globale
-    renderSearchResultsGrid(matched, q);
   }
 }
 
