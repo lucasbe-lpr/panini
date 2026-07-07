@@ -861,94 +861,6 @@ body {
   gap: var(--sp-xs);
 }
 
-.pays-controls {
-  display: flex;
-  gap: var(--sp-xs);
-  align-items: center;
-}
-
-/* ───────────────────────────────────────────────────────────────
-   12. RÉSUMÉ PAYS
-   ─────────────────────────────────────────────────────────────── */
-.pays-summary {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-sm);
-  margin-bottom: var(--sp-md);
-  padding: var(--sp-sm);
-  background: var(--blue-dark);
-  border: 3px solid var(--blue-electric);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
-}
-
-.pays-summary {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-sm);
-  margin-bottom: var(--sp-md);
-  padding: var(--sp-sm);
-  background: var(--blue-dark);
-  border: 3px solid var(--blue-electric);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
-  flex-wrap: wrap;
-}
-
-.pays-flag {
-  height: 48px;
-  width: auto;
-  border: 2px solid rgba(255,255,255,0.4);
-  border-radius: var(--radius-sm);
-  order: 1;
-  flex-shrink: 0;
-}
-
-.pays-info {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  order: 2;
-  flex-shrink: 0;
-}
-
-.pays-info-name {
-  font-family: var(--font-display);
-  font-weight: 900;
-  font-size: 22px;
-  color: var(--yellow-light);
-  text-transform: uppercase;
-  letter-spacing: -0.02em;
-}
-
-.pays-info-stats {
-  font-family: var(--font-body);
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--blue-light);
-}
-
-.pays-info-stats strong {
-  color: var(--yellow-lime);
-}
-
-.pays-progress-bar {
-  flex: 1;
-  min-width: 80px;
-  height: 12px;
-  background: var(--blue-electric);
-  border: 2px solid rgba(255,255,255,0.2);
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-  order: 3;
-}
-
-.pays-progress-fill {
-  height: 100%;
-  background: var(--green-bright);
-  transition: width 0.3s;
-}
-
 /* ───────────────────────────────────────────────────────────────
    13. LISTE (manquantes / doublons)
    ─────────────────────────────────────────────────────────────── */
@@ -1786,34 +1698,6 @@ body {
     padding: 0 var(--sp-sm);
   }
 
-  /* Pays summary : progress bar entre nom et stats */
-  .pays-summary {
-    gap: 10px;
-  }
-
-  .pays-flag {
-    order: 1;
-  }
-
-  .pays-info {
-    order: 2;
-    flex: 1 1 100%;
-  }
-
-  .pays-info-name {
-    font-size: 18px;
-  }
-
-  .pays-progress-bar {
-    order: 3;
-    flex: 1 1 100%;
-    min-width: unset;
-    height: 10px;
-  }
-
-  .pays-info-stats {
-    order: 4;
-  }
 }
 
 @media (max-width: 420px) {
@@ -1823,21 +1707,24 @@ body {
 }
 
 /* ───────────────────────────────────────────────────────────────
-   27. BARRE DE RECHERCHE GLOBALE
+   27. BARRE DE RECHERCHE (vit désormais dans chaque vue, plus dans le header)
    ─────────────────────────────────────────────────────────────── */
-.header-search {
+.view-search-slot:empty {
+  display: none;
+}
+
+.view-search {
   position: relative;
   display: flex;
   align-items: center;
-  flex: 1;
-  max-width: 340px;
-  min-width: 0;
+  width: 100%;
+  margin-bottom: var(--sp-sm);
 }
 
 .search-icon {
   position: absolute;
-  left: 10px;
-  color: var(--blue-light);
+  left: 12px;
+  color: var(--outline);
   font-size: 18px;
   pointer-events: none;
   z-index: 1;
@@ -1845,11 +1732,11 @@ body {
 
 .search-input {
   width: 100%;
-  padding: 7px 36px 7px 36px;
-  background: rgba(255,255,255,0.1);
-  border: 2px solid rgba(141,186,254,0.4);
+  padding: 10px 38px 10px 38px;
+  background: var(--surface-low);
+  border: 2px solid var(--border-light);
   border-radius: var(--radius-sm);
-  color: #fff;
+  color: var(--on-surface);
   font-family: var(--font-body);
   font-weight: 500;
   font-size: 14px;
@@ -1857,14 +1744,14 @@ body {
 }
 
 .search-input::placeholder {
-  color: rgba(141, 186, 254, 0.5);
-  font-size: 12px;
+  color: var(--outline);
+  font-size: 13px;
 }
 
 .search-input:focus {
   outline: none;
-  background: rgba(255,255,255,0.18);
-  border-color: var(--yellow-lime);
+  background: var(--surface);
+  border-color: var(--blue-electric);
 }
 
 /* Le bouton "x" personnalisé est le seul affiché : on masque les
@@ -1882,10 +1769,10 @@ body {
 
 .search-clear {
   position: absolute;
-  right: 6px;
+  right: 8px;
   background: transparent;
   border: none;
-  color: var(--blue-light);
+  color: var(--outline);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -1895,80 +1782,11 @@ body {
 }
 
 .search-clear:hover {
-  color: #fff;
+  color: var(--on-surface);
 }
 
 .search-clear .material-symbols-outlined {
   font-size: 16px;
-}
-
-/* ───────────────────────────────────────────────────────────────
-   26. BOUTON RECHERCHE MOBILE (icône, ouvre la modale de recherche)
-   ─────────────────────────────────────────────────────────────── */
-.header-search-btn {
-  display: none; /* visible seulement sur mobile via media query */
-  flex-shrink: 0;
-}
-
-@media (max-width: 700px) {
-  /* Sur mobile, on masque la barre de recherche texte et on affiche
-     un simple bouton loupe pour ne pas entrer en conflit avec les
-     boutons d'export/import. Cette règle est volontairement placée
-     APRÈS la déclaration de base de .header-search ci-dessus : à
-     spécificité égale, c'est l'ordre dans le fichier qui décide,
-     donc ce display:none doit rester en dernier pour gagner. */
-  .header-search {
-    display: none;
-  }
-
-  .header-search-btn {
-    display: inline-flex;
-  }
-}
-
-/* Quand la barre de recherche est déplacée dans la modale mobile,
-   elle n'est plus sur le fond bleu foncé du header : on adapte les
-   couleurs pour rester lisible sur fond clair. */
-.search-modal-body .header-search {
-  display: flex;
-  max-width: none;
-  width: 100%;
-}
-
-.search-modal-body .search-icon {
-  color: var(--outline);
-}
-
-.search-modal-body .search-input {
-  background: var(--surface-low);
-  border: 2px solid var(--border-light);
-  color: var(--on-surface);
-}
-
-.search-modal-body .search-input::placeholder {
-  color: var(--outline);
-}
-
-.search-modal-body .search-input:focus {
-  background: var(--surface);
-  border-color: var(--blue-electric);
-}
-
-.search-modal-body .search-clear {
-  color: var(--outline);
-}
-
-.search-modal-body .search-clear:hover {
-  color: var(--on-surface);
-}
-
-.search-modal-body {
-  padding: var(--sp-sm);
-}
-
-.search-header {
-  background: var(--blue-electric) !important;
-  color: #fff !important;
 }
 
 /* Bandeau de résultat de recherche */
@@ -1980,10 +1798,12 @@ body {
   font-size: 13px;
   font-weight: 700;
   border-bottom: 2px solid var(--blue-dark);
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   gap: 10px;
   letter-spacing: 0.02em;
+  margin-bottom: var(--sp-sm);
 }
 
 .search-results-banner .search-banner-clear {
@@ -2002,58 +1822,10 @@ body {
 }
 
 /* ───────────────────────────────────────────────────────────────
-   28. FAB — BOUTON FLOTTANT BOOSTER
-   ─────────────────────────────────────────────────────────────── */
-.fab {
-  position: fixed;
-  bottom: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom) + 16px);
-  right: 20px;
-  width: 56px;
-  height: 56px;
-  background: var(--red-bright);
-  color: #fff;
-  border: 3px solid var(--blue-dark);
-  border-radius: var(--radius-full);
-  box-shadow: var(--shadow-md);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 150;
-  transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
-}
-
-.fab:hover {
-  transform: translate(-2px, -2px) rotate(10deg);
-  box-shadow: var(--shadow-lg);
-  background: var(--orange-vibrant);
-}
-
-.fab:active {
-  transform: translate(0, 0);
-  box-shadow: none;
-}
-
-.fab .material-symbols-outlined {
-  font-size: 26px;
-}
-
-@media (min-width: 901px) {
-  /* Sur desktop, pas de mobile nav — on positionne autrement */
-  .fab {
-    bottom: 28px;
-  }
-}
-
-/* ───────────────────────────────────────────────────────────────
    29. MODALE BOOSTER
    ─────────────────────────────────────────────────────────────── */
 .booster-card {
   max-width: 460px !important;
-}
-
-.search-card {
-  max-width: 420px !important;
 }
 
 .booster-header {

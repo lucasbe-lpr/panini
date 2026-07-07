@@ -6,7 +6,7 @@
  *
  * Architecture :
  *  - État global : `stickers` (données brutes) + `collectionState` (état utilisateur)
- *  - Navigation par vues (album, pays, manquantes, doublons, stats, échanges)
+ *  - Navigation par vues (album, manquantes, doublons, stats, échanges)
  *  - Chaque vue est rendue à la demande (lazy rendering)
  *  - Persistance locale via localStorage (cache) + import/export fichier JSON
  */
@@ -77,14 +77,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Construction de l'interface
     initNavigation();
     initAlbumPageSelect();
-    initPaysSelect();
     initFilters();
     initExportImport();
     initModal();
     initGlobalSearch();
-    initMobileSearchModal();
     initBoosterModal();
     initMatchmaker();
+
+    // Place la barre de recherche dans la vue actuellement affichée
+    moveSearchBarToView(currentView);
 
     // Rendu initial de la vue album
     renderCurrentView();
@@ -335,6 +336,10 @@ function switchView(viewName) {
     view.classList.toggle('hidden', view.id !== `view-${viewName}`);
   });
 
+  // La barre de recherche vit désormais dans les vues elles-mêmes (et non
+  // plus dans le header) : on la déplace vers la vue qui vient de s'afficher.
+  moveSearchBarToView(viewName);
+
   // Rendu de la vue (avec filtre de recherche si actif)
   if (searchActive) {
     applySearchFilter();
@@ -349,7 +354,6 @@ function switchView(viewName) {
 function renderCurrentView() {
   switch (currentView) {
     case 'album':      renderAlbumView();      break;
-    case 'pays':       renderPaysView();        break;
     case 'manquantes': renderManquantesView();  break;
     case 'doublons':   renderDoublonsView();    break;
     case 'stats':      renderStatsView();       break;
@@ -535,75 +539,6 @@ function buildStickerCard(sticker) {
   article.addEventListener('click', () => openModal(sticker.ID));
 
   return article;
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   10. VUE PAR PAYS
-   ═══════════════════════════════════════════════════════════════ */
-
-/**
- * Initialise le sélecteur de pays.
- */
-function initPaysSelect() {
-  const select = document.getElementById('paysSelect');
-
-  // Construction de la liste des pays uniques (triés par nom de section)
-  const paysMap = {};
-  stickers.forEach(s => {
-    if (!paysMap[s.Code]) {
-      paysMap[s.Code] = s.Section;
-    }
-  });
-
-  const paysSorted = Object.entries(paysMap).sort((a, b) => a[1].localeCompare(b[1]));
-
-  paysSorted.forEach(([code, section]) => {
-    const opt = document.createElement('option');
-    opt.value = code;
-    opt.textContent = `${section} (${code})`;
-    select.appendChild(opt);
-  });
-
-  select.addEventListener('change', () => renderPaysView());
-}
-
-/**
- * Rend la vue "Par pays".
- */
-function renderPaysView() {
-  const code = document.getElementById('paysSelect').value;
-  const paysStickers = stickers.filter(s => s.Code === code);
-
-  if (!paysStickers.length) return;
-
-  // Statistiques du pays
-  const total = paysStickers.length;
-  const owned = paysStickers.filter(s => getStatus(s.ID) === 'owned' || getStatus(s.ID) === 'duplicate').length;
-  const pct = Math.round((owned / total) * 100);
-  const flagURL = paysStickers[0]?.Drapeau || '';
-  const sectionName = paysStickers[0]?.Section || code;
-
-  // Résumé pays
-  document.getElementById('paysSummary').innerHTML = `
-    <img class="pays-flag" src="${escHtml(flagURL)}" alt="${escHtml(sectionName)}" 
-         onerror="this.style.display='none'" />
-    <div class="pays-info">
-      <div class="pays-info-name">${escHtml(sectionName)}</div>
-      <div class="pays-info-stats">
-        <strong>${owned}</strong> / ${total} possédées — <strong>${pct}%</strong>
-      </div>
-    </div>
-    <div class="pays-progress-bar">
-      <div class="pays-progress-fill" style="width:${pct}%"></div>
-    </div>
-  `;
-
-  // Grille des vignettes du pays — DocumentFragment
-  const grid = document.getElementById('paysGrid');
-  const frag = document.createDocumentFragment();
-  paysStickers.forEach(s => frag.appendChild(buildStickerCard(s)));
-  grid.innerHTML = '';
-  grid.appendChild(frag);
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1220,7 +1155,7 @@ function updateModalStatusButtons(activeStatus) {
  */
 function refreshStickerInView(id) {
   // On re-rend uniquement si la vue courante affiche cette vignette
-  // Pour les vues album et pays, on cherche la card existante et on la remplace
+  // Pour la vue album, on cherche la card existante et on la remplace
   const existingCards = document.querySelectorAll(`.sticker-card[data-id="${id}"]`);
   if (existingCards.length > 0) {
     const sticker = stickers.find(s => s.ID === id);
@@ -1358,7 +1293,10 @@ function hideLoadingSpinner() {
    ═══════════════════════════════════════════════════════════════ */
 
 /**
- * Initialise la barre de recherche globale dans le header.
+ * Initialise la barre de recherche globale.
+ * La barre (#viewSearchBar) vit désormais directement dans les vues (et non
+ * plus dans le header) : elle est déplacée d'une vue à l'autre par
+ * moveSearchBarToView(), appelée au chargement et à chaque switchView().
  * Filtre la vue courante en temps réel.
  */
 function initGlobalSearch() {
@@ -1368,17 +1306,17 @@ function initGlobalSearch() {
   if (!input) return;
 
   input.addEventListener('input', () => {
-    const wasActive = searchActive;
     searchQuery = input.value.trim().toLowerCase();
     searchActive = searchQuery.length > 0;
     clearBtn.classList.toggle('hidden', !searchActive);
 
-    // Dès qu'une recherche démarre, on bascule sur la vue Album : c'est
-    // la seule vue où les résultats sont garantis d'être visibles
-    // immédiatement (sur "Stats" ou "Échanges" par exemple, rien
-    // n'apparaissait auparavant car la grille de résultats était rendue
-    // dans une vue masquée).
-    if (searchActive && !wasActive && currentView !== 'album') {
+    // Toute recherche (nouvelle saisie ou modification d'une recherche déjà
+    // active) doit systématiquement rediriger vers la vue Album : c'est la
+    // seule vue où les résultats sont garantis d'être visibles
+    // immédiatement. Ceci couvre aussi le cas où l'utilisateur a changé de
+    // vue manuellement pendant qu'une recherche était active : la prochaine
+    // frappe le ramène toujours sur Album.
+    if (searchActive && currentView !== 'album') {
       switchView('album'); // switchView() appelle déjà applySearchFilter()
       return;
     }
@@ -1396,55 +1334,22 @@ function initGlobalSearch() {
 }
 
 /**
- * Recherche mobile : sur petit écran, la barre de recherche texte est
- * masquée et remplacée par un bouton loupe. Au clic, on ouvre une modale
- * (même esprit que la modale d'ouverture de booster) et on y déplace la
- * barre de recherche existante — pas de duplication de logique, le même
- * champ #globalSearch reste l'unique source de vérité.
+ * Déplace la barre de recherche (#viewSearchBar) dans le slot dédié de la
+ * vue donnée, afin qu'elle apparaisse toujours au sein de la vue affichée
+ * plutôt que dans le header.
+ * @param {string} viewName
  */
-function initMobileSearchModal() {
-  const btn = document.getElementById('btnMobileSearch');
-  const modal = document.getElementById('searchModal');
-  const body = document.getElementById('searchModalBody');
-  const searchBar = document.getElementById('headerSearch');
-  const headerInner = document.querySelector('.header-inner');
-  const headerActions = document.querySelector('.header-actions');
-  const btnClose = document.getElementById('btnSearchModalClose');
-
-  if (!btn || !modal || !body || !searchBar || !headerInner) return;
-
-  function openSearchModal() {
-    body.appendChild(searchBar);
-    modal.classList.remove('hidden');
-    const input = document.getElementById('globalSearch');
-    if (input) input.focus();
+function moveSearchBarToView(viewName) {
+  const bar = document.getElementById('viewSearchBar');
+  const slot = document.getElementById(`searchSlot-${viewName}`);
+  if (bar && slot) {
+    slot.appendChild(bar);
   }
-
-  function closeSearchModal() {
-    modal.classList.add('hidden');
-    // On replace la barre de recherche à sa position d'origine dans le header
-    if (headerActions) {
-      headerInner.insertBefore(searchBar, headerActions);
-    } else {
-      headerInner.appendChild(searchBar);
-    }
-  }
-
-  btn.addEventListener('click', openSearchModal);
-  btnClose && btnClose.addEventListener('click', closeSearchModal);
-
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) closeSearchModal();
-  });
-
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeSearchModal();
-  });
 }
 
 /**
  * Applique le filtre de recherche sur la vue courante.
- * Sur les vues grille (album/pays), filtre directement les cartes.
+ * Sur la vue grille (album), filtre directement les cartes.
  * Sur les vues liste, re-rend avec filtrage.
  */
 function applySearchFilter() {
@@ -1468,7 +1373,7 @@ function applySearchFilter() {
   });
 
   // Afficher selon la vue courante
-  if (currentView === 'album' || currentView === 'pays') {
+  if (currentView === 'album') {
     renderSearchResultsGrid(matched, q);
   } else if (currentView === 'manquantes') {
     const filtered = matched.filter(s => getStatus(s.ID) === 'missing');
@@ -1489,16 +1394,8 @@ function applySearchFilter() {
  */
 function renderSearchResultsGrid(results, q) {
   // Trouver le conteneur de grille actif
-  let grid = null;
-  let container = null;
-
-  if (currentView === 'pays') {
-    grid = document.getElementById('paysGrid');
-    container = document.getElementById('view-pays');
-  } else {
-    grid = document.getElementById('stickerGrid');
-    container = document.getElementById('view-album');
-  }
+  const grid = document.getElementById('stickerGrid');
+  const container = document.getElementById('view-album');
 
   if (!grid || !container) return;
 
@@ -1564,7 +1461,8 @@ function createSearchBanner(count, q) {
    ═══════════════════════════════════════════════════════════════ */
 
 /**
- * Initialise le FAB et la modale d'ouverture de booster.
+ * Initialise le bouton "Ouvrir un booster" (désormais dans le header,
+ * ex-bouton flottant) et sa modale.
  */
 function initBoosterModal() {
   const fab     = document.getElementById('fabBooster');

@@ -43,30 +43,12 @@
         </div>
       </div>
 
-      <!-- Bouton recherche mobile (ouvre la modale de recherche) -->
-      <button class="btn btn-secondary btn-icon header-search-btn" id="btnMobileSearch" aria-label="Rechercher" title="Rechercher">
-        <span class="material-symbols-outlined">search</span>
-      </button>
-
-      <!-- Barre de recherche globale -->
-      <div class="header-search" id="headerSearch">
-        <span class="material-symbols-outlined search-icon">search</span>
-        <input
-          type="text"
-          enterkeyhint="search"
-          id="globalSearch"
-          class="search-input"
-          placeholder="Joueur ou ID (ex: Mbappé, FRA10)"
-          autocomplete="off"
-          aria-label="Recherche globale"
-        />
-        <button class="search-clear hidden" id="searchClear" aria-label="Effacer">
-          <span class="material-symbols-outlined">close</span>
-        </button>
-      </div>
-
-      <!-- Actions globales : import / export -->
+      <!-- Actions globales : booster / import / export -->
       <div class="header-actions">
+        <button class="btn btn-primary" id="fabBooster" title="Ouvrir un booster">
+          <span class="material-symbols-outlined">stacks</span>
+          <span class="btn-label">Booster</span>
+        </button>
         <button class="btn btn-secondary" id="btnExport" title="Exporter ma collection">
           <span class="material-symbols-outlined">download</span>
           <span class="btn-label">Exporter</span>
@@ -87,10 +69,6 @@
     <button class="nav-btn active" data-view="album" aria-pressed="true">
       <span class="material-symbols-outlined" aria-hidden="true">menu_book</span>
       <span>Album</span>
-    </button>
-    <button class="nav-btn" data-view="pays" aria-pressed="false">
-      <span class="material-symbols-outlined" aria-hidden="true">flag</span>
-      <span>Par pays</span>
     </button>
     <button class="nav-btn" data-view="manquantes" aria-pressed="false">
       <span class="material-symbols-outlined" aria-hidden="true">search_off</span>
@@ -119,6 +97,25 @@
          VUE ALBUM
     ───────────────────────────────────────────── -->
     <section class="view" id="view-album" aria-label="Vue Album">
+
+      <!-- Slot d'accueil de la barre de recherche (voir #viewSearchBar plus bas) -->
+      <div class="view-search-slot" id="searchSlot-album">
+        <div class="view-search" id="viewSearchBar">
+          <span class="material-symbols-outlined search-icon">search</span>
+          <input
+            type="text"
+            enterkeyhint="search"
+            id="globalSearch"
+            class="search-input"
+            placeholder="Joueur ou ID (ex: Mbappé, FRA10)"
+            autocomplete="off"
+            aria-label="Recherche globale"
+          />
+          <button class="search-clear hidden" id="searchClear" aria-label="Effacer">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+      </div>
 
       <!-- Contrôles de la page album -->
       <div class="album-controls">
@@ -160,23 +157,10 @@
     </section>
 
     <!-- ─────────────────────────────────────────────
-         VUE PAR PAYS
-    ───────────────────────────────────────────── -->
-    <section class="view hidden" id="view-pays" aria-label="Vue Par pays">
-      <div class="view-header">
-        <h2 class="view-title">Par pays</h2>
-        <div class="pays-controls">
-          <select id="paysSelect" class="filter-select" aria-label="Choisir un pays"></select>
-        </div>
-      </div>
-      <div class="pays-summary" id="paysSummary"></div>
-      <div class="sticker-grid" id="paysGrid" role="list"></div>
-    </section>
-
-    <!-- ─────────────────────────────────────────────
          VUE MANQUANTES
     ───────────────────────────────────────────── -->
     <section class="view hidden" id="view-manquantes" aria-label="Mes vignettes manquantes">
+      <div class="view-search-slot" id="searchSlot-manquantes"></div>
       <div class="view-header">
         <h2 class="view-title">Mes manquantes</h2>
         <div class="list-controls">
@@ -210,6 +194,7 @@
          VUE DOUBLONS
     ───────────────────────────────────────────── -->
     <section class="view hidden" id="view-doublons" aria-label="Mes doublons">
+      <div class="view-search-slot" id="searchSlot-doublons"></div>
       <div class="view-header">
         <h2 class="view-title">Mes doublons</h2>
         <div class="list-controls">
@@ -243,6 +228,7 @@
          VUE STATISTIQUES
     ───────────────────────────────────────────── -->
     <section class="view hidden" id="view-stats" aria-label="Statistiques de la collection">
+      <div class="view-search-slot" id="searchSlot-stats"></div>
       <div class="view-header">
         <h2 class="view-title">Statistiques</h2>
       </div>
@@ -257,6 +243,7 @@
          VUE ÉCHANGES — MATCHMAKER
     ───────────────────────────────────────────── -->
     <section class="view hidden" id="view-echanges" aria-label="Gestion des échanges">
+      <div class="view-search-slot" id="searchSlot-echanges"></div>
       <div class="view-header">
         <h2 class="view-title">Matchmaker</h2>
       </div>
@@ -380,13 +367,6 @@
   </nav>
 
   <!-- ═══════════════════════════════════════════════════
-       FAB — OUVERTURE DE BOOSTER
-  ═══════════════════════════════════════════════════ -->
-  <button class="fab" id="fabBooster" aria-label="Ouvrir un booster" title="Ouvrir un booster">
-    <span class="material-symbols-outlined">stacks</span>
-  </button>
-
-  <!-- ═══════════════════════════════════════════════════
        MODALE BOOSTER
   ═══════════════════════════════════════════════════ -->
   <div class="modal-overlay hidden" id="boosterModal" role="dialog" aria-modal="true" aria-labelledby="boosterTitle">
@@ -416,23 +396,6 @@
           <span class="material-symbols-outlined">check_circle</span>
           Valider
         </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══════════════════════════════════════════════════
-       MODALE RECHERCHE (mobile)
-  ═══════════════════════════════════════════════════ -->
-  <div class="modal-overlay hidden" id="searchModal" role="dialog" aria-modal="true" aria-labelledby="searchModalTitle">
-    <div class="modal-card search-card">
-      <div class="modal-header search-header" id="searchModalHeader">
-        <span class="modal-id" id="searchModalTitle">🔍 Recherche</span>
-        <button class="btn btn-icon modal-close" id="btnSearchModalClose" aria-label="Fermer">
-          <span class="material-symbols-outlined">close</span>
-        </button>
-      </div>
-      <div class="search-modal-body" id="searchModalBody">
-        <!-- La barre de recherche existante (#headerSearch) est déplacée ici en JS à l'ouverture -->
       </div>
     </div>
   </div>
