@@ -1,41 +1,50 @@
+/* ═══════════════════════════════════════════════════════════════
+   PANINI WC 2026 — STYLES COMPLETS
+   Direction artistique : Rétro-futurisme cinétique / Op-Art 70s
+   Flat design strict — zéro dégradé — color-blocking maximaliste
+   ═══════════════════════════════════════════════════════════════ */
+
 /* ───────────────────────────────────────────────────────────────
    1. TOKENS DE DESIGN (Variables CSS :root)
    ─────────────────────────────────────────────────────────────── */
 :root {
-  /* PALETTE DE BASE RÉVISÉE */
-  --blue-dark:       #025649; /* deep green as main dark */
-  --blue-electric:   #801211; /* dark red as primary action */
-  --blue-light:      #67FEDB; /* mint as light accent */
-  --red-dark:        #1B2789; /* dark blue */
-  --red-bright:      #FE4502; /* vibrant orange */
-  --orange-vibrant:  #DC0203; /* bright red */
-  --green-deep:      #6300E9; /* psycho purple */
-  --green-bright:    #04CF5C; /* keep bright green */
-  --yellow-lime:     #EFFD45; /* light yellow */
-  --purple-psycho:   #3659FF; /* electric blue */
-  --cyan-neon:       #B486FF; /* light purple */
-  --yellow-light:    #FFFFFF; /* white */
-  --teal:            #8DBAFE; /* light blue */
-  --mint:            #67FEDB; /* exact mint */
-  --salmon:          #B486FF; /* light purple */
+  /* Palette officielle WC2026 */
+  --blue-dark:       #1B2789;
+  --blue-electric:   #375AFE;
+  --blue-light:      #8DBAFE;
+  --red-dark:        #801211;
+  --red-bright:      #DC0203;
+  --orange-vibrant:  #FE4502;
+  --green-deep:      #025649;
+  --green-bright:    #04CF5C;
+  --yellow-lime:     #BAEE06;
+  --purple-psycho:   #6101E9;
+  --cyan-neon:       #04BEA7;
+  --yellow-light:    #EFFD45;
+  --teal:            #004C40;
+  --mint:            #67FFD9;
+  --salmon:          #FF9D80;
 
-  /* SEMANTIQUE COULEURS DE FOND & SURFACES */
-  --surface:         #FFFFFF;
-  --surface-low:     #F5F5F5;
-  --surface-mid:     #E0E0E0;
-  
-  /* TEXTE & BORDURES */
-  --on-surface:      #025649;
-  --border-heavy:    #025649;
-  --border-light:    #BDBDBD;
-  --outline:         #616161;
-  
-  /* TYPOGRAPHIE */
-  --font-title: 'Anybody', system-ui, sans-serif;
-  --font-body: 'Hanken Grotesk', system-ui, sans-serif;
-  
-  /* ... (Garde le reste de tes variables telles quelles, comme --spacing, --radius, etc.) */
-}
+  /* Couleurs sémantiques dérivées */
+  --surface:         #FBFAFF;
+  --surface-low:     #F0EFFF;
+  --surface-mid:     #E3E2FF;
+  --on-surface:      #000964;
+  --border-heavy:    #1B2789;
+  --border-light:    #C4C5D9;
+  --outline:         #747688;
+
+  /* Statuts vignettes */
+  --status-owned-bg:     #BAEE06;
+  --status-owned-fg:     #025649;
+  --status-missing-bg:   #FBFAFF;
+  --status-missing-fg:   #747688;
+  --status-dup-bg:       #FE4502;
+  --status-dup-fg:       #FFFFFF;
+
+  /* Typographie */
+  --font-display:  'Anybody', sans-serif;
+  --font-body:     'Hanken Grotesk', sans-serif;
 
   /* Ombres hard (flat depth) */
   --shadow-sm:  3px 3px 0 var(--blue-dark);
