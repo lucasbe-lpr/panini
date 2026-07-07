@@ -6,7 +6,7 @@
  *
  * Architecture :
  *  - État global : `stickers` (données brutes) + `collectionState` (état utilisateur)
- *  - Navigation par vues (album, manquantes, doublons, stats, échanges, aide)
+ *  - Navigation par vues (album, manquantes, doublons, stats, échanges)
  *  - Chaque vue est rendue à la demande (lazy rendering)
  *  - Persistance locale via localStorage (cache) + import/export fichier JSON
  */
@@ -25,7 +25,7 @@ const LS_KEY = 'panini_wc2026_collection';
 
 /**
  * Vues dans lesquelles la barre de recherche est présente et où le filtre
- * de recherche doit s'appliquer (Statistiques, Échanges et Aide n'ont pas de
+ * de recherche doit s'appliquer (Statistiques et Échanges n'ont pas de
  * barre de recherche : la recherche n'y a aucun effet).
  */
 const SEARCHABLE_VIEWS = ['album', 'manquantes', 'doublons'];
@@ -367,7 +367,6 @@ function renderCurrentView() {
     case 'doublons':   renderDoublonsView();    break;
     case 'stats':      renderStatsView();       break;
     case 'echanges':   /* rien à rendre d'emblée */ break;
-    case 'aide':       renderAideView();        break; // NOUVEAU
     default: break;
   }
 }
@@ -1304,8 +1303,8 @@ function hideLoadingSpinner() {
 
 /**
  * Initialise la barre de recherche globale.
- * La barre (#viewSearchBar) vit directement dans les vues (et non plus
- * dans le header) : elle est déplacée d'une vue à l'autre par
+ * La barre (#viewSearchBar) vit directement dans les vues (et non plus dans
+ * le header) : elle est déplacée d'une vue à l'autre par
  * moveSearchBarToView(), appelée au chargement et à chaque switchView().
  * Filtre la vue actuellement affichée en temps réel.
  */
@@ -1587,8 +1586,6 @@ function updateBoosterPreview(raw, preview) {
 
 /** Collection parsée de l'ami (Map: id → entry) */
 let friendCollection = null;
-let currentGiveList = [];
-let currentReceiveList = [];
 
 /**
  * Initialise le module Matchmaker.
@@ -1600,8 +1597,6 @@ function initMatchmaker() {
   const btnCopyMatch   = document.getElementById('btnCopyMatch');
   const btnCopyMatchText = document.getElementById('btnCopyMatchText');
   const btnCloseMatchExport = document.getElementById('btnCloseMatchExport');
-  const btnValidateExchange = document.getElementById('btnValidateExchange');
-  const btnUnselectAll = document.getElementById('btnUnselectAll');
 
   if (!btnAnalyse) return;
 
@@ -1630,10 +1625,6 @@ function initMatchmaker() {
   btnCloseMatchExport && btnCloseMatchExport.addEventListener('click', () => {
     document.getElementById('matchExportZone').classList.add('hidden');
   });
-
-  // Validation de l'échange
-  btnValidateExchange && btnValidateExchange.addEventListener('click', validateExchange);
-  btnUnselectAll && btnUnselectAll.addEventListener('click', unselectAllExchangeTags);
 }
 
 /**
@@ -1671,13 +1662,12 @@ function parseFriendCollection(raw) {
 }
 
 /**
- * Exécute l'analyse de correspondance (matchmaking) avec affichage des cases à cocher.
+ * Exécute l'analyse de correspondance (matchmaking).
  */
 function runMatchmaker() {
   const raw = document.getElementById('colleagueInput').value.trim();
   const resultsEl = document.getElementById('matchmakerResults');
   const emptyEl   = document.getElementById('echangeResults');
-  const controlsEl = document.getElementById('exchangeControls');
 
   if (!raw) {
     showToast('⚠️ La liste de ton ami est vide.');
@@ -1725,14 +1715,9 @@ function runMatchmaker() {
   // Ce qu'il/elle peut me donner : ses doublons croisés avec mes manquantes
   const ilDonne = [...mesManquantes].filter(id => amiDoublons.has(id));
 
-  // Stockage global pour la validation
-  currentGiveList = jeDonne;
-  currentReceiveList = ilDonne;
-
   // Affichage
   emptyEl.classList.add('hidden');
   resultsEl.classList.remove('hidden');
-  controlsEl.classList.remove('hidden');
 
   // Résumé
   document.getElementById('matchmakerSummary').innerHTML = `
@@ -1756,21 +1741,21 @@ function runMatchmaker() {
   document.getElementById('giveCount').textContent = jeDonne.length;
   document.getElementById('receiveCount').textContent = ilDonne.length;
 
-  // Listes avec cases à cocher
-  renderMatchTagsWithCheckboxes(document.getElementById('giveList'), jeDonne, 'give');
-  renderMatchTagsWithCheckboxes(document.getElementById('receiveList'), ilDonne, 'receive');
+  // Listes tags
+  renderMatchTags(document.getElementById('giveList'), jeDonne, 'give');
+  renderMatchTags(document.getElementById('receiveList'), ilDonne, 'receive');
 
   // Cacher l'export précédent
   document.getElementById('matchExportZone').classList.add('hidden');
 }
 
 /**
- * Rend les tags de correspondance avec cases à cocher.
+ * Rend les tags de correspondance dans un panneau.
  * @param {HTMLElement} container
  * @param {string[]} ids
  * @param {'give'|'receive'} direction
  */
-function renderMatchTagsWithCheckboxes(container, ids, direction) {
+function renderMatchTags(container, ids, direction) {
   const frag = document.createDocumentFragment();
 
   if (ids.length === 0) {
@@ -1784,156 +1769,17 @@ function renderMatchTagsWithCheckboxes(container, ids, direction) {
       const tag = document.createElement('div');
       tag.className = 'match-tag';
       tag.title = `${id} — ${s?.Nom || ''}`;
-
-      const checkbox = document.createElement('input');
-      checkbox.type = 'checkbox';
-      checkbox.dataset.id = id;
-      checkbox.dataset.direction = direction;
-
-      const label = document.createElement('span');
-      label.textContent = id;
-      const nameSpan = document.createElement('span');
-      nameSpan.className = 'tag-name';
-      nameSpan.textContent = s?.Nom || '';
-
-      tag.appendChild(checkbox);
-      tag.appendChild(label);
-      tag.appendChild(nameSpan);
-
-      // Clic sur la carte (hors checkbox) ouvre la modale
-      tag.addEventListener('click', (e) => {
-        if (e.target.tagName !== 'INPUT') {
-          openModal(id);
-        }
-      });
-
+      tag.innerHTML = `
+        ${escHtml(id)}
+        <span class="tag-name">${escHtml(s?.Nom || '')}</span>
+      `;
+      tag.addEventListener('click', () => openModal(id));
       frag.appendChild(tag);
     });
   }
 
   container.innerHTML = '';
   container.appendChild(frag);
-}
-
-/**
- * Désélectionne toutes les cases à cocher des tags d'échange.
- */
-function unselectAllExchangeTags() {
-  document.querySelectorAll('#giveList input[type="checkbox"], #receiveList input[type="checkbox"]').forEach(cb => {
-    cb.checked = false;
-  });
-}
-
-/**
- * Valide l'échange sélectionné : met à jour les collections et génère le fichier pour l'ami.
- */
-function validateExchange() {
-  const checkedGive = document.querySelectorAll('#giveList input[type="checkbox"]:checked');
-  const checkedReceive = document.querySelectorAll('#receiveList input[type="checkbox"]:checked');
-
-  if (checkedGive.length === 0 || checkedReceive.length === 0) {
-    showToast('⚠️ Sélectionne au moins une vignette à donner et une à recevoir.', 3000);
-    return;
-  }
-
-  // Vérifier qu'on a autant de donne que de reçus (ou on pourrait gérer des échanges multiple)
-  // Pour simplifier, on exige que le nombre soit égal : un échange = donner 1, recevoir 1.
-  // On peut autoriser plusieurs paires : on prend le min des deux.
-  const giveIds = Array.from(checkedGive).map(cb => cb.dataset.id);
-  const receiveIds = Array.from(checkedReceive).map(cb => cb.dataset.id);
-
-  if (giveIds.length !== receiveIds.length) {
-    showToast('⚠️ Tu dois sélectionner le même nombre de vignettes à donner et à recevoir.', 3000);
-    return;
-  }
-
-  // Copie de la collection de l'ami avant modification
-  const friendStateBefore = JSON.parse(JSON.stringify(friendCollection));
-
-  // Appliquer les changements sur MA collection
-  giveIds.forEach(id => {
-    // Je donne un doublon : je le retire de mes doublons (décrément ou passe à owned)
-    const currentStatus = getStatus(id);
-    if (currentStatus === 'duplicate') {
-      const count = collectionState[id].count;
-      if (count > 2) {
-        setStatus(id, 'duplicate', count - 1);
-      } else {
-        setStatus(id, 'owned');
-      }
-    } else {
-      // Cas improbable, mais on passe en owned
-      setStatus(id, 'owned');
-    }
-  });
-
-  receiveIds.forEach(id => {
-    // Je reçois une vignette : je la marque comme possédée
-    setStatus(id, 'owned');
-  });
-
-  // Mettre à jour la collection de l'ami (dans friendCollection)
-  giveIds.forEach(id => {
-    // L'ami reçoit la vignette que je lui donne
-    const entry = friendCollection[id];
-    if (!entry) {
-      friendCollection[id] = { status: 'owned', count: 0 };
-    } else {
-      if (entry.status === 'missing') {
-        entry.status = 'owned';
-      } else if (entry.status === 'owned') {
-        entry.status = 'duplicate';
-        entry.count = Math.max(2, (entry.count || 0) + 1);
-      } else if (entry.status === 'duplicate') {
-        entry.count = Math.max(2, (entry.count || 2) + 1);
-      }
-    }
-  });
-
-  receiveIds.forEach(id => {
-    // L'ami perd la vignette qu'il m'a donnée (il la retire de ses doublons)
-    const entry = friendCollection[id];
-    if (entry) {
-      if (entry.status === 'duplicate') {
-        const count = entry.count || 2;
-        if (count > 2) {
-          entry.count = count - 1;
-        } else {
-          entry.status = 'owned';
-          entry.count = 0;
-        }
-      } else if (entry.status === 'owned') {
-        entry.status = 'missing';
-        entry.count = 0;
-      }
-    }
-  });
-
-  // Sauvegarder ma collection
-  saveCollectionToLocalStorage();
-
-  // Générer le fichier JSON pour l'ami
-  const friendJSON = JSON.stringify(friendCollection, null, 2);
-  const blob = new Blob([friendJSON], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'ma-collection-mise-a-jour.json';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-
-  // Re-rendre les vues
-  renderCurrentView();
-  updateGlobalProgress();
-
-  showToast(`✅ Échange validé ! ${giveIds.length} vignette(s) échangée(s). Fichier JSON téléchargé pour ton ami.`, 4000);
-
-  // Réinitialiser les listes (on pourrait relancer l'analyse automatiquement)
-  // Pour éviter de devoir re-analyser, on peut vider les sélections et rafraîchir
-  unselectAllExchangeTags();
-  // On pourrait aussi relancer runMatchmaker, mais on garde l'état affiché
 }
 
 /**
@@ -1963,33 +1809,3 @@ function exportMatchSummary() {
   zone.classList.remove('hidden');
   zone.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
-
-/* ═══════════════════════════════════════════════════════════════
-   21. VUE MODE D'EMPLOI (NOUVEAU)
-   ═══════════════════════════════════════════════════════════════ */
-
-/**
- * Rend la vue Mode d'emploi (contenu purement statique, déjà dans le HTML).
- * On pourrait ne rien faire car le contenu est déjà présent, mais on
- * peut ajouter des animations ou des logs.
- */
-function renderAideView() {
-  // Rien à faire, le HTML est déjà statique.
-  // On peut simplement s'assurer que la vue est visible.
-}
-
-
-/* ═══════════════════════════════════════════════════════════════
-   22. AMÉLIORATIONS PRO (intégrées)
-   ═══════════════════════════════════════════════════════════════
-   1.  ✅ Ajout d'un mode "sombre" automatique (respecte la préférence système)
-       (désactivé par défaut pour rester cohérent, mais prêt à l'emploi)
-   2.  ✅ Optimisation des images : utilisation de `loading="lazy"` sur tous les drapeaux
-   3.  ✅ Gestion des erreurs réseau plus robuste (retry après échec)
-   4.  ✅ Export/Import en JSON avec validation et feedback
-   5.  ✅ Barre de progression animée en temps réel
-   6.  ✅ Anti-spam des toasts (regroupement)
-   7.  ✅ Accessibilité améliorée (aria labels, focus-visible)
-   8.  ✅ Persistance locale avec fallback
-   9.  ✅ Documentation du code (JSDoc)
-   ═══════════════════════════════════════════════════════════════ */

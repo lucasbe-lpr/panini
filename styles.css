@@ -2087,8 +2087,8 @@ body {
 
 .match-tag {
   display: inline-flex;
+  flex-direction: column;
   align-items: center;
-  gap: 6px;
   padding: 4px 8px;
   font-family: var(--font-display);
   font-weight: 900;
@@ -2119,136 +2119,9 @@ body {
   white-space: nowrap;
 }
 
-.match-tag input[type="checkbox"] {
-  appearance: none;
-  width: 14px;
-  height: 14px;
-  border: 2px solid var(--blue-dark);
-  border-radius: 2px;
-  background: var(--surface);
-  cursor: pointer;
-  flex-shrink: 0;
-  margin: 0;
-  transition: background 0.15s, border-color 0.15s;
-}
-
-.match-tag input[type="checkbox"]:checked {
-  background: var(--blue-electric);
-  border-color: var(--blue-electric);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='8' viewBox='0 0 10 8'%3E%3Cpath d='M1 4 L4 7 L9 1' stroke='white' stroke-width='2' fill='none'/%3E%3C/svg%3E");
-  background-size: 10px 8px;
-  background-position: center;
-  background-repeat: no-repeat;
-}
-
-.match-tag input[type="checkbox"]:focus-visible {
-  outline: 2px solid var(--blue-electric);
-  outline-offset: 2px;
-}
-
-.match-tag .tag-name {
-  /* déjà défini */
-}
-
-/* ───────────────────────────────────────────────────────────────
-   31. CONTROLES D'ÉCHANGE (validation)
-   ─────────────────────────────────────────────────────────────── */
-.matchmaker-exchange-controls {
-  margin: var(--sp-sm) 0;
-  padding: var(--sp-sm);
-  background: var(--surface-mid);
-  border: 3px solid var(--blue-dark);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
-}
-
-.exchange-selection-prompt {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--font-body);
-  font-weight: 700;
-  font-size: 13px;
-  color: var(--on-surface);
-  margin-bottom: var(--sp-xs);
-}
-
-.exchange-selection-prompt .material-symbols-outlined {
-  font-size: 20px;
-  color: var(--blue-electric);
-}
-
-.exchange-actions {
+.matchmaker-export {
   display: flex;
   gap: var(--sp-xs);
-  flex-wrap: wrap;
-}
-
-/* ───────────────────────────────────────────────────────────────
-   32. MODE D'EMPLOI (vue aide)
-   ─────────────────────────────────────────────────────────────── */
-.aide-content {
-  max-width: 720px;
-  margin: 0 auto;
-}
-
-.aide-block {
-  background: var(--surface-low);
-  border: 3px solid var(--border-light);
-  border-radius: var(--radius-md);
-  padding: var(--sp-sm) var(--sp-md);
   margin-bottom: var(--sp-sm);
-  box-shadow: var(--shadow-sm);
-}
-
-.aide-block h3 {
-  font-family: var(--font-display);
-  font-weight: 900;
-  font-size: 18px;
-  color: var(--blue-dark);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 4px;
-}
-
-.aide-block p, .aide-block ul {
-  font-family: var(--font-body);
-  font-size: 14px;
-  line-height: 1.6;
-  color: var(--on-surface);
-}
-
-.aide-block ul {
-  padding-left: var(--sp-md);
-  list-style-type: square;
-}
-
-.aide-block ul li {
-  margin-bottom: 4px;
-}
-
-.highlight-give {
-  background: var(--blue-electric);
-  color: #fff;
-  padding: 1px 6px;
-  border-radius: var(--radius-sm);
-  font-weight: 700;
-}
-
-.highlight-receive {
-  background: var(--green-bright);
-  color: var(--green-deep);
-  padding: 1px 6px;
-  border-radius: var(--radius-sm);
-  font-weight: 700;
-}
-
-.aide-block code {
-  background: var(--surface-mid);
-  padding: 1px 6px;
-  border-radius: var(--radius-sm);
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--blue-electric);
+  flex-wrap: wrap;
 }
