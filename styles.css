@@ -1932,11 +1932,12 @@ body {
 }
 
 .matchmaker-format-hint {
+  display: block;
   font-size: 11px;
   color: var(--blue-light);
   font-weight: 500;
-  margin-left: auto;
   letter-spacing: 0.03em;
+  margin-bottom: 4px;
 }
 
 .matchmaker-import-row {
@@ -1945,6 +1946,13 @@ body {
   padding: var(--sp-sm);
   align-items: flex-start;
   flex-wrap: wrap;
+}
+
+.matchmaker-textarea-wrap {
+  flex: 1;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
 }
 
 .matchmaker-textarea {
@@ -1958,6 +1966,84 @@ body {
   flex-direction: column;
   gap: var(--sp-xs);
   flex-shrink: 0;
+}
+
+/* Sélecteur de mode (import complet / saisie manuelle) */
+.matchmaker-mode-toggle {
+  display: flex;
+  gap: 6px;
+  padding: var(--sp-sm) var(--sp-sm) 0;
+}
+
+.matchmaker-mode-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: var(--surface);
+  color: var(--on-surface);
+  border: 2px solid var(--blue-dark);
+  border-radius: var(--radius-sm, 8px);
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.matchmaker-mode-btn .material-symbols-outlined {
+  font-size: 18px;
+}
+
+.matchmaker-mode-btn:hover {
+  background: var(--blue-electric);
+  color: #fff;
+}
+
+.matchmaker-mode-btn.active {
+  background: var(--blue-dark);
+  color: var(--yellow-light);
+  border-color: var(--yellow-lime);
+}
+
+.matchmaker-mode-panel {
+  padding: 0;
+}
+
+/* Saisie manuelle : deux colonnes doublons / manquantes */
+.matchmaker-manual-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-sm);
+  padding: var(--sp-sm);
+}
+
+@media (max-width: 600px) {
+  .matchmaker-manual-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.matchmaker-manual-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.matchmaker-manual-col .field-label {
+  margin-bottom: 2px;
+}
+
+.matchmaker-manual-col .matchmaker-textarea {
+  min-height: 90px !important;
+}
+
+.matchmaker-manual-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 var(--sp-sm) var(--sp-sm);
 }
 
 /* Résumé match */

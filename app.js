@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   } catch (err) {
     console.error('Erreur au démarrage :', err);
-    showToast('❌ Impossible de charger la base de données.', 4000);
+    showToast('Impossible de charger la base de données.', 4000);
     hideLoadingSpinner();
   }
 });
@@ -239,10 +239,10 @@ function downloadJSONFile(data, filename) {
 function exportCollectionAsJSON() {
   try {
     downloadJSONFile(collectionState, 'ma-collection-wc2026.json');
-    showToast('✅ Collection exportée avec succès !');
+    showToast('Collection exportée avec succès.');
   } catch (e) {
     console.error('Erreur lors de l\'export :', e);
-    showToast('❌ Erreur lors de l\'export.');
+    showToast('Erreur lors de l\'export.');
   }
 }
 
@@ -297,15 +297,15 @@ function importCollectionFromJSON(file) {
       renderCurrentView();
       updateGlobalProgress();
 
-      showToast(`✅ Collection importée ! (${validKeys.length} vignettes chargées)`);
+      showToast(`Collection importée (${validKeys.length} vignettes chargées).`);
     } catch (e) {
       console.error('Erreur lors de l\'import :', e);
-      showToast(`❌ Erreur d'import : ${e.message}`);
+      showToast(`Erreur d'import : ${e.message}`);
     }
   };
 
   reader.onerror = () => {
-    showToast('❌ Impossible de lire le fichier.');
+    showToast('Impossible de lire le fichier.');
   };
 
   reader.readAsText(file);
@@ -795,12 +795,12 @@ function initExportImport() {
 function copyTextarea(textareaId) {
   const textarea = document.getElementById(textareaId);
   navigator.clipboard.writeText(textarea.value)
-    .then(() => showToast('📋 Liste copiée dans le presse-papier !'))
+    .then(() => showToast('Liste copiée dans le presse-papier.'))
     .catch(() => {
       // Fallback pour les environnements sans clipboard API
       textarea.select();
       document.execCommand('copy');
-      showToast('📋 Liste copiée !');
+      showToast('Liste copiée.');
     });
 }
 
@@ -954,7 +954,7 @@ function analyseEchanges() {
   // Bloc 1 : Ce que le collègue peut me donner
   html += `<div class="echange-block ils-ont">
     <div class="echange-block-title">
-      ✅ Il/Elle peut me donner (${ilsOntPourMoi.length})
+      Il/Elle peut me donner (${ilsOntPourMoi.length})
     </div>`;
 
   if (ilsOntPourMoi.length === 0) {
@@ -974,7 +974,7 @@ function analyseEchanges() {
   // Bloc 2 : Ce que je peux lui donner
   html += `<div class="echange-block je-donne">
     <div class="echange-block-title">
-      🔄 Je peux lui/lui donner (${jeDonnePourLui.length})
+      Je peux lui/lui donner (${jeDonnePourLui.length})
     </div>`;
 
   if (jeDonnePourLui.length === 0) {
@@ -1516,7 +1516,7 @@ function initBoosterModal() {
   btnValidate.addEventListener('click', () => {
     const ids = parseBoosterInput(input.value);
     if (ids.valid.length === 0) {
-      showToast('⚠️ Aucun ID reconnu dans la saisie.');
+      showToast('Aucun ID reconnu dans la saisie.');
       return;
     }
 
@@ -1534,7 +1534,7 @@ function initBoosterModal() {
 
     renderCurrentView();
     closeBoosterModal();
-    showToast(`✅ ${ids.valid.length} vignette${ids.valid.length > 1 ? 's' : ''} ajoutée${ids.valid.length > 1 ? 's' : ''} !`, 3000);
+    showToast(`${ids.valid.length} vignette${ids.valid.length > 1 ? 's' : ''} ajoutée${ids.valid.length > 1 ? 's' : ''}.`, 3000);
   });
 }
 
@@ -1622,6 +1622,29 @@ function initMatchmaker() {
 
   btnAnalyse.addEventListener('click', runMatchmaker);
 
+  // Bascule entre les deux modes de saisie (import complet / manuel)
+  const modeBtnImport = document.getElementById('modeBtnImport');
+  const modeBtnManual = document.getElementById('modeBtnManual');
+  const modePanelImport = document.getElementById('modePanel-import');
+  const modePanelManual = document.getElementById('modePanel-manual');
+
+  function setMatchmakerMode(mode) {
+    const isManual = mode === 'manual';
+    modeBtnImport && modeBtnImport.classList.toggle('active', !isManual);
+    modeBtnManual && modeBtnManual.classList.toggle('active', isManual);
+    modeBtnImport && modeBtnImport.setAttribute('aria-selected', String(!isManual));
+    modeBtnManual && modeBtnManual.setAttribute('aria-selected', String(isManual));
+    modePanelImport && modePanelImport.classList.toggle('hidden', isManual);
+    modePanelManual && modePanelManual.classList.toggle('hidden', !isManual);
+  }
+
+  modeBtnImport && modeBtnImport.addEventListener('click', () => setMatchmakerMode('import'));
+  modeBtnManual && modeBtnManual.addEventListener('click', () => setMatchmakerMode('manual'));
+
+  // Analyse à partir de la saisie manuelle (doublons / manquantes séparés)
+  const btnAnalyseManual = document.getElementById('btnAnalyseManual');
+  btnAnalyseManual && btnAnalyseManual.addEventListener('click', runMatchmakerManual);
+
   // Import fichier JSON ami
   inputFriendJSON && inputFriendJSON.addEventListener('change', (e) => {
     const file = e.target.files[0];
@@ -1703,14 +1726,67 @@ function runMatchmaker() {
   const raw = document.getElementById('colleagueInput').value.trim();
 
   if (!raw) {
-    showToast('⚠️ La liste de ton ami est vide.');
+    showToast('La liste de ton ami est vide.');
     return;
   }
 
   const parsed = parseFriendCollection(raw);
 
   if (!parsed) {
-    showToast('❌ Format non reconnu. Utilise le JSON ou le format CODE 1,2,3.');
+    showToast('Format non reconnu. Utilise le JSON ou le format CODE 1,2,3.');
+    return;
+  }
+
+  friendCollection = parsed;
+  refreshMatchResults();
+}
+
+/**
+ * Construit une collection d'ami à partir de deux listes saisies
+ * séparément : ses doublons et ses manquantes (format CODE 1,2,3 chacune).
+ * Toute vignette non mentionnée est considérée comme simplement possédée
+ * par l'ami (ni doublon, ni manquante), donc neutre pour le matchmaking.
+ * @param {string} duplicatesRaw
+ * @param {string} missingRaw
+ * @returns {Object|null}
+ */
+function parseFriendManual(duplicatesRaw, missingRaw) {
+  const dupIds = parseTextList(duplicatesRaw);
+  const missIds = parseTextList(missingRaw);
+
+  if (dupIds.size === 0 && missIds.size === 0) return null;
+
+  const result = {};
+  stickers.forEach(s => {
+    result[s.ID] = { status: 'owned', count: 0 };
+  });
+  missIds.forEach(id => {
+    result[id] = { status: 'missing', count: 0 };
+  });
+  dupIds.forEach(id => {
+    result[id] = { status: 'duplicate', count: 0 };
+  });
+
+  return result;
+}
+
+/**
+ * Exécute l'analyse de correspondance à partir des deux listes saisies
+ * manuellement (doublons de l'ami / manquantes de l'ami).
+ */
+function runMatchmakerManual() {
+  const duplicatesRaw = document.getElementById('friendDuplicatesInput').value.trim();
+  const missingRaw = document.getElementById('friendMissingInput').value.trim();
+
+  if (!duplicatesRaw && !missingRaw) {
+    showToast('La liste de ton ami est vide.');
+    return;
+  }
+
+  const parsed = parseFriendManual(duplicatesRaw, missingRaw);
+
+  if (!parsed) {
+    showToast('Aucun ID reconnu. Utilise le format CODE 1,2,3.');
     return;
   }
 
@@ -1874,7 +1950,7 @@ function updateValidateHint() {
  */
 function validateExchange() {
   if (!friendCollection) {
-    showToast('❌ Analyse d\'abord la collection de ton ami.');
+    showToast('Analyse d\'abord la collection de ton ami.');
     return;
   }
 
@@ -1887,7 +1963,7 @@ function validateExchange() {
     .map(tag => tag.dataset.id);
 
   if (selectedGive.length === 0 && selectedReceive.length === 0) {
-    showToast('⚠️ Sélectionne au moins une vignette échangée.');
+    showToast('Sélectionne au moins une vignette échangée.');
     return;
   }
 
@@ -1933,7 +2009,7 @@ function validateExchange() {
   refreshMatchResults();
 
   const total = selectedGive.length + selectedReceive.length;
-  showToast(`✅ Échange validé : ${total} vignette${total > 1 ? 's' : ''} mise${total > 1 ? 's' : ''} à jour. Fichier pour ton ami téléchargé !`, 3500);
+  showToast(`Échange validé : ${total} vignette${total > 1 ? 's' : ''} mise${total > 1 ? 's' : ''} à jour. Fichier pour ton ami téléchargé.`, 3500);
 }
 
 /**
