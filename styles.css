@@ -287,7 +287,7 @@ body {
   gap: 10px;
   padding: 12px var(--sp-xs);
   background: transparent;
-  color: var(--outline);
+  color: var(--blue-dark);
   border: 2px solid transparent;
   border-radius: var(--radius-md);
   cursor: pointer;
