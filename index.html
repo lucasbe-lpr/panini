@@ -9,25 +9,29 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Anybody:ital,wdth,wght@0,75..125,100..900;1,75..125,100..900&family=Hanken+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+  
   <!-- Icônes Material -->
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
 
   <link rel="stylesheet" href="styles.css" />
 </head>
-<body>
+<!-- Ajout de la classe wave-bg pour activer la trame diagonale sportive -->
+<body class="wave-bg">
 
   <!-- ═══════════════════════════════════════════════════
        EN-TÊTE GLOBAL
   ═══════════════════════════════════════════════════ -->
   <header class="app-header">
     <!-- Décoration cinétique ondulée -->
-    <div class="header-wave" aria-hidden="true"></div>
+    <div class="header-wave op-art-fill" aria-hidden="true"></div>
 
     <div class="header-inner">
       <!-- Logo / Titre -->
       <div class="header-brand">
         <div class="header-brand-text">
           <h1 class="brand-title">FWC 2026</h1>
+          <!-- Ajout du brand-sub pour exploiter la classe CSS sur desktop -->
+          <span class="brand-sub">Édition Amériques</span>
           <span class="header-credit">Lucas Bessonnat v1.0</span>
         </div>
       </div>
@@ -98,7 +102,7 @@
     ───────────────────────────────────────────── -->
     <section class="view" id="view-album" aria-label="Vue Album">
 
-      <!-- Slot d'accueil de la barre de recherche (voir #viewSearchBar plus bas) -->
+      <!-- Slot d'accueil de la barre de recherche -->
       <div class="view-search-slot" id="searchSlot-album">
         <div class="view-search" id="viewSearchBar">
           <span class="material-symbols-outlined search-icon">search</span>
