@@ -287,7 +287,7 @@ body {
   gap: 10px;
   padding: 12px var(--sp-xs);
   background: transparent;
-  color: var(--blue-dark);
+  color: var(--outline);
   border: 2px solid transparent;
   border-radius: var(--radius-md);
   cursor: pointer;
@@ -306,7 +306,7 @@ body {
 }
 
 .nav-btn.active {
-  background: var(--blue-electric);
+  background: var(--blue-dark;
   color: var(--surface);
   border-color: var(--blue-dark);
   box-shadow: 3px 3px 0 var(--blue-dark);
