@@ -783,9 +783,6 @@ function initExportImport() {
   document.getElementById('btnCloseDblExport').addEventListener('click', () => {
     document.getElementById('dblExportZone').classList.add('hidden');
   });
-
-  // --- Module Échanges ---
-  document.getElementById('btnAnalyse').addEventListener('click', analyseEchanges);
 }
 
 /**
@@ -891,108 +888,8 @@ function renderStatsBars() {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   14. MODULE ÉCHANGES
+   14. MODULE ÉCHANGES — utilitaires partagés
    ═══════════════════════════════════════════════════════════════ */
-
-/**
- * Analyse la liste textuelle d'un collègue et affiche les échanges possibles.
- *
- * Format attendu :
- *   CODE N°1,N°2,N°3
- *   CODE N°4,N°5
- * Interprète chaque ligne comme les doublons du collègue (ou ses manquantes).
- */
-function analyseEchanges() {
-  const raw = document.getElementById('colleagueInput').value.trim();
-  const resultsDiv = document.getElementById('echangeResults');
-
-  if (!raw) {
-    resultsDiv.innerHTML = `
-      <div class="echange-empty">
-        <span class="material-symbols-outlined">warning</span>
-        <p>La liste est vide. Colle la liste de ton collègue.</p>
-      </div>
-    `;
-    return;
-  }
-
-  // Parse la liste du collègue
-  const colleagueStickers = parseTextList(raw);
-
-  if (colleagueStickers.size === 0) {
-    resultsDiv.innerHTML = `
-      <div class="echange-empty">
-        <span class="material-symbols-outlined">error</span>
-        <p>Format non reconnu. Exemple attendu :<br><code>MEX 1,2,3</code></p>
-      </div>
-    `;
-    return;
-  }
-
-  // Mes manquantes : vignettes que je n'ai pas
-  const mesManquantes = new Set(
-    stickers.filter(s => getStatus(s.ID) === 'missing').map(s => s.ID)
-  );
-
-  // Mes doublons : vignettes que j'ai en surplus
-  const mesDoublons = new Set(
-    stickers.filter(s => getStatus(s.ID) === 'duplicate').map(s => s.ID)
-  );
-
-  // Ce que le collègue a (et que je cherche) : intersection(colleagueStickers, mesManquantes)
-  const ilsOntPourMoi = [...colleagueStickers].filter(id => mesManquantes.has(id));
-
-  // Ce que j'ai en doublon (et dont le collègue a besoin) : intersection(mesDoublons, manquantes du collègue)
-  // Note : on interprète la liste collée comme ses doublons OU ses manquantes.
-  // On considère ici que TOUTES les vignettes qu'il a listées = ses doublons disponibles.
-  // Ses manquantes sont les stickers non listés. Mes doublons dont il a besoin = mesDoublons - colleagueStickers.
-  const jeDonnePourLui = [...mesDoublons].filter(id => !colleagueStickers.has(id));
-
-  // Construction du rendu
-  let html = '';
-
-  // Bloc 1 : Ce que le collègue peut me donner
-  html += `<div class="echange-block ils-ont">
-    <div class="echange-block-title">
-      Il/Elle peut me donner (${ilsOntPourMoi.length})
-    </div>`;
-
-  if (ilsOntPourMoi.length === 0) {
-    html += `<p class="echange-empty" style="padding:var(--sp-sm);color:var(--outline);font-size:13px;">
-      Aucune vignette en commun.
-    </p>`;
-  } else {
-    html += `<div class="echange-sticker-tags">`;
-    ilsOntPourMoi.forEach(id => {
-      const s = stickers.find(x => x.ID === id);
-      html += `<span class="echange-tag" title="${escHtml(s?.Nom || '')}">${escHtml(id)}</span>`;
-    });
-    html += `</div>`;
-  }
-  html += `</div>`;
-
-  // Bloc 2 : Ce que je peux lui donner
-  html += `<div class="echange-block je-donne">
-    <div class="echange-block-title">
-      Je peux lui/lui donner (${jeDonnePourLui.length})
-    </div>`;
-
-  if (jeDonnePourLui.length === 0) {
-    html += `<p class="echange-empty" style="padding:var(--sp-sm);color:rgba(255,255,255,0.6);font-size:13px;">
-      Aucun doublon à lui proposer.
-    </p>`;
-  } else {
-    html += `<div class="echange-sticker-tags">`;
-    jeDonnePourLui.forEach(id => {
-      const s = stickers.find(x => x.ID === id);
-      html += `<span class="echange-tag" title="${escHtml(s?.Nom || '')}">${escHtml(id)}</span>`;
-    });
-    html += `</div>`;
-  }
-  html += `</div>`;
-
-  resultsDiv.innerHTML = html;
-}
 
 /**
  * Parse une liste texte au format "CODE N°1,N°2,N°3" et retourne un Set d'IDs.
@@ -1607,7 +1504,6 @@ let friendCollection = null;
  * Initialise le module Matchmaker.
  */
 function initMatchmaker() {
-  const btnAnalyse = document.getElementById('btnAnalyse');
   const inputFriendJSON = document.getElementById('inputFriendJSON');
   const btnExportMatch = document.getElementById('btnExportMatch');
   const btnCopyMatch   = document.getElementById('btnCopyMatch');
@@ -1618,11 +1514,9 @@ function initMatchmaker() {
   const btnSelectNoneMatches = document.getElementById('btnSelectNoneMatches');
   const resultsEl = document.getElementById('matchmakerResults');
 
-  if (!btnAnalyse) return;
+  if (!inputFriendJSON) return;
 
-  btnAnalyse.addEventListener('click', runMatchmaker);
-
-  // Bascule entre les deux modes de saisie (import complet / manuel)
+  // Bascule entre les deux modes de saisie (import JSON / manuel)
   const modeBtnImport = document.getElementById('modeBtnImport');
   const modeBtnManual = document.getElementById('modeBtnManual');
   const modePanelImport = document.getElementById('modePanel-import');
@@ -1645,13 +1539,16 @@ function initMatchmaker() {
   const btnAnalyseManual = document.getElementById('btnAnalyseManual');
   btnAnalyseManual && btnAnalyseManual.addEventListener('click', runMatchmakerManual);
 
-  // Import fichier JSON ami
-  inputFriendJSON && inputFriendJSON.addEventListener('change', (e) => {
+  // Import fichier JSON ami : lit le fichier et lance directement l'analyse
+  inputFriendJSON.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = (ev) => {
-      document.getElementById('colleagueInput').value = ev.target.result;
+      runMatchmakerFromJSON(ev.target.result);
+    };
+    reader.onerror = () => {
+      showToast('Impossible de lire le fichier.');
     };
     reader.readAsText(file);
     e.target.value = '';
@@ -1686,54 +1583,32 @@ function initMatchmaker() {
 }
 
 /**
- * Parse la collection d'un ami depuis JSON ou liste texte.
+ * Parse la collection d'un ami depuis un JSON exporté par l'app.
  * @param {string} raw
  * @returns {Object|null} - collectionState-like object ou null si erreur
  */
 function parseFriendCollection(raw) {
-  // Tentative JSON
   try {
     const parsed = JSON.parse(raw);
-    if (typeof parsed === 'object' && !Array.isArray(parsed)) {
+    if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
       return parsed; // Format JSON (collectionState)
     }
   } catch (e) {
-    // pas du JSON, on essaie le format texte
+    // JSON invalide
   }
-
-  // Format texte brut : "CODE 1,2,3\nCODE 4,5"
-  const knownIDs = new Set(stickers.map(s => s.ID));
-  const ids = parseTextList(raw);
-  if (ids.size === 0) return null;
-
-  // Convertir en format collectionState (les IDs listés = owned/duplicate)
-  const result = {};
-  stickers.forEach(s => {
-    result[s.ID] = { status: 'missing', count: 0 };
-  });
-  ids.forEach(id => {
-    if (knownIDs.has(id)) {
-      result[id] = { status: 'owned', count: 0 };
-    }
-  });
-  return result;
+  return null;
 }
 
 /**
- * Exécute l'analyse de correspondance (matchmaking) à partir du texte collé.
+ * Exécute l'analyse de correspondance (matchmaking) à partir du contenu
+ * JSON importé (fichier de collection d'un ami).
+ * @param {string} raw - Contenu brut du fichier JSON importé
  */
-function runMatchmaker() {
-  const raw = document.getElementById('colleagueInput').value.trim();
-
-  if (!raw) {
-    showToast('La liste de ton ami est vide.');
-    return;
-  }
-
+function runMatchmakerFromJSON(raw) {
   const parsed = parseFriendCollection(raw);
 
   if (!parsed) {
-    showToast('Format non reconnu. Utilise le JSON ou le format CODE 1,2,3.');
+    showToast('Fichier JSON invalide ou non reconnu.');
     return;
   }
 

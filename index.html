@@ -257,7 +257,7 @@
         <div class="matchmaker-mode-toggle" role="tablist" aria-label="Mode de saisie de la collection de l'ami">
           <button type="button" class="matchmaker-mode-btn active" id="modeBtnImport" data-mode="import" role="tab" aria-selected="true">
             <span class="material-symbols-outlined">upload_file</span>
-            Import JSON / texte
+            Import JSON
           </button>
           <button type="button" class="matchmaker-mode-btn" id="modeBtnManual" data-mode="manual" role="tab" aria-selected="false">
             <span class="material-symbols-outlined">edit_note</span>
@@ -265,29 +265,15 @@
           </button>
         </div>
 
-        <!-- Panneau : import fichier JSON / texte brut complet -->
+        <!-- Panneau : import d'un fichier JSON exporté par un ami -->
         <div class="matchmaker-mode-panel" id="modePanel-import" role="tabpanel">
-          <div class="matchmaker-import-row">
-            <div class="matchmaker-textarea-wrap">
-              <span class="matchmaker-format-hint">Format JSON (.json) ou texte brut (CODE 1,2,3)</span>
-              <textarea
-                id="colleagueInput"
-                class="exchange-textarea matchmaker-textarea"
-                placeholder="Colle ici le JSON de ton ami OU sa liste texte :&#10;{ &quot;FRA1&quot;: {&quot;status&quot;:&quot;owned&quot;...} }&#10;— ou —&#10;MEX 1,2,3&#10;BRA 4,5,6"
-                rows="5"
-              ></textarea>
-            </div>
-            <div class="matchmaker-import-actions">
-              <label class="btn btn-secondary" title="Importer un fichier JSON">
-                <span class="material-symbols-outlined">upload_file</span>
-                <span>Fichier JSON</span>
-                <input type="file" accept=".json" id="inputFriendJSON" class="sr-only" />
-              </label>
-              <button class="btn btn-primary" id="btnAnalyse">
-                <span class="material-symbols-outlined">manage_search</span>
-                Analyser
-              </button>
-            </div>
+          <div class="matchmaker-import-row matchmaker-import-row-simple">
+            <label class="btn btn-primary" title="Importer un fichier JSON">
+              <span class="material-symbols-outlined">upload_file</span>
+              <span>Importer la collection JSON d'un ami</span>
+              <input type="file" accept=".json" id="inputFriendJSON" class="sr-only" />
+            </label>
+            <span class="matchmaker-format-hint">Format JSON (.json) exporté depuis l'app d'un ami</span>
           </div>
         </div>
 
