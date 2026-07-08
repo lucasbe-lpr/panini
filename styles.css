@@ -306,7 +306,7 @@ body {
 }
 
 .nav-btn.active {
-  background: var(--blue-dark;
+  background: var(--blue-electric);
   color: var(--surface);
   border-color: var(--blue-dark);
   box-shadow: 3px 3px 0 var(--blue-dark);
@@ -1341,7 +1341,7 @@ body {
   font-size: 20px;
   text-transform: uppercase;
   letter-spacing: -0.01em;
-  color: var(--surface);
+  color: var(--blue-electric);
 }
 
 .modal-flag-wrap {
