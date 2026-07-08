@@ -541,7 +541,7 @@ function buildStickerCard(sticker) {
         src="${escHtml(sticker.Drapeau || '')}"
         alt="${escHtml(sticker.Section)}"
         loading="lazy"
-        onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2260%22 height=%2240%22><rect width=%2260%22 height=%2240%22 fill=%22%23E3E2FF%22/></svg>'"
+        onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2260%22 height=%2240%22><rect width=%2260%22 height=%2240%22 fill=%22%23DEE3F7%22/></svg>'"
       />
     </div>
     <div class="sticker-footer">

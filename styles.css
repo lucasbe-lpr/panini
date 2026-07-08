@@ -8,37 +8,55 @@
    1. TOKENS DE DESIGN (Variables CSS :root)
    ─────────────────────────────────────────────────────────────── */
 :root {
-  /* Palette officielle WC2026 */
-  --blue-dark:       #1B2789;
-  --blue-electric:   #375AFE;
-  --blue-light:      #8DBAFE;
-  --red-dark:        #801211;
-  --red-bright:      #DC0203;
-  --orange-vibrant:  #FE4502;
-  --green-deep:      #025649;
-  --green-bright:    #04CF5C;
-  --yellow-lime:     #BAEE06;
-  --purple-psycho:   #6101E9;
-  --cyan-neon:       #04BEA7;
-  --yellow-light:    #EFFD45;
-  --teal:            #004C40;
-  --mint:            #67FFD9;
-  --salmon:          #FF9D80;
+  /* ─── Palette officielle Coupe du Monde 2026 ───
+     3 couleurs maîtresses : bleu #3659FF, rouge #DC0203, vert #04CF5C
+     + couleurs de soutien officielles et nuances dérivées pour les
+     états (hover, fond clair, texte sur fond coloré, ombres). */
+
+  /* Bleu — couleur de marque principale (nav, actions, liens) */
+  --blue-dark:       #1B2789; /* officiel — fonds sombres, ombres, texte fort */
+  --blue-electric:   #3659FF; /* officiel — couleur d'action principale */
+  --blue-light:      #9FB4FF; /* nuance claire — texte secondaire sur fond sombre */
+  --blue-pale:       #E7EBFF; /* nuance très claire — fonds teintés, hover discret */
+
+  /* Rouge — alertes, accents ponctuels */
+  --red-dark:        #8F0203; /* nuance foncée — hover/bordures */
+  --red-bright:      #DC0203; /* officiel */
+  --red-pale:        #FFE1E1; /* nuance très claire — fonds teintés */
+
+  /* Vert — succès / vignettes possédées */
+  --green-deep:      #026B3A; /* nuance foncée — texte sur fond clair */
+  --green-bright:    #04CF5C; /* officiel */
+  --green-pale:      #CDF6DE; /* nuance très claire — fonds teintés */
+
+  /* Orange — énergie, doublons, call-to-action secondaire */
+  --orange-vibrant:  #FE4502; /* officiel */
+  --orange-dark:     #C23600; /* nuance foncée — hover/bordures */
+  --orange-pale:     #FFDCCB; /* nuance très claire — fonds teintés */
+
+  /* Accents tertiaires officiels */
+  --yellow-light:    #EFFD45; /* officiel — texte/mise en avant sur fond sombre */
+  --yellow-lime:     #D8ED2E; /* nuance dérivée — accent hover/actif, distincte du texte */
+  --purple-psycho:   #B486FF; /* officiel — badge "Spécial" */
+  --cyan-neon:       #67FEDB; /* officiel (menthe) — accent tertiaire */
+  --mint:            #67FEDB; /* alias — menthe officielle */
+  --teal:            #039C7B; /* nuance foncée de la menthe — texte sur fond clair */
+  --salmon:          #FFDCCB; /* alias — teinte claire de l'orange (fond doux) */
 
   /* Couleurs sémantiques dérivées */
-  --surface:         #FBFAFF;
-  --surface-low:     #F0EFFF;
-  --surface-mid:     #E3E2FF;
-  --on-surface:      #000964;
+  --surface:         #F6F7FD;
+  --surface-low:     #ECEFFA;
+  --surface-mid:     #DEE3F7;
+  --on-surface:      #12173F;
   --border-heavy:    #1B2789;
-  --border-light:    #C4C5D9;
-  --outline:         #747688;
+  --border-light:    #D2D6EE;
+  --outline:         #6B7094;
 
   /* Statuts vignettes */
-  --status-owned-bg:     #BAEE06;
-  --status-owned-fg:     #025649;
-  --status-missing-bg:   #FBFAFF;
-  --status-missing-fg:   #747688;
+  --status-owned-bg:     #CDF6DE;
+  --status-owned-fg:     #026B3A;
+  --status-missing-bg:   #F6F7FD;
+  --status-missing-fg:   #6B7094;
   --status-dup-bg:       #FE4502;
   --status-dup-fg:       #FFFFFF;
 
@@ -79,13 +97,13 @@
   --section-color-1-bg: var(--blue-electric);
   --section-color-1-fg: #fff;
   --section-color-2-bg: var(--purple-psycho);
-  --section-color-2-fg: #fff;
+  --section-color-2-fg: var(--blue-dark);
   --section-color-3-bg: var(--green-bright);
   --section-color-3-fg: var(--green-deep);
   --section-color-4-bg: var(--orange-vibrant);
   --section-color-4-fg: #fff;
   --section-color-5-bg: var(--cyan-neon);
-  --section-color-5-fg: var(--on-surface);
+  --section-color-5-fg: var(--blue-dark);
 }
 
 /* ───────────────────────────────────────────────────────────────
@@ -146,12 +164,10 @@ body {
   z-index: 100;
 }
 
-/* Décoration géométrique en arrière-plan */
+/* Fond uni — plus de motif de points */
 .header-wave {
   position: absolute;
   inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Crect x='10' y='10' width='4' height='4' fill='%23375AFE' opacity='0.22' rx='1'/%3E%3C/svg%3E");
-  background-size: 24px 24px;
   pointer-events: none;
 }
 
@@ -249,7 +265,7 @@ body {
   font-family: var(--font-body);
   font-size: 9px;
   font-weight: 500;
-  color: rgba(141, 186, 254, 0.4);
+  color: rgba(159, 180, 255, 0.45);
   letter-spacing: 0.07em;
   text-transform: uppercase;
   white-space: nowrap;
@@ -279,9 +295,7 @@ body {
   position: sticky;
   top: 0;
   height: 100vh;
-  /* Motif de fond géométrique */
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Crect x='10' y='10' width='4' height='4' fill='%23375AFE' opacity='0.18' rx='1'/%3E%3C/svg%3E");
-  background-size: 24px 24px;
+  /* Fond uni — plus de motif de points */
 }
 
 .nav-btn {
@@ -673,7 +687,7 @@ body {
 }
 
 .sticker-card[data-type="Spécial"]:hover {
-  box-shadow: 5px 5px 0 var(--purple-psycho), 0 0 20px rgba(97, 1, 233, 0.25);
+  box-shadow: 5px 5px 0 var(--purple-psycho), 0 0 20px rgba(180, 134, 255, 0.35);
 }
 
 /* ──────────────
@@ -1204,7 +1218,7 @@ body {
 .exchange-textarea:focus {
   outline: none;
   border-color: var(--blue-electric);
-  box-shadow: var(--shadow-sm), 0 0 0 3px rgba(55, 90, 254, 0.15);
+  box-shadow: var(--shadow-sm), 0 0 0 3px rgba(54, 89, 255, 0.18);
 }
 
 .echange-results {
@@ -1301,7 +1315,7 @@ body {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,9,100,0.6);
+  background: rgba(18,23,63,0.65);
   z-index: 1000;
   display: flex;
   align-items: center;
