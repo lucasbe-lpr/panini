@@ -1341,7 +1341,7 @@ body {
   font-size: 20px;
   text-transform: uppercase;
   letter-spacing: -0.01em;
-  color: var(--blue-electric);
+  color: var(-surface);
 }
 
 .modal-flag-wrap {
