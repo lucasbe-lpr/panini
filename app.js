@@ -456,27 +456,6 @@ function renderAlbumView() {
 }
 
 /**
- * Nombre de variantes de couleur disponibles pour .section-banner
- * (cf. classes .section-banner--0 à --5 dans styles.css).
- */
-const SECTION_BANNER_COLOR_COUNT = 6;
-
-/**
- * Calcule un index de couleur stable pour une section donnée, afin que
- * la même section affiche toujours la même couleur de bandeau.
- * @param {string} sectionName
- * @returns {number}
- */
-function getSectionBannerColorIndex(sectionName) {
-  let hash = 0;
-  const str = sectionName || '';
-  for (let i = 0; i < str.length; i++) {
-    hash = (hash * 31 + str.charCodeAt(i)) >>> 0;
-  }
-  return hash % SECTION_BANNER_COLOR_COUNT;
-}
-
-/**
  * Construit le bandeau de section en haut de la page d'album.
  * @param {Array} pageStickers - Vignettes de la page courante
  */
@@ -488,17 +467,31 @@ function renderAlbumSectionHeader(pageStickers) {
     return;
   }
 
-  // Récupération des sections uniques sur cette page
-  const sections = [...new Set(pageStickers.map(s => s['Section']))];
-  const firstSection = sections[0];
-  const flagURL = pageStickers[0]?.Drapeau || '';
-  const groupe = pageStickers[0]?.Groupe || '';
-  const colorClass = `section-banner--${getSectionBannerColorIndex(firstSection)}`;
+  const firstSticker = pageStickers[0];
+  const sectionName = firstSticker.Section || '';
+  const groupe = firstSticker.Groupe || '';
+
+  // Déterminer la classe CSS en fonction du groupe ou du nom de la section
+  let sectionClass = '';
+  if (groupe) {
+    sectionClass = `section-group-${groupe.toLowerCase()}`;
+  } else {
+    // Mappage des sections spéciales
+    const overrides = {
+      'Panini': 'section-panini',
+      'Coupe du monde 2026': 'section-coupe-monde',
+      'Pays hôtes': 'section-pays-hotes',
+      'Histoire de la Coupe du monde': 'section-histoire-coupe-monde',
+    };
+    sectionClass = overrides[sectionName] || `section-${sectionName.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}`;
+  }
+
+  const flagURL = firstSticker.Drapeau || '';
 
   container.innerHTML = `
-    <div class="section-banner ${colorClass}">
-      ${flagURL ? `<img src="${escHtml(flagURL)}" alt="${escHtml(firstSection)}" />` : ''}
-      <span>${escHtml(firstSection)}</span>
+    <div class="section-banner ${sectionClass}">
+      ${flagURL ? `<img src="${escHtml(flagURL)}" alt="${escHtml(sectionName)}" />` : ''}
+      <span>${escHtml(sectionName)}</span>
       ${groupe ? `<span style="font-size:12px;opacity:0.7;letter-spacing:0.1em;">Groupe ${escHtml(groupe)}</span>` : ''}
     </div>
   `;
@@ -525,13 +518,12 @@ function buildStickerCard(sticker) {
     ? `<div class="dup-badge" aria-label="${dupCount} doublons">x${dupCount}</div>`
     : '';
 
-  // Couleur de header selon le type
-  const typeColor = sticker.Type === 'Spécial' ? 'var(--purple-psycho)' : '';
-  const typeStyle = typeColor ? `style="background:${typeColor};color:#fff;"` : '';
+  // Classe SPEC / STD
+  const headerClass = sticker.Type === 'Spécial' ? 'special' : 'standard';
 
   article.innerHTML = `
     ${dupBadge}
-    <div class="sticker-header" ${typeStyle}>
+    <div class="sticker-header ${headerClass}">
       <span class="sticker-id">${escHtml(sticker.ID)}</span>
       <span class="sticker-type-badge">${escHtml(sticker.Type === 'Spécial' ? 'SPEC' : 'STD')}</span>
     </div>
