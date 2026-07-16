@@ -477,6 +477,22 @@ function getSectionBannerColorIndex(sectionName) {
 }
 
 /**
+ * Retourne une classe CSS basée sur la section ou le groupe.
+ * @param {string} section - Nom de la section (ex: "Panini")
+ * @param {string} group - Groupe (ex: "A", "B", …)
+ * @returns {string} - Nom de classe normalisé
+ */
+function getSectionClass(section, group) {
+  const specialSections = {
+    'Panini': 'panini',
+    'Histoire de la Coupe du monde': 'histoire-de-la-coupe-du-monde'
+  };
+  if (specialSections[section]) return specialSections[section];
+  if (group) return `groupe-${group.toLowerCase()}`;
+  return 'default';
+}
+
+/**
  * Construit le bandeau de section en haut de la page d'album.
  * @param {Array} pageStickers - Vignettes de la page courante
  */
@@ -493,10 +509,10 @@ function renderAlbumSectionHeader(pageStickers) {
   const firstSection = sections[0];
   const flagURL = pageStickers[0]?.Drapeau || '';
   const groupe = pageStickers[0]?.Groupe || '';
-  const colorClass = `section-banner--${getSectionBannerColorIndex(firstSection)}`;
+  const colorClass = getSectionClass(firstSection, groupe);
 
   container.innerHTML = `
-    <div class="section-banner ${colorClass}">
+    <div class="section-banner section-banner-${colorClass}">
       ${flagURL ? `<img src="${escHtml(flagURL)}" alt="${escHtml(firstSection)}" />` : ''}
       <span>${escHtml(firstSection)}</span>
       ${groupe ? `<span style="font-size:12px;opacity:0.7;letter-spacing:0.1em;">Groupe ${escHtml(groupe)}</span>` : ''}
@@ -519,6 +535,13 @@ function buildStickerCard(sticker) {
   article.setAttribute('aria-label', `${sticker.ID} — ${sticker.Nom} (${statusLabel(status)})`);
   article.dataset.id = sticker.ID;
   article.dataset.type = sticker.Type || '';
+
+  // Ajout de classes pour le type (SPEC / STD)
+  if (sticker.Type === 'Spécial') {
+    article.classList.add('type-special');
+  } else {
+    article.classList.add('type-classic');
+  }
 
   // Badge doublon
   const dupBadge = status === 'duplicate'
@@ -668,9 +691,11 @@ function renderStickerList(container, stickersList, showDupCount = false) {
   Object.entries(grouped).forEach(([code, items]) => {
     const sectionName = items[0]?.Section || code;
     const flagURL     = items[0]?.Drapeau || '';
+    const group       = items[0]?.Groupe || '';
+    const sectionClass = getSectionClass(sectionName, group);
 
     const header = document.createElement('div');
-    header.className = 'list-group-header';
+    header.className = `list-group-header list-group-header-${sectionClass}`;
     header.innerHTML = `
       ${flagURL ? `<img src="${escHtml(flagURL)}" alt="" />` : ''}
       <span>${escHtml(sectionName)}</span>
@@ -1216,8 +1241,8 @@ function hideLoadingSpinner() {
 
 /**
  * Initialise la barre de recherche globale.
- * La barre (#viewSearchBar) vit directement dans les vues (et non plus dans
- * le header) : elle est déplacée d'une vue à l'autre par
+ * La barre (#viewSearchBar) vit directement dans les vues (et non plus
+ * dans le header) : elle est déplacée d'une vue à l'autre par
  * moveSearchBarToView(), appelée au chargement et à chaque switchView().
  * Filtre la vue actuellement affichée en temps réel.
  */
