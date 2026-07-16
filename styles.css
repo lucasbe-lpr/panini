@@ -26,8 +26,8 @@
   --color-owned-text:  #000000;
   --color-missing:     #DC0203;
   --color-missing-text: #FFFFFF;
-  --color-duplicate:   #FE4502;
-  --color-duplicate-text: #FFFFFF;
+  --color-duplicate:   #EFFD45;       /* ← modifié */
+  --color-duplicate-text: #000000;    /* ← modifié */
 
   /* Couleurs de surface */
   --surface:           var(--white);
@@ -67,38 +67,6 @@
   --radius-sm:         4px;
   --radius-md:         8px;
   --radius-full:       9999px;
-
-  /* ─── Couleurs des bandeaux (gris par défaut) ─── */
-  --section-color-0-bg: var(--gray-900);
-  --section-color-0-fg: var(--white);
-  --section-color-1-bg: var(--gray-700);
-  --section-color-1-fg: var(--white);
-  --section-color-2-bg: var(--gray-600);
-  --section-color-2-fg: var(--white);
-  --section-color-3-bg: var(--gray-300);
-  --section-color-3-fg: var(--black);
-  --section-color-4-bg: var(--gray-200);
-  --section-color-4-fg: var(--black);
-  --section-color-5-bg: var(--gray-500);
-  --section-color-5-fg: var(--white);
-
-  /* ─── Couleurs par groupe (personnalisez ici) ─── */
-  --group-a-bg:        #FE4502;
-  --group-a-fg:        #FFFFFF;
-  --group-b-bg:        #3659FF;
-  --group-b-fg:        #FFFFFF;
-  --group-c-bg:        #04CF5C;
-  --group-c-fg:        #000000;
-  --group-d-bg:        #DC0203;
-  --group-d-fg:        #FFFFFF;
-  --group-e-bg:        #B486FF;
-  --group-e-fg:        #000000;
-  --group-f-bg:        #FFD700;
-  --group-f-fg:        #000000;
-  --group-g-bg:        #00CED1;
-  --group-g-fg:        #000000;
-  --group-h-bg:        #FF69B4;
-  --group-h-fg:        #000000;
 }
 
 /* ───────────────────────────────────────────────────────────────
@@ -300,6 +268,7 @@ body {
   text-align: left;
   transition: all 0.15s ease;
   width: 100%;
+  box-shadow: 3px 3px 0 var(--gray-300); /* ← ombre grise */
 }
 
 .nav-btn:hover {
@@ -311,7 +280,7 @@ body {
   background: var(--black);
   color: var(--white);
   border-color: var(--black);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 3px 3px 0 var(--black); /* ombre noire pour l’actif */
   font-weight: 900;
 }
 
@@ -485,47 +454,25 @@ body {
   object-fit: cover;
 }
 
-/* Classes de groupe (personnalisez via :root) */
-.section-banner.group-a {
-  background: var(--group-a-bg);
-  color: var(--group-a-fg);
-}
-.section-banner.group-b {
-  background: var(--group-b-bg);
-  color: var(--group-b-fg);
-}
-.section-banner.group-c {
-  background: var(--group-c-bg);
-  color: var(--group-c-fg);
-}
-.section-banner.group-d {
-  background: var(--group-d-bg);
-  color: var(--group-d-fg);
-}
-.section-banner.group-e {
-  background: var(--group-e-bg);
-  color: var(--group-e-fg);
-}
-.section-banner.group-f {
-  background: var(--group-f-bg);
-  color: var(--group-f-fg);
-}
-.section-banner.group-g {
-  background: var(--group-g-bg);
-  color: var(--group-g-fg);
-}
-.section-banner.group-h {
-  background: var(--group-h-bg);
-  color: var(--group-h-fg);
-}
+/* Couleurs des bandeaux par groupe — demandées */
+.section-group-a   { background: #04E376; color: #000; }
+.section-group-b   { background: #FD1545; color: #fff; }
+.section-group-c   { background: #FD9403; color: #000; }
+.section-group-d   { background: #3954FB; color: #fff; }
+.section-group-e   { background: #6200EB; color: #fff; }
+.section-group-f   { background: #B8E703; color: #000; }
+.section-group-g   { background: #ED6394; color: #000; }
+.section-group-h   { background: #65FFDD; color: #000; }
+.section-group-i   { background: #AB47BB; color: #fff; }
+.section-group-j   { background: #317286; color: #fff; }
+.section-group-k   { background: #FF3C04; color: #fff; }
+.section-group-l   { background: #49B7EC; color: #000; }
 
-/* Fallback pour les numéros de section (conservé pour compatibilité) */
-.section-banner--0 { background: var(--section-color-0-bg); color: var(--section-color-0-fg); }
-.section-banner--1 { background: var(--section-color-1-bg); color: var(--section-color-1-fg); }
-.section-banner--2 { background: var(--section-color-2-bg); color: var(--section-color-2-fg); }
-.section-banner--3 { background: var(--section-color-3-bg); color: var(--section-color-3-fg); }
-.section-banner--4 { background: var(--section-color-4-bg); color: var(--section-color-4-fg); }
-.section-banner--5 { background: var(--section-color-5-bg); color: var(--section-color-5-fg); }
+/* Sections spéciales */
+.section-panini                    { background: #F9F500; color: #000; }
+.section-coupe-monde               { background: #093697; color: #fff; }
+.section-pays-hotes                { background: #093697; color: #fff; }
+.section-histoire-coupe-monde      { background: #093697; color: #fff; }
 
 /* ───────────────────────────────────────────────────────────────
    9. GRILLE DE VIGNETTES
@@ -568,8 +515,16 @@ body {
   padding: 4px 6px;
   border-bottom: 2px solid var(--black);
   flex-shrink: 0;
-  background: var(--white);
-  color: var(--black);
+}
+
+/* ─── SPEC / STD — demandé ─── */
+.sticker-header.special {
+  background: #000000;
+  color: #ffffff;
+}
+.sticker-header.standard {
+  background: #ffffff;
+  color: #000000;
 }
 
 .sticker-id {
@@ -1272,7 +1227,7 @@ body {
 
 .stat-bar-fill {
   height: 100%;
-  background: var(--black);
+  background: linear-gradient(to right, #DC0203, #04CF5C); /* ← dégradé demandé */
   transition: width 0.4s ease;
 }
 
@@ -1830,8 +1785,8 @@ body {
 }
 
 .booster-header {
-  background: var(--black) !important;
-  color: var(--white) !important;
+  background: var(--white) !important; /* ← modifié */
+  color: var(--black) !important;     /* ← modifié */
 }
 
 .booster-body {
