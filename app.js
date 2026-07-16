@@ -456,6 +456,28 @@ function renderAlbumView() {
 }
 
 /**
+ * Détermine la classe CSS à appliquer à un bandeau ou à un en-tête de liste
+ * en fonction du groupe ou du nom de la section.
+ * @param {string} sectionName - Nom de la section
+ * @param {string} groupe - Groupe (A, B, C, ...)
+ * @returns {string} Classe CSS (ex: 'group-a', 'panini', 'histoire')
+ */
+function getSectionBannerClass(sectionName, groupe) {
+  // Si un groupe est fourni, on l'utilise en priorité (A, B, C, …)
+  if (groupe) {
+    return `group-${groupe.toLowerCase()}`;
+  }
+
+  // Cas spéciaux par nom de section
+  const special = sectionName?.trim() || '';
+  if (special === 'Panini') return 'panini';
+  if (special === 'Histoire de la Coupe du monde') return 'histoire';
+
+  // Fallback : classe vide => fond gris par défaut
+  return '';
+}
+
+/**
  * Construit le bandeau de section en haut de la page d'album.
  * @param {Array} pageStickers - Vignettes de la page courante
  */
@@ -467,31 +489,17 @@ function renderAlbumSectionHeader(pageStickers) {
     return;
   }
 
-  const firstSticker = pageStickers[0];
-  const sectionName = firstSticker.Section || '';
-  const groupe = firstSticker.Groupe || '';
+  const first = pageStickers[0];
+  const section = first.Section || '';
+  const groupe = first.Groupe || '';
+  const flagURL = first.Drapeau || '';
 
-  // Déterminer la classe CSS en fonction du groupe ou du nom de la section
-  let sectionClass = '';
-  if (groupe) {
-    sectionClass = `section-group-${groupe.toLowerCase()}`;
-  } else {
-    // Mappage des sections spéciales
-    const overrides = {
-      'Panini': 'section-panini',
-      'Coupe du monde 2026': 'section-coupe-monde',
-      'Pays hôtes': 'section-pays-hotes',
-      'Histoire de la Coupe du monde': 'section-histoire-coupe-monde',
-    };
-    sectionClass = overrides[sectionName] || `section-${sectionName.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}`;
-  }
-
-  const flagURL = firstSticker.Drapeau || '';
+  const bannerClass = getSectionBannerClass(section, groupe);
 
   container.innerHTML = `
-    <div class="section-banner ${sectionClass}">
-      ${flagURL ? `<img src="${escHtml(flagURL)}" alt="${escHtml(sectionName)}" />` : ''}
-      <span>${escHtml(sectionName)}</span>
+    <div class="section-banner ${bannerClass}">
+      ${flagURL ? `<img src="${escHtml(flagURL)}" alt="${escHtml(section)}" />` : ''}
+      <span>${escHtml(section)}</span>
       ${groupe ? `<span style="font-size:12px;opacity:0.7;letter-spacing:0.1em;">Groupe ${escHtml(groupe)}</span>` : ''}
     </div>
   `;
@@ -518,12 +526,9 @@ function buildStickerCard(sticker) {
     ? `<div class="dup-badge" aria-label="${dupCount} doublons">x${dupCount}</div>`
     : '';
 
-  // Classe SPEC / STD
-  const headerClass = sticker.Type === 'Spécial' ? 'special' : 'standard';
-
   article.innerHTML = `
     ${dupBadge}
-    <div class="sticker-header ${headerClass}">
+    <div class="sticker-header">
       <span class="sticker-id">${escHtml(sticker.ID)}</span>
       <span class="sticker-type-badge">${escHtml(sticker.Type === 'Spécial' ? 'SPEC' : 'STD')}</span>
     </div>
@@ -660,9 +665,13 @@ function renderStickerList(container, stickersList, showDupCount = false) {
   Object.entries(grouped).forEach(([code, items]) => {
     const sectionName = items[0]?.Section || code;
     const flagURL     = items[0]?.Drapeau || '';
+    const groupe      = items[0]?.Groupe || '';
+
+    // Déterminer la classe de groupe pour l'en-tête de la liste
+    const headerClass = getSectionBannerClass(sectionName, groupe);
 
     const header = document.createElement('div');
-    header.className = 'list-group-header';
+    header.className = `list-group-header ${headerClass}`;
     header.innerHTML = `
       ${flagURL ? `<img src="${escHtml(flagURL)}" alt="" />` : ''}
       <span>${escHtml(sectionName)}</span>
@@ -861,7 +870,6 @@ function renderStatsBars() {
     const total  = data.stickers.length;
     const ok     = data.stickers.filter(s => getStatus(s.ID) !== 'missing').length;
     const pct    = Math.round((ok / total) * 100);
-    const fillClass = pct === 100 ? 'full' : pct < 20 ? 'low' : '';
 
     const row = document.createElement('div');
     row.className = 'stat-bar-row';
@@ -871,7 +879,7 @@ function renderStatsBars() {
         <span title="${escHtml(data.section)}">${escHtml(data.section)}</span>
       </div>
       <div class="stat-bar-track">
-        <div class="stat-bar-fill ${fillClass}" style="width:${pct}%"></div>
+        <div class="stat-bar-fill" style="width:${pct}%"></div>
       </div>
       <div class="stat-bar-pct">${pct}%</div>
     `;
@@ -1208,8 +1216,8 @@ function hideLoadingSpinner() {
 
 /**
  * Initialise la barre de recherche globale.
- * La barre (#viewSearchBar) vit directement dans les vues (et non plus dans
- * le header) : elle est déplacée d'une vue à l'autre par
+ * La barre (#viewSearchBar) vit directement dans les vues (et non plus
+ * dans le header) : elle est déplacée d'une vue à l'autre par
  * moveSearchBarToView(), appelée au chargement et à chaque switchView().
  * Filtre la vue actuellement affichée en temps réel.
  */
