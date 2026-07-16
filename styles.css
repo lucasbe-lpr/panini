@@ -26,8 +26,8 @@
   --color-owned-text:  #000000;
   --color-missing:     #DC0203;
   --color-missing-text: #FFFFFF;
-  --color-duplicate:   #EFFD45;       /* ← modifié */
-  --color-duplicate-text: #000000;    /* ← modifié */
+  --color-duplicate:   #3659FF;   /* remplacé #FE4502 */
+  --color-duplicate-text: #FFFFFF;
 
   /* Couleurs de surface */
   --surface:           var(--white);
@@ -67,6 +67,38 @@
   --radius-sm:         4px;
   --radius-md:         8px;
   --radius-full:       9999px;
+
+  /* ─── Couleurs des groupes (spécifiques) ─── */
+  --group-panini-bg:   #F9F500;
+  --group-panini-fg:   #000000;
+
+  --group-a-bg:        #04E376;
+  --group-a-fg:        #000000;
+  --group-b-bg:        #FD1545;
+  --group-b-fg:        #FFFFFF;
+  --group-c-bg:        #FD9403;
+  --group-c-fg:        #000000;
+  --group-d-bg:        #3954FB;
+  --group-d-fg:        #FFFFFF;
+  --group-e-bg:        #6200EB;
+  --group-e-fg:        #FFFFFF;
+  --group-f-bg:        #B8E703;
+  --group-f-fg:        #000000;
+  --group-g-bg:        #ED6394;
+  --group-g-fg:        #000000;
+  --group-h-bg:        #65FFDD;
+  --group-h-fg:        #000000;
+  --group-i-bg:        #AB47BB;
+  --group-i-fg:        #FFFFFF;
+  --group-j-bg:        #317286;
+  --group-j-fg:        #FFFFFF;
+  --group-k-bg:        #FF3C04;
+  --group-k-fg:        #FFFFFF;
+  --group-l-bg:        #49B7EC;
+  --group-l-fg:        #000000;
+
+  --group-histoire-bg: #093697;
+  --group-histoire-fg: #FFFFFF;
 }
 
 /* ───────────────────────────────────────────────────────────────
@@ -268,7 +300,6 @@ body {
   text-align: left;
   transition: all 0.15s ease;
   width: 100%;
-  box-shadow: 3px 3px 0 var(--gray-300); /* ← ombre grise */
 }
 
 .nav-btn:hover {
@@ -280,7 +311,7 @@ body {
   background: var(--black);
   color: var(--white);
   border-color: var(--black);
-  box-shadow: 3px 3px 0 var(--black); /* ombre noire pour l’actif */
+  box-shadow: var(--shadow-sm);
   font-weight: 900;
 }
 
@@ -454,25 +485,77 @@ body {
   object-fit: cover;
 }
 
-/* Couleurs des bandeaux par groupe — demandées */
-.section-group-a   { background: #04E376; color: #000; }
-.section-group-b   { background: #FD1545; color: #fff; }
-.section-group-c   { background: #FD9403; color: #000; }
-.section-group-d   { background: #3954FB; color: #fff; }
-.section-group-e   { background: #6200EB; color: #fff; }
-.section-group-f   { background: #B8E703; color: #000; }
-.section-group-g   { background: #ED6394; color: #000; }
-.section-group-h   { background: #65FFDD; color: #000; }
-.section-group-i   { background: #AB47BB; color: #fff; }
-.section-group-j   { background: #317286; color: #fff; }
-.section-group-k   { background: #FF3C04; color: #fff; }
-.section-group-l   { background: #49B7EC; color: #000; }
-
-/* Sections spéciales */
-.section-panini                    { background: #F9F500; color: #000; }
-.section-coupe-monde               { background: #093697; color: #fff; }
-.section-pays-hotes                { background: #093697; color: #fff; }
-.section-histoire-coupe-monde      { background: #093697; color: #fff; }
+/* Couleurs spécifiques par groupe (appliquées dynamiquement) */
+.section-banner.panini,
+.list-group-header.panini {
+  background: var(--group-panini-bg);
+  color: var(--group-panini-fg);
+}
+.section-banner.group-a,
+.list-group-header.group-a {
+  background: var(--group-a-bg);
+  color: var(--group-a-fg);
+}
+.section-banner.group-b,
+.list-group-header.group-b {
+  background: var(--group-b-bg);
+  color: var(--group-b-fg);
+}
+.section-banner.group-c,
+.list-group-header.group-c {
+  background: var(--group-c-bg);
+  color: var(--group-c-fg);
+}
+.section-banner.group-d,
+.list-group-header.group-d {
+  background: var(--group-d-bg);
+  color: var(--group-d-fg);
+}
+.section-banner.group-e,
+.list-group-header.group-e {
+  background: var(--group-e-bg);
+  color: var(--group-e-fg);
+}
+.section-banner.group-f,
+.list-group-header.group-f {
+  background: var(--group-f-bg);
+  color: var(--group-f-fg);
+}
+.section-banner.group-g,
+.list-group-header.group-g {
+  background: var(--group-g-bg);
+  color: var(--group-g-fg);
+}
+.section-banner.group-h,
+.list-group-header.group-h {
+  background: var(--group-h-bg);
+  color: var(--group-h-fg);
+}
+.section-banner.group-i,
+.list-group-header.group-i {
+  background: var(--group-i-bg);
+  color: var(--group-i-fg);
+}
+.section-banner.group-j,
+.list-group-header.group-j {
+  background: var(--group-j-bg);
+  color: var(--group-j-fg);
+}
+.section-banner.group-k,
+.list-group-header.group-k {
+  background: var(--group-k-bg);
+  color: var(--group-k-fg);
+}
+.section-banner.group-l,
+.list-group-header.group-l {
+  background: var(--group-l-bg);
+  color: var(--group-l-fg);
+}
+.section-banner.histoire,
+.list-group-header.histoire {
+  background: var(--group-histoire-bg);
+  color: var(--group-histoire-fg);
+}
 
 /* ───────────────────────────────────────────────────────────────
    9. GRILLE DE VIGNETTES
@@ -515,16 +598,8 @@ body {
   padding: 4px 6px;
   border-bottom: 2px solid var(--black);
   flex-shrink: 0;
-}
-
-/* ─── SPEC / STD — demandé ─── */
-.sticker-header.special {
-  background: #000000;
-  color: #ffffff;
-}
-.sticker-header.standard {
-  background: #ffffff;
-  color: #000000;
+  background: var(--white);
+  color: var(--black);
 }
 
 .sticker-id {
@@ -538,7 +613,29 @@ body {
 }
 
 .sticker-type-badge {
-  display: none;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  border: 1.5px solid var(--black);
+  border-radius: var(--radius-sm);
+  padding: 1px 5px;
+  text-transform: uppercase;
+  display: inline-block; /* on l'affiche */
+}
+
+/* SPEC : fond noir, texte blanc */
+.sticker-card[data-type="Spécial"] .sticker-type-badge {
+  background: #000000;
+  color: #FFFFFF;
+  border-color: #000000;
+}
+
+/* STD : fond blanc, texte noir */
+.sticker-card[data-type="Classique"] .sticker-type-badge {
+  background: #FFFFFF;
+  color: #000000;
+  border-color: var(--gray-300);
 }
 
 .sticker-flag-wrap {
@@ -806,6 +903,16 @@ body {
   box-shadow: var(--shadow-md);
 }
 
+/* Bouton Booster : blanc pour se distinguer du modal header noir */
+#fabBooster {
+  background: var(--white);
+  color: var(--black);
+  border-color: var(--white);
+}
+#fabBooster:hover {
+  background: var(--gray-100);
+}
+
 /* ───────────────────────────────────────────────────────────────
    11. FILTRES ET SÉLECTEURS
    ─────────────────────────────────────────────────────────────── */
@@ -1043,16 +1150,17 @@ body {
   align-items: center;
   gap: var(--sp-xs);
   padding: 6px 10px;
-  background: var(--gray-100);
-  border: 2px solid var(--gray-300);
+  border: 2px solid var(--black);
   border-radius: var(--radius-sm);
   margin-top: var(--sp-xs);
   font-family: var(--font-display);
   font-weight: 900;
   font-size: 13px;
-  color: var(--black);
   text-transform: uppercase;
   letter-spacing: 0.04em;
+  /* Les couleurs sont appliquées dynamiquement via les classes .group-* */
+  background: var(--gray-100);
+  color: var(--black);
 }
 
 .list-group-header img {
@@ -1227,12 +1335,9 @@ body {
 
 .stat-bar-fill {
   height: 100%;
-  background: linear-gradient(to right, #DC0203, #04CF5C); /* ← dégradé demandé */
+  background: linear-gradient(to right, var(--color-missing), var(--color-owned));
   transition: width 0.4s ease;
 }
-
-.stat-bar-fill.full { background: var(--color-owned); }
-.stat-bar-fill.low  { background: var(--color-missing); }
 
 .stat-bar-pct {
   font-family: var(--font-display);
@@ -1511,7 +1616,7 @@ body {
   font-family: var(--font-display);
   font-weight: 900;
   font-size: 36px;
-  color: var(--color-duplicate);
+  color: #000000;  /* noir */
   line-height: 1;
   min-width: 48px;
   text-align: center;
@@ -1785,8 +1890,8 @@ body {
 }
 
 .booster-header {
-  background: var(--white) !important; /* ← modifié */
-  color: var(--black) !important;     /* ← modifié */
+  background: var(--black) !important;
+  color: var(--white) !important;
 }
 
 .booster-body {
