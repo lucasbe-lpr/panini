@@ -26,7 +26,7 @@
   --color-owned-text:  #000000;
   --color-missing:     #DC0203;
   --color-missing-text: #FFFFFF;
-  --color-duplicate:   #3659FF;   /* remplacé #FE4502 */
+  --color-duplicate:   #3659FF;   /* remplacé FE4502 */
   --color-duplicate-text: #FFFFFF;
 
   /* Couleurs de surface */
@@ -610,32 +610,6 @@ body {
   color: inherit;
   text-transform: uppercase;
   letter-spacing: -0.01em;
-}
-
-.sticker-type-badge {
-  font-family: var(--font-body);
-  font-weight: 700;
-  font-size: 9px;
-  letter-spacing: 0.06em;
-  border: 1.5px solid var(--black);
-  border-radius: var(--radius-sm);
-  padding: 1px 5px;
-  text-transform: uppercase;
-  display: inline-block; /* on l'affiche */
-}
-
-/* SPEC : fond noir, texte blanc */
-.sticker-card[data-type="Spécial"] .sticker-type-badge {
-  background: #000000;
-  color: #FFFFFF;
-  border-color: #000000;
-}
-
-/* STD : fond blanc, texte noir */
-.sticker-card[data-type="Classique"] .sticker-type-badge {
-  background: #FFFFFF;
-  color: #000000;
-  border-color: var(--gray-300);
 }
 
 .sticker-flag-wrap {
@@ -1760,11 +1734,6 @@ body {
 
   .sticker-id {
     font-size: 11px;
-  }
-
-  .sticker-type-badge {
-    font-size: 8px;
-    padding: 1px 3px;
   }
 
   .echanges-layout {
