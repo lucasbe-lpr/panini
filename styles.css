@@ -26,7 +26,7 @@
   --color-owned-text:  #000000;
   --color-missing:     #DC0203;
   --color-missing-text: #FFFFFF;
-  --color-duplicate:   #FE4502;
+  --color-duplicate:   #3659FF;   /* modifié */
   --color-duplicate-text: #FFFFFF;
 
   /* Couleurs de surface */
@@ -485,7 +485,24 @@ body {
   object-fit: cover;
 }
 
-/* Classes de groupe (personnalisez via :root) */
+/* --- Classes de bandeaux personnalisées --- */
+.section-banner-panini { background: #F9F500; color: #000000; }
+.section-banner-groupe-a { background: #04E376; color: #000000; }
+.section-banner-groupe-b { background: #FD1545; color: #ffffff; }
+.section-banner-groupe-c { background: #FD9403; color: #000000; }
+.section-banner-groupe-d { background: #3954FB; color: #ffffff; }
+.section-banner-groupe-e { background: #6200EB; color: #ffffff; }
+.section-banner-groupe-f { background: #B8E703; color: #000000; }
+.section-banner-groupe-g { background: #ED6394; color: #000000; }
+.section-banner-groupe-h { background: #65FFDD; color: #000000; }
+.section-banner-groupe-i { background: #AB47BB; color: #ffffff; }
+.section-banner-groupe-j { background: #317286; color: #ffffff; }
+.section-banner-groupe-k { background: #FF3C04; color: #ffffff; }
+.section-banner-groupe-l { background: #49B7EC; color: #000000; }
+.section-banner-histoire-de-la-coupe-du-monde { background: #093697; color: #ffffff; }
+.section-banner-default { background: var(--gray-900); color: var(--white); }
+
+/* Classes de groupe (pour compatibilité avec les anciennes règles) */
 .section-banner.group-a {
   background: var(--group-a-bg);
   color: var(--group-a-fg);
@@ -568,8 +585,8 @@ body {
   padding: 4px 6px;
   border-bottom: 2px solid var(--black);
   flex-shrink: 0;
-  background: var(--white);
-  color: var(--black);
+  background: #000000; /* par défaut noir */
+  color: #ffffff;
 }
 
 .sticker-id {
@@ -700,6 +717,32 @@ body {
 
 .sticker-card[data-type="Spécial"]:hover {
   box-shadow: 5px 5px 0 var(--gray-700), 0 0 15px rgba(0,0,0,0.15);
+}
+
+/* ──────────────
+   TYPE SPÉCIAL / CLASSIQUE (fond du header)
+   ────────────── */
+.sticker-card.type-special .sticker-header {
+  background: #000000 !important;
+  color: #ffffff !important;
+}
+.sticker-card.type-classic .sticker-header {
+  background: #ffffff !important;
+  color: #000000 !important;
+}
+
+/* Les statuts (owned, missing, duplicate) surchargent ces couleurs */
+.sticker-card.owned .sticker-header {
+  background: var(--status-owned-bg) !important;
+  color: var(--status-owned-fg) !important;
+}
+.sticker-card.missing .sticker-header {
+  background: var(--status-missing-bg) !important;
+  color: var(--status-missing-fg) !important;
+}
+.sticker-card.duplicate .sticker-header {
+  background: var(--status-dup-bg) !important;
+  color: var(--status-dup-fg) !important;
 }
 
 /* ──────────────
@@ -1083,19 +1126,34 @@ body {
   flex-shrink: 0;
 }
 
+/* --- Classes pour les entêtes de groupe dans les listes --- */
+.list-group-header-panini { background: #F9F500; color: #000000; }
+.list-group-header-groupe-a { background: #04E376; color: #000000; }
+.list-group-header-groupe-b { background: #FD1545; color: #ffffff; }
+.list-group-header-groupe-c { background: #FD9403; color: #000000; }
+.list-group-header-groupe-d { background: #3954FB; color: #ffffff; }
+.list-group-header-groupe-e { background: #6200EB; color: #ffffff; }
+.list-group-header-groupe-f { background: #B8E703; color: #000000; }
+.list-group-header-groupe-g { background: #ED6394; color: #000000; }
+.list-group-header-groupe-h { background: #65FFDD; color: #000000; }
+.list-group-header-groupe-i { background: #AB47BB; color: #ffffff; }
+.list-group-header-groupe-j { background: #317286; color: #ffffff; }
+.list-group-header-groupe-k { background: #FF3C04; color: #ffffff; }
+.list-group-header-groupe-l { background: #49B7EC; color: #000000; }
+.list-group-header-histoire-de-la-coupe-du-monde { background: #093697; color: #ffffff; }
+.list-group-header-default { background: var(--gray-900); color: var(--white); }
+
 .list-group-header {
   display: flex;
   align-items: center;
   gap: var(--sp-xs);
   padding: 6px 10px;
-  background: var(--gray-100);
-  border: 2px solid var(--gray-300);
+  border: 2px solid var(--black);
   border-radius: var(--radius-sm);
   margin-top: var(--sp-xs);
   font-family: var(--font-display);
   font-weight: 900;
   font-size: 13px;
-  color: var(--black);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -1272,7 +1330,7 @@ body {
 
 .stat-bar-fill {
   height: 100%;
-  background: var(--black);
+  background: linear-gradient(to right, #DC0203 0%, #FFA500 40%, #04CF5C 100%);
   transition: width 0.4s ease;
 }
 
@@ -1556,7 +1614,7 @@ body {
   font-family: var(--font-display);
   font-weight: 900;
   font-size: 36px;
-  color: var(--color-duplicate);
+  color: #000000;
   line-height: 1;
   min-width: 48px;
   text-align: center;
@@ -1813,6 +1871,9 @@ body {
   .header-inner {
     gap: var(--sp-sm);
     padding: 0 var(--sp-sm);
+  }
+  .header-actions .btn {
+    margin-left: 4px;
   }
 }
 
