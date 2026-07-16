@@ -448,7 +448,7 @@ body {
   width: 12px;
   height: 12px;
   border-radius: var(--radius-sm);
-  border: 2px solid var(--black);
+  border: 2px solid var(--gray-300);
 }
 
 .legend-owned .legend-dot { background: var(--color-owned); }
