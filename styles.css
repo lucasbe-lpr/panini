@@ -49,6 +49,7 @@
 
   /* Ombres */
   --shadow-sm:         3px 3px 0 var(--black);
+  --shadow-sm-gray:    3px 3px 0 var(--gray-300);
   --shadow-md:         5px 5px 0 var(--black);
   --shadow-lg:         8px 8px 0 var(--black);
 
@@ -311,7 +312,7 @@ body {
   background: var(--black);
   color: var(--white);
   border-color: var(--white);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-sm-gray);
   font-weight: 900;
 }
 
