@@ -763,7 +763,7 @@ body {
 
 /* Manquante */
 .sticker-card.missing {
-  opacity: 0.6;
+  opacity: 1;
   border-style: dashed;
   border-color: var(--gray-300);
   box-shadow: none;
