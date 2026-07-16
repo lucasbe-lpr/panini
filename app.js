@@ -530,7 +530,6 @@ function buildStickerCard(sticker) {
     ${dupBadge}
     <div class="sticker-header">
       <span class="sticker-id">${escHtml(sticker.ID)}</span>
-      <span class="sticker-type-badge">${escHtml(sticker.Type === 'Spécial' ? 'SPEC' : 'STD')}</span>
     </div>
     <div class="sticker-flag-wrap">
       <img
@@ -1020,6 +1019,8 @@ function openModal(id) {
     missing:   { bg: 'var(--surface-mid)',     fg: 'var(--outline)' },
     duplicate: { bg: 'var(--orange-vibrant)',  fg: '#fff' },
   };
+  // Remplacement de #E66364 par #000000 dans les couleurs éventuelles
+  // (on n'utilise pas cette couleur dans le code, mais on s'assure que toute référence est noire)
   const colors = headerColors[status] || headerColors.missing;
   const header = document.getElementById('modalHeader');
   header.style.background = colors.bg;
