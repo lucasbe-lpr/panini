@@ -65,6 +65,7 @@
   --header-height:     72px;
   --mobile-nav-height: 64px;
   --content-max:       1440px;
+  --radius-vsm:        2px;
   --radius-sm:         4px;
   --radius-md:         8px;
   --radius-full:       9999px;
@@ -447,7 +448,7 @@ body {
 .legend-dot {
   width: 12px;
   height: 12px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-vsm);
   border: 2px solid var(--gray-300);
 }
 
