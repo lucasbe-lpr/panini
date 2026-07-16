@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════
-   PANINI WC 2026 — STYLES (Monochrome)
-   Noir, Blanc & Gris — Élégance minimaliste
+   PANINI WC 2026 — STYLES COMPLETS
+   Noir, Blanc & Gris — avec touches de vert, rouge, orange
    ═══════════════════════════════════════════════════════════════ */
 
 /* ───────────────────────────────────────────────────────────────
@@ -8,7 +8,7 @@
    ─────────────────────────────────────────────────────────────── */
 :root {
   /* ─── Palette monochrome ─── */
-  --black:             #0B0B0B;  /* Presque noir pour un contraste fort */
+  --black:             #0B0B0B;
   --white:             #FFFFFF;
   --gray-900:          #1A1A1A;
   --gray-800:          #2B2B2B;
@@ -21,25 +21,33 @@
   --gray-100:          #E8E8E8;
   --gray-50:           #F5F5F5;
 
+  /* ─── Couleurs des statuts ─── */
+  --color-owned:       #04CF5C;
+  --color-owned-text:  #000000;
+  --color-missing:     #DC0203;
+  --color-missing-text: #FFFFFF;
+  --color-duplicate:   #FE4502;
+  --color-duplicate-text: #FFFFFF;
+
   /* Couleurs de surface */
   --surface:           var(--white);
   --surface-low:       var(--gray-50);
   --surface-mid:       var(--gray-100);
   --on-surface:        var(--black);
 
-  /* Statuts sémantiques (gris différenciés) */
-  --status-owned-bg:   var(--gray-100);
-  --status-owned-fg:   var(--gray-900);
-  --status-missing-bg: var(--gray-50);
-  --status-missing-fg: var(--gray-500);
-  --status-dup-bg:     var(--gray-700);
-  --status-dup-fg:     var(--white);
+  /* Statuts sémantiques */
+  --status-owned-bg:   var(--color-owned);
+  --status-owned-fg:   var(--color-owned-text);
+  --status-missing-bg: var(--color-missing);
+  --status-missing-fg: var(--color-missing-text);
+  --status-dup-bg:     var(--color-duplicate);
+  --status-dup-fg:     var(--color-duplicate-text);
 
   /* Typographie */
   --font-display:      'Anybody', sans-serif;
   --font-body:         'Hanken Grotesk', sans-serif;
 
-  /* Ombres (toujours avec le noir) */
+  /* Ombres */
   --shadow-sm:         3px 3px 0 var(--black);
   --shadow-md:         5px 5px 0 var(--black);
   --shadow-lg:         8px 8px 0 var(--black);
@@ -60,7 +68,7 @@
   --radius-md:         8px;
   --radius-full:       9999px;
 
-  /* ─── Couleurs des bandeaux (niveaux de gris) ─── */
+  /* ─── Couleurs des bandeaux (gris par défaut) ─── */
   --section-color-0-bg: var(--gray-900);
   --section-color-0-fg: var(--white);
   --section-color-1-bg: var(--gray-700);
@@ -73,6 +81,24 @@
   --section-color-4-fg: var(--black);
   --section-color-5-bg: var(--gray-500);
   --section-color-5-fg: var(--white);
+
+  /* ─── Couleurs par groupe (personnalisez ici) ─── */
+  --group-a-bg:        #FE4502;
+  --group-a-fg:        #FFFFFF;
+  --group-b-bg:        #3659FF;
+  --group-b-fg:        #FFFFFF;
+  --group-c-bg:        #04CF5C;
+  --group-c-fg:        #000000;
+  --group-d-bg:        #DC0203;
+  --group-d-fg:        #FFFFFF;
+  --group-e-bg:        #B486FF;
+  --group-e-fg:        #000000;
+  --group-f-bg:        #FFD700;
+  --group-f-fg:        #000000;
+  --group-g-bg:        #00CED1;
+  --group-g-fg:        #000000;
+  --group-h-bg:        #FF69B4;
+  --group-h-fg:        #000000;
 }
 
 /* ───────────────────────────────────────────────────────────────
@@ -424,11 +450,11 @@ body {
   border: 2px solid var(--black);
 }
 
-.legend-owned .legend-dot { background: var(--gray-600); }
-.legend-missing .legend-dot { background: var(--white); }
-.legend-duplicate .legend-dot { background: var(--gray-900); }
+.legend-owned .legend-dot { background: var(--color-owned); }
+.legend-missing .legend-dot { background: var(--color-missing); }
+.legend-duplicate .legend-dot { background: var(--color-duplicate); }
 
-/* En-tête de section de la page courante */
+/* ─── En-tête de section avec couleurs par groupe ─── */
 .album-section-header {
   margin-bottom: var(--sp-sm);
   min-height: 40px;
@@ -459,6 +485,41 @@ body {
   object-fit: cover;
 }
 
+/* Classes de groupe (personnalisez via :root) */
+.section-banner.group-a {
+  background: var(--group-a-bg);
+  color: var(--group-a-fg);
+}
+.section-banner.group-b {
+  background: var(--group-b-bg);
+  color: var(--group-b-fg);
+}
+.section-banner.group-c {
+  background: var(--group-c-bg);
+  color: var(--group-c-fg);
+}
+.section-banner.group-d {
+  background: var(--group-d-bg);
+  color: var(--group-d-fg);
+}
+.section-banner.group-e {
+  background: var(--group-e-bg);
+  color: var(--group-e-fg);
+}
+.section-banner.group-f {
+  background: var(--group-f-bg);
+  color: var(--group-f-fg);
+}
+.section-banner.group-g {
+  background: var(--group-g-bg);
+  color: var(--group-g-fg);
+}
+.section-banner.group-h {
+  background: var(--group-h-bg);
+  color: var(--group-h-fg);
+}
+
+/* Fallback pour les numéros de section (conservé pour compatibilité) */
 .section-banner--0 { background: var(--section-color-0-bg); color: var(--section-color-0-fg); }
 .section-banner--1 { background: var(--section-color-1-bg); color: var(--section-color-1-fg); }
 .section-banner--2 { background: var(--section-color-2-bg); color: var(--section-color-2-fg); }
@@ -475,9 +536,7 @@ body {
   gap: 12px;
 }
 
-/* ────────────────────────────
-   Carte vignette individuelle
-   ──────────────────────────── */
+/* Carte vignette individuelle */
 .sticker-card {
   position: relative;
   display: flex;
@@ -509,7 +568,7 @@ body {
   padding: 4px 6px;
   border-bottom: 2px solid var(--black);
   flex-shrink: 0;
-  background: var(--gray-100);
+  background: var(--white);
   color: var(--black);
 }
 
@@ -582,9 +641,9 @@ body {
   right: -6px;
   width: 32px;
   height: 32px;
-  background: var(--black);
-  color: var(--white);
-  border: 3px solid var(--white);
+  background: var(--color-duplicate);
+  color: var(--color-duplicate-text);
+  border: 3px solid var(--black);
   border-radius: var(--radius-full);
   display: flex;
   align-items: center;
@@ -602,7 +661,7 @@ body {
   transform: rotate(0deg);
 }
 
-/* Effet holographique — vignettes Spécial (inspiré du noir & blanc) */
+/* Effet holographique — vignettes Spécial */
 @keyframes holo-shift {
   0%   { background-position: 0% 50%; }
   50%  { background-position: 100% 50%; }
@@ -647,34 +706,30 @@ body {
    ÉTATS VISUELS
    ────────────── */
 
-/* Possédée (fond grisé) */
+/* Possédée */
 .sticker-card.owned .sticker-header {
-  background: var(--gray-300);
-  color: var(--black);
+  background: var(--color-owned);
+  color: var(--color-owned-text);
 }
-
 .sticker-card.owned .sticker-footer {
   background: var(--white);
 }
-
 .sticker-card.owned .sticker-name {
   color: var(--black);
 }
 
-/* Manquante (Clean & transparent) */
+/* Manquante */
 .sticker-card.missing {
   opacity: 0.6;
   border-style: dashed;
   border-color: var(--gray-300);
   box-shadow: none;
 }
-
 .sticker-card.missing .sticker-header {
-  background: var(--gray-50);
-  color: var(--gray-500);
-  border-bottom: 2px dashed var(--gray-300);
+  background: var(--color-missing);
+  color: var(--color-missing-text);
+  border-bottom: 2px solid var(--black);
 }
-
 .sticker-card.missing .sticker-flag-wrap {
   background-image: repeating-linear-gradient(
     45deg,
@@ -684,37 +739,31 @@ body {
     var(--gray-100) 5px
   );
   background-color: var(--gray-50);
-  border-bottom: 2px dashed var(--gray-300);
+  border-bottom: 2px solid var(--black);
 }
-
 .sticker-card.missing .sticker-flag {
   opacity: 0.15;
   filter: grayscale(1);
 }
-
 .sticker-card.missing .sticker-name {
   color: var(--gray-500);
 }
-
 .sticker-card.missing .sticker-footer {
   background: var(--gray-50);
 }
 
-/* Doublon (fond noir, texte blanc) */
+/* Doublon */
 .sticker-card.duplicate {
-  border-color: var(--black);
+  border-color: var(--color-duplicate);
 }
-
 .sticker-card.duplicate .sticker-header {
-  background: var(--black);
-  color: var(--white);
-  border-bottom-color: var(--black);
+  background: var(--color-duplicate);
+  color: var(--color-duplicate-text);
+  border-bottom-color: var(--color-duplicate);
 }
-
 .sticker-card.duplicate .sticker-footer {
-  background: var(--gray-200);
+  background: var(--gray-50);
 }
-
 .sticker-card.duplicate .sticker-name {
   color: var(--black);
 }
@@ -782,20 +831,18 @@ body {
 }
 
 .btn-status.status-missing {
-  background: var(--gray-50);
-  color: var(--gray-500);
-  border-color: var(--gray-300);
-}
-
-.btn-status.status-owned {
-  background: var(--gray-200);
-  color: var(--black);
+  background: var(--color-missing);
+  color: var(--color-missing-text);
   border-color: var(--black);
 }
-
+.btn-status.status-owned {
+  background: var(--color-owned);
+  color: var(--color-owned-text);
+  border-color: var(--black);
+}
 .btn-status.status-duplicate {
-  background: var(--black);
-  color: var(--white);
+  background: var(--color-duplicate);
+  color: var(--color-duplicate-text);
   border-color: var(--black);
 }
 
@@ -829,6 +876,118 @@ body {
   align-items: center;
   flex-wrap: wrap;
   gap: var(--sp-xs);
+}
+
+/* ───────────────────────────────────────────────────────────────
+   12. BARRE DE RECHERCHE
+   ─────────────────────────────────────────────────────────────── */
+.view-search-slot:empty {
+  display: none;
+}
+
+.view-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-bottom: var(--sp-sm);
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  color: var(--gray-500);
+  font-size: 18px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px 38px 10px 38px;
+  background: var(--white);
+  border: 2px solid var(--gray-300);
+  border-radius: var(--radius-sm);
+  color: var(--on-surface);
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 14px;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.search-input::placeholder {
+  color: var(--gray-500);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--black);
+  box-shadow: 2px 2px 0 var(--black);
+}
+
+.search-input::-webkit-search-cancel-button,
+.search-input::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.search-input::-ms-clear {
+  display: none;
+}
+
+.search-clear {
+  position: absolute;
+  right: 8px;
+  background: transparent;
+  border: none;
+  color: var(--gray-500);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 2px;
+  border-radius: var(--radius-sm);
+  transition: color 0.15s;
+}
+
+.search-clear:hover {
+  color: var(--on-surface);
+}
+
+.search-clear .material-symbols-outlined {
+  font-size: 16px;
+}
+
+.search-results-banner {
+  background: var(--black);
+  color: var(--white);
+  padding: 8px 16px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 700;
+  border: 2px solid var(--black);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  letter-spacing: 0.02em;
+  margin-bottom: var(--sp-sm);
+}
+
+.search-results-banner .search-banner-clear {
+  margin-left: auto;
+  background: transparent;
+  border: 1.5px solid rgba(255,255,255,0.3);
+  color: var(--white);
+  border-radius: var(--radius-sm);
+  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 /* ───────────────────────────────────────────────────────────────
@@ -911,8 +1070,8 @@ body {
   font-weight: 900;
   font-size: 13px;
   line-height: 1;
-  color: var(--white);
-  background: var(--black);
+  color: var(--color-duplicate-text);
+  background: var(--color-duplicate);
   border: 2px solid var(--black);
   border-radius: var(--radius-full);
   width: 30px;
@@ -1034,20 +1193,17 @@ body {
 }
 
 .stat-card.owned {
-  background: var(--gray-200);
-  color: var(--black);
+  background: var(--color-owned);
+  color: var(--color-owned-text);
 }
-
 .stat-card.missing {
-  background: var(--white);
-  color: var(--black);
+  background: var(--color-missing);
+  color: var(--color-missing-text);
 }
-
 .stat-card.duplicate {
-  background: var(--black);
-  color: var(--white);
+  background: var(--color-duplicate);
+  color: var(--color-duplicate-text);
 }
-
 .stat-card.completion {
   background: var(--gray-700);
   color: var(--white);
@@ -1120,8 +1276,8 @@ body {
   transition: width 0.4s ease;
 }
 
-.stat-bar-fill.full { background: var(--gray-700); }
-.stat-bar-fill.low  { background: var(--gray-300); }
+.stat-bar-fill.full { background: var(--color-owned); }
+.stat-bar-fill.low  { background: var(--color-missing); }
 
 .stat-bar-pct {
   font-family: var(--font-display);
@@ -1132,7 +1288,7 @@ body {
 }
 
 /* ───────────────────────────────────────────────────────────────
-   16. VUE ÉCHANGES
+   16. VUE ÉCHANGES (version simple)
    ─────────────────────────────────────────────────────────────── */
 .echanges-layout {
   display: grid;
@@ -1385,7 +1541,7 @@ body {
   justify-content: center;
   gap: var(--sp-md);
   padding: var(--sp-sm);
-  background: var(--gray-100);
+  background: var(--gray-50);
   border-top: 2px solid var(--black);
 }
 
@@ -1400,7 +1556,7 @@ body {
   font-family: var(--font-display);
   font-weight: 900;
   font-size: 36px;
-  color: var(--black);
+  color: var(--color-duplicate);
   line-height: 1;
   min-width: 48px;
   text-align: center;
@@ -1441,7 +1597,7 @@ body {
    19. NAVIGATION MOBILE (barre du bas)
    ─────────────────────────────────────────────────────────────── */
 .mobile-nav {
-  display: none; 
+  display: none;
   position: fixed;
   bottom: 0;
   left: 0;
@@ -1598,7 +1754,7 @@ body {
 }
 
 /* ───────────────────────────────────────────────────────────────
-   22. ÉTAT DE CHARGEMENT
+   21. ÉTAT DE CHARGEMENT
    ─────────────────────────────────────────────────────────────── */
 .loading-spinner {
   display: flex;
@@ -1624,7 +1780,7 @@ body {
 }
 
 /* ───────────────────────────────────────────────────────────────
-   23. DÉCORATION : BANDEAUX (Trame Diagonale)
+   22. DÉCORATION : TRAME DIAGONALE
    ─────────────────────────────────────────────────────────────── */
 .op-art-fill {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Cpath d='M-2,2 l4,-4 M0,16 l16,-16 M14,18 l4,-4' stroke='%230B0B0B' stroke-width='1.5' fill='none' opacity='0.03'/%3E%3C/svg%3E");
@@ -1632,7 +1788,7 @@ body {
 }
 
 /* ───────────────────────────────────────────────────────────────
-   24. FOCUS CLAVIER (accessibilité)
+   23. FOCUS CLAVIER (accessibilité)
    ─────────────────────────────────────────────────────────────── */
 :focus-visible {
   outline: 3px solid var(--black);
@@ -1648,7 +1804,7 @@ body {
 }
 
 /* ───────────────────────────────────────────────────────────────
-   25. TRÈS PETIT ÉCRAN (< 420px)
+   24. TRÈS PETIT ÉCRAN (< 420px)
    ─────────────────────────────────────────────────────────────── */
 @media (max-width: 700px) {
   .header-progress {
@@ -1667,119 +1823,7 @@ body {
 }
 
 /* ───────────────────────────────────────────────────────────────
-   27. BARRE DE RECHERCHE
-   ─────────────────────────────────────────────────────────────── */
-.view-search-slot:empty {
-  display: none;
-}
-
-.view-search {
-  position: relative;
-  display: flex;
-  align-items: center;
-  width: 100%;
-  margin-bottom: var(--sp-sm);
-}
-
-.search-icon {
-  position: absolute;
-  left: 12px;
-  color: var(--gray-500);
-  font-size: 18px;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.search-input {
-  width: 100%;
-  padding: 10px 38px 10px 38px;
-  background: var(--white);
-  border: 2px solid var(--gray-300);
-  border-radius: var(--radius-sm);
-  color: var(--on-surface);
-  font-family: var(--font-body);
-  font-weight: 700;
-  font-size: 14px;
-  transition: background 0.2s, border-color 0.2s;
-}
-
-.search-input::placeholder {
-  color: var(--gray-500);
-  font-size: 13px;
-  font-weight: 500;
-}
-
-.search-input:focus {
-  outline: none;
-  border-color: var(--black);
-  box-shadow: 2px 2px 0 var(--black);
-}
-
-.search-input::-webkit-search-cancel-button,
-.search-input::-webkit-search-decoration {
-  -webkit-appearance: none;
-  appearance: none;
-}
-
-.search-input::-ms-clear {
-  display: none;
-}
-
-.search-clear {
-  position: absolute;
-  right: 8px;
-  background: transparent;
-  border: none;
-  color: var(--gray-500);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  padding: 2px;
-  border-radius: var(--radius-sm);
-  transition: color 0.15s;
-}
-
-.search-clear:hover {
-  color: var(--on-surface);
-}
-
-.search-clear .material-symbols-outlined {
-  font-size: 16px;
-}
-
-.search-results-banner {
-  background: var(--black);
-  color: var(--white);
-  padding: 8px 16px;
-  font-family: var(--font-body);
-  font-size: 13px;
-  font-weight: 700;
-  border: 2px solid var(--black);
-  border-radius: var(--radius-md);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  letter-spacing: 0.02em;
-  margin-bottom: var(--sp-sm);
-}
-
-.search-results-banner .search-banner-clear {
-  margin-left: auto;
-  background: transparent;
-  border: 1.5px solid rgba(255,255,255,0.3);
-  color: var(--white);
-  border-radius: var(--radius-sm);
-  padding: 3px 10px;
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-/* ───────────────────────────────────────────────────────────────
-   29. MODALE BOOSTER
+   25. MODALE BOOSTER
    ─────────────────────────────────────────────────────────────── */
 .booster-card {
   max-width: 460px !important;
@@ -1842,8 +1886,8 @@ body {
 }
 
 .booster-tag.valid {
-  background: var(--gray-200);
-  color: var(--black);
+  background: var(--color-owned);
+  color: var(--color-owned-text);
 }
 
 .booster-tag.invalid {
@@ -1861,7 +1905,7 @@ body {
 }
 
 /* ───────────────────────────────────────────────────────────────
-   30. MATCHMAKER — VUE ÉCHANGES REFONTE
+   26. MATCHMAKER — VUE ÉCHANGES REFONTE
    ─────────────────────────────────────────────────────────────── */
 .matchmaker-import-block {
   background: var(--white);
@@ -1894,10 +1938,11 @@ body {
 .matchmaker-format-hint {
   display: block;
   font-size: 11px;
-  color: var(--gray-300);
+  color: var(--gray-500);
   font-weight: 500;
   letter-spacing: 0.03em;
-  margin-bottom: 4px;
+  margin: 0;
+  line-height: 1.4;
 }
 
 .matchmaker-import-row {
@@ -1905,6 +1950,13 @@ body {
   gap: var(--sp-sm);
   padding: var(--sp-sm);
   align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.matchmaker-import-row-simple {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
   flex-wrap: wrap;
 }
 
@@ -2168,18 +2220,9 @@ body {
   pointer-events: none;
 }
 
+/* Masquer le nom dans les échanges */
 .match-tag .tag-name {
-  font-family: var(--font-body);
-  font-size: 8px;
-  font-weight: 500;
-  color: var(--gray-500);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  max-width: 60px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  pointer-events: none;
+  display: none;
 }
 
 .match-tag.excluded {
@@ -2195,11 +2238,11 @@ body {
 }
 
 /* ───────────────────────────────────────────────────────────────
-   31. VALIDATION DE L'ÉCHANGE
+   27. VALIDATION DE L'ÉCHANGE
    ─────────────────────────────────────────────────────────────── */
 .matchmaker-validate {
   background: var(--white);
-  border: 3px solid var(--black);
+  border: 3px solid var(--color-owned);
   border-radius: var(--radius-md);
   padding: var(--sp-sm);
   margin-bottom: var(--sp-sm);
