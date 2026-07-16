@@ -394,7 +394,7 @@ function initAlbumPageSelect() {
     const section = pageStickers[0]?.Section || `Page ${page}`;
     const opt = document.createElement('option');
     opt.value = idx;
-    opt.textContent = `{section}`;
+    opt.textContent = `${section}`;
     select.appendChild(opt);
   });
 
