@@ -857,8 +857,8 @@ body {
 }
 
 .btn-icon {
-  padding: 6px;
-  aspect-ratio: 1;
+  padding: 8px;
+  aspect-ratio: 0.8;
 }
 
 /* Boutons de statut dans la modale */
