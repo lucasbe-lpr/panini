@@ -737,8 +737,8 @@ body {
   color: var(--status-owned-fg) !important;
 }
 .sticker-card.missing .sticker-header {
-  background: var(--status-missing-bg) !important;
-  color: var(--status-missing-fg) !important;
+  background: var(--color-missing) !important;
+  color: var(--color-missing-text) !important;
 }
 .sticker-card.duplicate .sticker-header {
   background: var(--status-dup-bg) !important;
