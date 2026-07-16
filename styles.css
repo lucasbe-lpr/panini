@@ -310,7 +310,7 @@ body {
 .nav-btn.active {
   background: var(--black);
   color: var(--white);
-  border-color: var(--black);
+  border-color: var(--white);
   box-shadow: var(--shadow-sm);
   font-weight: 900;
 }
