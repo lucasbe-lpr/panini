@@ -456,25 +456,24 @@ function renderAlbumView() {
 }
 
 /**
- * Détermine la classe CSS à appliquer à un bandeau ou à un en-tête de liste
- * en fonction du groupe ou du nom de la section.
- * @param {string} sectionName - Nom de la section
- * @param {string} groupe - Groupe (A, B, C, ...)
- * @returns {string} Classe CSS (ex: 'group-a', 'panini', 'histoire')
+ * Nombre de variantes de couleur disponibles pour .section-banner
+ * (cf. classes .section-banner--0 à --5 dans styles.css).
  */
-function getSectionBannerClass(sectionName, groupe) {
-  // Si un groupe est fourni, on l'utilise en priorité (A, B, C, …)
-  if (groupe) {
-    return `group-${groupe.toLowerCase()}`;
+const SECTION_BANNER_COLOR_COUNT = 6;
+
+/**
+ * Calcule un index de couleur stable pour une section donnée, afin que
+ * la même section affiche toujours la même couleur de bandeau.
+ * @param {string} sectionName
+ * @returns {number}
+ */
+function getSectionBannerColorIndex(sectionName) {
+  let hash = 0;
+  const str = sectionName || '';
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash * 31 + str.charCodeAt(i)) >>> 0;
   }
-
-  // Cas spéciaux par nom de section
-  const special = sectionName?.trim() || '';
-  if (special === 'Panini') return 'panini';
-  if (special === 'Histoire de la Coupe du monde') return 'histoire';
-
-  // Fallback : classe vide => fond gris par défaut
-  return '';
+  return hash % SECTION_BANNER_COLOR_COUNT;
 }
 
 /**
@@ -489,17 +488,17 @@ function renderAlbumSectionHeader(pageStickers) {
     return;
   }
 
-  const first = pageStickers[0];
-  const section = first.Section || '';
-  const groupe = first.Groupe || '';
-  const flagURL = first.Drapeau || '';
-
-  const bannerClass = getSectionBannerClass(section, groupe);
+  // Récupération des sections uniques sur cette page
+  const sections = [...new Set(pageStickers.map(s => s['Section']))];
+  const firstSection = sections[0];
+  const flagURL = pageStickers[0]?.Drapeau || '';
+  const groupe = pageStickers[0]?.Groupe || '';
+  const colorClass = `section-banner--${getSectionBannerColorIndex(firstSection)}`;
 
   container.innerHTML = `
-    <div class="section-banner ${bannerClass}">
-      ${flagURL ? `<img src="${escHtml(flagURL)}" alt="${escHtml(section)}" />` : ''}
-      <span>${escHtml(section)}</span>
+    <div class="section-banner ${colorClass}">
+      ${flagURL ? `<img src="${escHtml(flagURL)}" alt="${escHtml(firstSection)}" />` : ''}
+      <span>${escHtml(firstSection)}</span>
       ${groupe ? `<span style="font-size:12px;opacity:0.7;letter-spacing:0.1em;">Groupe ${escHtml(groupe)}</span>` : ''}
     </div>
   `;
@@ -526,10 +525,15 @@ function buildStickerCard(sticker) {
     ? `<div class="dup-badge" aria-label="${dupCount} doublons">x${dupCount}</div>`
     : '';
 
+  // Couleur de header selon le type
+  const typeColor = sticker.Type === 'Spécial' ? 'var(--purple-psycho)' : '';
+  const typeStyle = typeColor ? `style="background:${typeColor};color:#fff;"` : '';
+
   article.innerHTML = `
     ${dupBadge}
-    <div class="sticker-header">
+    <div class="sticker-header" ${typeStyle}>
       <span class="sticker-id">${escHtml(sticker.ID)}</span>
+      <span class="sticker-type-badge">${escHtml(sticker.Type === 'Spécial' ? 'SPEC' : 'STD')}</span>
     </div>
     <div class="sticker-flag-wrap">
       <img
@@ -664,13 +668,9 @@ function renderStickerList(container, stickersList, showDupCount = false) {
   Object.entries(grouped).forEach(([code, items]) => {
     const sectionName = items[0]?.Section || code;
     const flagURL     = items[0]?.Drapeau || '';
-    const groupe      = items[0]?.Groupe || '';
-
-    // Déterminer la classe de groupe pour l'en-tête de la liste
-    const headerClass = getSectionBannerClass(sectionName, groupe);
 
     const header = document.createElement('div');
-    header.className = `list-group-header ${headerClass}`;
+    header.className = 'list-group-header';
     header.innerHTML = `
       ${flagURL ? `<img src="${escHtml(flagURL)}" alt="" />` : ''}
       <span>${escHtml(sectionName)}</span>
@@ -869,6 +869,7 @@ function renderStatsBars() {
     const total  = data.stickers.length;
     const ok     = data.stickers.filter(s => getStatus(s.ID) !== 'missing').length;
     const pct    = Math.round((ok / total) * 100);
+    const fillClass = pct === 100 ? 'full' : pct < 20 ? 'low' : '';
 
     const row = document.createElement('div');
     row.className = 'stat-bar-row';
@@ -878,7 +879,7 @@ function renderStatsBars() {
         <span title="${escHtml(data.section)}">${escHtml(data.section)}</span>
       </div>
       <div class="stat-bar-track">
-        <div class="stat-bar-fill" style="width:${pct}%"></div>
+        <div class="stat-bar-fill ${fillClass}" style="width:${pct}%"></div>
       </div>
       <div class="stat-bar-pct">${pct}%</div>
     `;
@@ -1019,8 +1020,6 @@ function openModal(id) {
     missing:   { bg: 'var(--surface-mid)',     fg: 'var(--outline)' },
     duplicate: { bg: 'var(--orange-vibrant)',  fg: '#fff' },
   };
-  // Remplacement de #E66364 par #000000 dans les couleurs éventuelles
-  // (on n'utilise pas cette couleur dans le code, mais on s'assure que toute référence est noire)
   const colors = headerColors[status] || headerColors.missing;
   const header = document.getElementById('modalHeader');
   header.style.background = colors.bg;
@@ -1217,8 +1216,8 @@ function hideLoadingSpinner() {
 
 /**
  * Initialise la barre de recherche globale.
- * La barre (#viewSearchBar) vit directement dans les vues (et non plus
- * dans le header) : elle est déplacée d'une vue à l'autre par
+ * La barre (#viewSearchBar) vit directement dans les vues (et non plus dans
+ * le header) : elle est déplacée d'une vue à l'autre par
  * moveSearchBarToView(), appelée au chargement et à chaque switchView().
  * Filtre la vue actuellement affichée en temps réel.
  */
