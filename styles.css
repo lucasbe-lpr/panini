@@ -1533,7 +1533,7 @@ body {
   font-size: 20px;
   text-transform: uppercase;
   letter-spacing: -0.01em;
-  color: var(--white);
+  color: var(--black);
 }
 
 .modal-flag-wrap {
@@ -1893,7 +1893,7 @@ body {
 }
 
 .booster-header {
-  background: var(--black) !important;
+  background: var(--gray-50) !important;
   color: var(--white) !important;
 }
 
