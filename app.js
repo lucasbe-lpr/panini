@@ -1483,23 +1483,54 @@ function closeBoosterModal() {
 }
 
 /**
- * Parse une chaîne de saisie booster (IDs séparés par espaces).
+ * Parse une chaîne de saisie booster (IDs séparés par espaces, virgules).
+ * Accepte :
+ *   - "MEX4 FRA12 ENG2" (format direct)
+ *   - "MEX 4, 6, 12 FRA 12, 17, 20" (code suivi de numéros)
+ *   - "MEX 4 FRA 12" (mélange)
  * @param {string} raw
  * @returns {{ valid: string[], invalid: string[] }}
  */
 function parseBoosterInput(raw) {
   const knownIDs = new Set(stickers.map(s => s.ID));
-  const tokens = raw.trim().toUpperCase().split(/\s+/).filter(Boolean);
+  // Remplacer les virgules et points-virgules par des espaces
+  const cleaned = raw.replace(/[,;]/g, ' ').trim();
+  const tokens = cleaned.toUpperCase().split(/\s+/).filter(Boolean);
   const valid = [];
   const invalid = [];
+  let currentCode = null;
 
-  tokens.forEach(t => {
-    if (knownIDs.has(t)) {
-      valid.push(t);
+  // Regex pour un code pays : au moins 2 lettres majuscules, optionnellement suivies de chiffres
+  const codeRegex = /^([A-Z]{2,})(\d*)$/;
+
+  for (const token of tokens) {
+    const match = token.match(codeRegex);
+    if (match) {
+      const letters = match[1];
+      const digits = match[2];
+      currentCode = letters;
+      if (digits) {
+        const id = letters + digits;
+        if (knownIDs.has(id)) {
+          valid.push(id);
+        } else {
+          invalid.push(id);
+        }
+      }
     } else {
-      invalid.push(t);
+      // Ce n'est pas un code pays : on tente de l'interpréter comme un numéro
+      if (currentCode && /^\d+$/.test(token)) {
+        const id = currentCode + token;
+        if (knownIDs.has(id)) {
+          valid.push(id);
+        } else {
+          invalid.push(id);
+        }
+      } else {
+        invalid.push(token);
+      }
     }
-  });
+  }
 
   return { valid, invalid };
 }
