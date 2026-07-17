@@ -152,7 +152,6 @@ body {
 .app-header {
   grid-area: header;
   background: var(--black);
-  border-bottom: 4px solid var(--white);
   position: relative;
   overflow: hidden;
   z-index: 100;
