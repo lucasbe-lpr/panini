@@ -265,6 +265,7 @@ body {
   display: flex;
   gap: var(--sp-xs);
   flex-shrink: 0;
+  margin-left: auto; /* Pousse le bloc des actions à l'extrémité droite */
 }
 
 /* ───────────────────────────────────────────────────────────────
