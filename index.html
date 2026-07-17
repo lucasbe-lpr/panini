@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Panini WC2026 — Ma Collection</title>
+  <title>Panini — Coupe du monde 2026</title>
 
   <!-- Polices -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -27,7 +27,7 @@
       <!-- Logo / Titre -->
       <div class="header-brand">
         <div class="header-brand-text">
-          <h1 class="brand-title">FWC 2026</h1>
+          <h1 class="brand-title">Panini FWC26</h1>
           <span class="header-credit">Lucas Bessonnat v1.0</span>
         </div>
       </div>
@@ -166,7 +166,7 @@
     <section class="view hidden" id="view-manquantes" aria-label="Mes vignettes manquantes">
       <div class="view-search-slot" id="searchSlot-manquantes"></div>
       <div class="view-header">
-        <h2 class="view-title">Mes manquantes</h2>
+        <h2 class="view-title">Vignettes à trouver</h2>
         <div class="list-controls">
           <select id="manqSectionFilter" class="filter-select" aria-label="Filtrer par section">
             <option value="">Toutes les sections</option>
@@ -200,7 +200,7 @@
     <section class="view hidden" id="view-doublons" aria-label="Mes doublons">
       <div class="view-search-slot" id="searchSlot-doublons"></div>
       <div class="view-header">
-        <h2 class="view-title">Mes doublons</h2>
+        <h2 class="view-title">Vignettes à échanger</h2>
         <div class="list-controls">
           <select id="dblSectionFilter" class="filter-select" aria-label="Filtrer par section">
             <option value="">Toutes les sections</option>
@@ -254,7 +254,7 @@
       <div class="matchmaker-import-block">
         <div class="matchmaker-import-header">
           <span class="material-symbols-outlined">person_add</span>
-          <strong>Importer la collection d'un ami</strong>
+          <strong>Importer la collection de l'échangeur</strong>
         </div>
 
         <!-- Sélecteur de mode de saisie -->
@@ -274,10 +274,10 @@
           <div class="matchmaker-import-row matchmaker-import-row-simple">
             <label class="btn btn-primary" title="Importer un fichier JSON">
               <span class="material-symbols-outlined">upload_file</span>
-              <span>Importer la collection JSON d'un ami</span>
+              <span>Importer la collection JSON d'un échangeur</span>
               <input type="file" accept=".json" id="inputFriendJSON" class="sr-only" />
             </label>
-            <span class="matchmaker-format-hint">Format JSON (.json) exporté depuis l'app d'un ami</span>
+            <span class="matchmaker-format-hint">Format JSON (.json) exporté depuis l'app d'un échangeur</span>
           </div>
         </div>
 
@@ -285,7 +285,7 @@
         <div class="matchmaker-mode-panel hidden" id="modePanel-manual" role="tabpanel">
           <div class="matchmaker-manual-grid">
             <div class="matchmaker-manual-col">
-              <label class="field-label" for="friendDuplicatesInput">Doublons de ton ami</label>
+              <label class="field-label" for="friendDuplicatesInput">Doublons de ton échangeur</label>
               <span class="matchmaker-format-hint">Format CODE n1,n2,n3</span>
               <textarea
                 id="friendDuplicatesInput"
@@ -295,7 +295,7 @@
               ></textarea>
             </div>
             <div class="matchmaker-manual-col">
-              <label class="field-label" for="friendMissingInput">Manquantes de ton ami</label>
+              <label class="field-label" for="friendMissingInput">Vignettes manquantes de ton échangeur</label>
               <span class="matchmaker-format-hint">Format CODE n1,n2,n3</span>
               <textarea
                 id="friendMissingInput"
