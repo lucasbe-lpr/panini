@@ -210,9 +210,8 @@ body {
 }
 
 .header-progress {
-  flex: 1;
-  min-width: 80px;
-  max-width: 400px;
+  flex: 1 1 0; /* prend tout l'espace disponible sans max-width */
+  min-width: 60px; /* valeur minimale pour rester lisible */
   overflow: hidden;
 }
 
