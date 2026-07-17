@@ -896,19 +896,22 @@ function renderStatsBars() {
     const pct    = Math.round((ok / total) * 100);
     const fillClass = pct === 100 ? 'full' : pct < 20 ? 'low' : '';
 
-    const row = document.createElement('div');
-    row.className = 'stat-bar-row';
-    row.innerHTML = `
-      <div class="stat-bar-label">
-        ${data.flag ? `<img src="${escHtml(data.flag)}" alt="" loading="lazy" />` : ''}
-        <span title="${escHtml(data.section)}">${escHtml(data.section)}</span>
-      </div>
-      <div class="stat-bar-track">
-        <div class="stat-bar-fill ${fillClass}" style="width:${pct}%"></div>
-      </div>
-      <div class="stat-bar-pct">${pct}%</div>
-    `;
-    container.appendChild(row);
+// Couleur calculée en fonction du pourcentage (HSL : 0° rouge → 120° vert)
+const fillColor = `hsl(${120 * pct / 100}, 80%, 50%)`;
+
+const row = document.createElement('div');
+row.className = 'stat-bar-row';
+row.innerHTML = `
+  <div class="stat-bar-label">
+    ${data.flag ? `<img src="${escHtml(data.flag)}" alt="" loading="lazy" />` : ''}
+    <span title="${escHtml(data.section)}">${escHtml(data.section)}</span>
+  </div>
+  <div class="stat-bar-track">
+    <div class="stat-bar-fill ${fillClass}" style="width:${pct}%; background:${fillColor};"></div>
+  </div>
+  <div class="stat-bar-pct">${pct}%</div>
+`;
+container.appendChild(row);
   });
 }
 
