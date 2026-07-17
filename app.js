@@ -736,21 +736,24 @@ function renderStickerList(container, stickersList, showDupCount = false) {
    ═══════════════════════════════════════════════════════════════ */
 
 /**
- * Génère le texte d'export au format "CODE N°1,N°2,N°3".
+ * Génère le texte d'export au format "CODE N°1,N°2,N°3" en conservant
+ * l'ordre d'apparition dans l'album (ordre de la base de données).
  * @param {Array} stickersList - Vignettes à exporter
  * @returns {string} - Texte formaté
  */
 function generateExportText(stickersList) {
-  // Groupement par code pays
-  const grouped = {};
+  // On préserve l'ordre d'insertion en utilisant un Map
+  const map = new Map();
   stickersList.forEach(s => {
-    if (!grouped[s.Code]) grouped[s.Code] = [];
-    grouped[s.Code].push(s['N°']);
+    if (!map.has(s.Code)) {
+      map.set(s.Code, []);
+    }
+    map.get(s.Code).push(s['N°']);
   });
 
-  return Object.entries(grouped)
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([code, nums]) => `${code} ${nums.sort((a, b) => a - b).join(',')}`)
+  // On itère dans l'ordre d'apparition des codes dans la liste
+  return Array.from(map.entries())
+    .map(([code, nums]) => `${code} ${nums.join(',')}`)
     .join('\n');
 }
 
@@ -758,7 +761,19 @@ function generateExportText(stickersList) {
  * Initialise les boutons d'export texte et de copie.
  */
 function initExportImport() {
-  // --- Export / Import global (JSON) ---
+  // Réinitialisation de la collection
+document.getElementById('btnReset').addEventListener('click', () => {
+  if (confirm('Voulez-vous vraiment réinitialiser toute votre collection ? Toutes les vignettes seront marquées comme manquantes.')) {
+    stickers.forEach(s => {
+      collectionState[s.ID] = { status: 'missing', count: 0 };
+    });
+    saveCollectionToLocalStorage();
+    renderCurrentView();
+    updateGlobalProgress();
+    showToast('Collection réinitialisée.', 2500);
+  }
+});
+   // --- Export / Import global (JSON) ---
   document.getElementById('btnExport').addEventListener('click', exportCollectionAsJSON);
 
   document.getElementById('inputImport').addEventListener('change', (e) => {
