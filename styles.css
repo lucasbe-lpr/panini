@@ -1331,12 +1331,13 @@ body {
 
 .stat-bar-fill {
   height: 100%;
-  background: linear-gradient(to right, #DC0203 0%, #FFA500 40%, #04CF5C 100%);
   transition: width 0.4s ease;
+  /* Le fond est désormais appliqué dynamiquement par JavaScript */
+  background-color: var(--gray-300); /* fallback */
 }
 
-.stat-bar-fill.full { background: var(--color-owned); }
-.stat-bar-fill.low  { background: var(--color-missing); }
+.stat-bar-fill.full { background: var(--color-owned) !important; }
+.stat-bar-fill.low  { background: var(--color-missing) !important; }
 
 .stat-bar-pct {
   font-family: var(--font-display);
