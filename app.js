@@ -28,7 +28,7 @@ const LS_KEY = 'panini_wc2026_collection';
  * de recherche doit s'appliquer (Statistiques et Échanges n'ont pas de
  * barre de recherche : la recherche n'y a aucun effet).
  */
-const SEARCHABLE_VIEWS = ['album', 'manquantes', 'doublons'];
+const SEARCHABLE_VIEWS = ['manquantes', 'doublons'];
 
 /* ═══════════════════════════════════════════════════════════════
    2. ÉTAT GLOBAL DE L'APPLICATION
@@ -1279,9 +1279,24 @@ function initGlobalSearch() {
  */
 function moveSearchBarToView(viewName) {
   const bar = document.getElementById('viewSearchBar');
+  if (!bar) return;
+
   const slot = document.getElementById(`searchSlot-${viewName}`);
-  if (bar && slot) {
+
+  // Si la vue est autorisée à avoir une barre, on l'y place et on l'affiche
+  if (slot && SEARCHABLE_VIEWS.includes(viewName)) {
     slot.appendChild(bar);
+    bar.style.display = '';
+  } else {
+    // Sinon, on la déplace dans un conteneur caché (hors du flux)
+    let hiddenContainer = document.getElementById('hiddenSearchContainer');
+    if (!hiddenContainer) {
+      hiddenContainer = document.createElement('div');
+      hiddenContainer.id = 'hiddenSearchContainer';
+      hiddenContainer.style.display = 'none';
+      document.body.appendChild(hiddenContainer);
+    }
+    hiddenContainer.appendChild(bar);
   }
 }
 
