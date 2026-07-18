@@ -847,7 +847,7 @@ body {
 
 .btn-primary {
   background: var(--black);
-  color: var(--white);
+  color: var(--black);
 }
 
 .btn-secondary {
