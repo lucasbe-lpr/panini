@@ -847,7 +847,7 @@ body {
 
 .btn-primary {
   background: #67FEDB;
-  color: var(--white);
+  color: var(--black);
 }
 
 .btn-secondary {
