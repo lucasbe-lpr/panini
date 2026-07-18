@@ -846,7 +846,7 @@ body {
 }
 
 .btn-primary {
-  background: var(--black);
+  background: #67FEDB;
   color: var(--black);
 }
 
@@ -2081,7 +2081,7 @@ body {
 }
 
 .matchmaker-mode-btn.active {
-  background: var(--black);
+  background: #B486FF;
   color: var(--white);
   border-color: var(--black);
 }
