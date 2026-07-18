@@ -4,35 +4,23 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Ma collection Panini FWC26</title>
-
-  <!-- Polices -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Anybody:ital,wdth,wght@0,75..125,100..900;1,75..125,100..900&family=Hanken+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
-  <!-- Icônes Material -->
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
-
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
-  <!-- ═══════════════════════════════════════════════════
-       EN-TÊTE GLOBAL
-  ═══════════════════════════════════════════════════ -->
+  <!-- EN-TÊTE -->
   <header class="app-header">
-    <!-- Décoration cinétique ondulée -->
-    <div class="header-wave" aria-hidden="true"></div>
-
     <div class="header-inner">
-      <!-- Logo / Titre -->
       <div class="header-brand">
         <div class="header-brand-text">
           <h1 class="brand-title">Panini FWC26</h1>
           <span class="header-credit">par Lucas Bessonnat <code>v1.0</code></span>
         </div>
       </div>
-
-      <!-- Barre de progression globale -->
       <div class="header-progress" id="headerProgress">
         <div class="progress-label">
           <span id="progressOwned">0</span> / <span id="progressTotal">980</span>
@@ -42,8 +30,6 @@
           <div class="progress-fill" id="progressFill" style="width:0%"></div>
         </div>
       </div>
-
-      <!-- Actions globales : booster / import / export -->
       <div class="header-actions">
         <button class="btn btn-secondary" id="fabBooster" title="Ouvrir un booster">
           <span class="material-symbols-outlined">stacks</span>
@@ -59,16 +45,14 @@
           <input type="file" accept=".json" id="inputImport" class="sr-only" />
         </label>
         <button class="btn btn-secondary" id="btnReset" title="Réinitialiser la collection">
-  <span class="material-symbols-outlined">restart_alt</span>
-  <span class="btn-label">Réinit.</span>
-</button>
+          <span class="material-symbols-outlined">restart_alt</span>
+          <span class="btn-label">Réinit.</span>
+        </button>
       </div>
     </div>
   </header>
 
-  <!-- ═══════════════════════════════════════════════════
-       NAVIGATION PRINCIPALE (Desktop : onglets latéraux)
-  ═══════════════════════════════════════════════════ -->
+  <!-- NAVIGATION DESKTOP -->
   <nav class="main-nav" role="navigation" aria-label="Navigation principale">
     <button class="nav-btn active" data-view="album" aria-pressed="true">
       <span class="material-symbols-outlined" aria-hidden="true">menu_book</span>
@@ -92,36 +76,20 @@
     </button>
   </nav>
 
-  <!-- ═══════════════════════════════════════════════════
-       ZONE DE CONTENU PRINCIPAL
-  ═══════════════════════════════════════════════════ -->
+  <!-- CONTENU PRINCIPAL -->
   <main class="app-main" id="appMain">
 
-    <!-- ─────────────────────────────────────────────
-         VUE ALBUM
-    ───────────────────────────────────────────── -->
+    <!-- VUE ALBUM -->
     <section class="view" id="view-album" aria-label="Vue Album">
-
-      <!-- Slot d'accueil de la barre de recherche (voir #viewSearchBar plus bas) -->
       <div class="view-search-slot" id="searchSlot-album">
         <div class="view-search" id="viewSearchBar">
           <span class="material-symbols-outlined search-icon">search</span>
-          <input
-            type="text"
-            enterkeyhint="search"
-            id="globalSearch"
-            class="search-input"
-            placeholder="Joueur ou ID (ex: Mbappe, FRA20)"
-            autocomplete="off"
-            aria-label="Recherche globale"
-          />
+          <input type="text" id="globalSearch" class="search-input" placeholder="Joueur ou ID (ex: Mbappe, FRA20)" autocomplete="off" aria-label="Recherche globale" />
           <button class="search-clear hidden" id="searchClear" aria-label="Effacer">
             <span class="material-symbols-outlined">close</span>
           </button>
         </div>
       </div>
-
-      <!-- Contrôles de la page album -->
       <div class="album-controls">
         <div class="album-page-info">
           <span class="page-label">PAGE</span>
@@ -138,31 +106,17 @@
             <span class="material-symbols-outlined">chevron_right</span>
           </button>
         </div>
-        <!-- Légende statuts -->
         <div class="album-legend">
-          <span class="legend-item legend-owned">
-            <span class="legend-dot"></span>Possédée
-          </span>
-          <span class="legend-item legend-missing">
-            <span class="legend-dot"></span>Manquante
-          </span>
-          <span class="legend-item legend-duplicate">
-            <span class="legend-dot"></span>Doublon
-          </span>
+          <span class="legend-item legend-owned"><span class="legend-dot"></span>Possédée</span>
+          <span class="legend-item legend-missing"><span class="legend-dot"></span>Manquante</span>
+          <span class="legend-item legend-duplicate"><span class="legend-dot"></span>Doublon</span>
         </div>
       </div>
-
-      <!-- Titre de section de la page courante -->
       <div class="album-section-header" id="albumSectionHeader"></div>
-
-      <!-- Grille de vignettes -->
       <div class="sticker-grid" id="stickerGrid" role="list" aria-label="Vignettes de la page"></div>
-
     </section>
 
-    <!-- ─────────────────────────────────────────────
-         VUE MANQUANTES
-    ───────────────────────────────────────────── -->
+    <!-- VUE MANQUANTES -->
     <section class="view hidden" id="view-manquantes" aria-label="Mes vignettes manquantes">
       <div class="view-search-slot" id="searchSlot-manquantes"></div>
       <div class="view-header">
@@ -179,7 +133,6 @@
       </div>
       <div class="list-count" id="manqCount"></div>
       <div class="sticker-list" id="manqList" role="list"></div>
-      <!-- Zone export texte -->
       <div class="export-zone hidden" id="manqExportZone">
         <div class="export-zone-header">
           <span>Liste à copier-coller</span>
@@ -194,9 +147,7 @@
       </div>
     </section>
 
-    <!-- ─────────────────────────────────────────────
-         VUE DOUBLONS
-    ───────────────────────────────────────────── -->
+    <!-- VUE DOUBLONS -->
     <section class="view hidden" id="view-doublons" aria-label="Mes doublons">
       <div class="view-search-slot" id="searchSlot-doublons"></div>
       <div class="view-header">
@@ -213,7 +164,6 @@
       </div>
       <div class="list-count" id="dblCount"></div>
       <div class="sticker-list" id="dblList" role="list"></div>
-      <!-- Zone export texte -->
       <div class="export-zone hidden" id="dblExportZone">
         <div class="export-zone-header">
           <span>Liste à copier-coller</span>
@@ -228,36 +178,27 @@
       </div>
     </section>
 
-    <!-- ─────────────────────────────────────────────
-         VUE STATISTIQUES
-    ───────────────────────────────────────────── -->
+    <!-- VUE STATISTIQUES -->
     <section class="view hidden" id="view-stats" aria-label="Statistiques de la collection">
       <div class="view-header">
         <h2 class="view-title">Vue globale</h2>
       </div>
-      <!-- Compteurs globaux -->
       <div class="stats-global" id="statsGlobal"></div>
-      <!-- Complétion par pays -->
       <h3 class="stats-section-title">Complétion par pays</h3>
       <div class="stats-bars" id="statsBars"></div>
     </section>
 
-    <!-- ─────────────────────────────────────────────
-         VUE ÉCHANGES — MATCHMAKER
-    ───────────────────────────────────────────── -->
+    <!-- VUE ÉCHANGES -->
     <section class="view hidden" id="view-echanges" aria-label="Gestion des échanges">
       <div class="view-header">
         <h2 class="view-title">Gestion des échanges</h2>
       </div>
 
-      <!-- Import de la collection d'un ami -->
       <div class="matchmaker-import-block">
         <div class="matchmaker-import-header">
           <span class="material-symbols-outlined">person_add</span>
           <strong>Importer la collection de l'échangeur</strong>
         </div>
-
-        <!-- Sélecteur de mode de saisie -->
         <div class="matchmaker-mode-toggle" role="tablist" aria-label="Mode de saisie de la collection de l'ami">
           <button type="button" class="matchmaker-mode-btn active" id="modeBtnImport" data-mode="import" role="tab" aria-selected="true">
             <span class="material-symbols-outlined">upload_file</span>
@@ -268,8 +209,6 @@
             Saisie manuelle
           </button>
         </div>
-
-        <!-- Panneau : import d'un fichier JSON exporté par un ami -->
         <div class="matchmaker-mode-panel" id="modePanel-import" role="tabpanel">
           <div class="matchmaker-import-row matchmaker-import-row-simple">
             <label class="btn btn-primary" title="Importer un fichier JSON">
@@ -280,27 +219,15 @@
             <span class="matchmaker-format-hint">Format JSON (.json) exporté depuis l'app de l'échangeur</span>
           </div>
         </div>
-
-        <!-- Panneau : saisie manuelle des doublons / manquantes de l'ami -->
         <div class="matchmaker-mode-panel hidden" id="modePanel-manual" role="tabpanel">
           <div class="matchmaker-manual-grid">
             <div class="matchmaker-manual-col">
               <label class="field-label" for="friendDuplicatesInput">Doublons de ton échangeur</label>
-              <textarea
-                id="friendDuplicatesInput"
-                class="exchange-textarea matchmaker-textarea"
-                placeholder="MEX 4,12&#10;FRA 2,7"
-                rows="4"
-              ></textarea>
+              <textarea id="friendDuplicatesInput" class="exchange-textarea matchmaker-textarea" placeholder="MEX 4,12&#10;FRA 2,7" rows="4"></textarea>
             </div>
             <div class="matchmaker-manual-col">
               <label class="field-label" for="friendMissingInput">Vignettes manquantes de ton échangeur</label>
-              <textarea
-                id="friendMissingInput"
-                class="exchange-textarea matchmaker-textarea"
-                placeholder="BRA 1,5&#10;ENG 9"
-                rows="4"
-              ></textarea>
+              <textarea id="friendMissingInput" class="exchange-textarea matchmaker-textarea" placeholder="BRA 1,5&#10;ENG 9" rows="4"></textarea>
             </div>
           </div>
           <div class="matchmaker-manual-actions">
@@ -312,14 +239,9 @@
         </div>
       </div>
 
-      <!-- Résultats Matchmaker -->
       <div class="matchmaker-results hidden" id="matchmakerResults">
-        <!-- En-tête résumé -->
         <div class="matchmaker-summary" id="matchmakerSummary"></div>
-
-        <!-- Vue scindée -->
         <div class="matchmaker-split">
-          <!-- Ce que je peux lui donner -->
           <div class="match-panel match-give">
             <div class="match-panel-title">
               <span class="material-symbols-outlined">arrow_upward</span>
@@ -328,8 +250,6 @@
             </div>
             <div class="match-panel-body" id="giveList"></div>
           </div>
-
-          <!-- Ce qu'il peut me donner -->
           <div class="match-panel match-receive">
             <div class="match-panel-title">
               <span class="material-symbols-outlined">arrow_downward</span>
@@ -339,24 +259,18 @@
             <div class="match-panel-body" id="receiveList"></div>
           </div>
         </div>
-
-        <!-- Validation de l'échange effectué -->
         <div class="matchmaker-validate">
           <div class="matchmaker-validate-bulk">
             <button type="button" class="btn-link" id="btnSelectAllMatches">Tout sélectionner</button>
             <span class="matchmaker-validate-sep">·</span>
             <button type="button" class="btn-link" id="btnSelectNoneMatches">Tout désélectionner</button>
           </div>
-          <p class="matchmaker-validate-hint" id="validateHint">
-            Décoche les cartes qui n'ont pas été échangées, puis valide pour mettre à jour ta collection.
-          </p>
+          <p class="matchmaker-validate-hint" id="validateHint">Décoche les cartes qui n'ont pas été échangées, puis valide pour mettre à jour ta collection.</p>
           <button class="btn btn-primary" id="btnValidateExchange">
             <span class="material-symbols-outlined">check_circle</span>
             Valider l'échange effectué
           </button>
         </div>
-
-        <!-- Export de l'échange -->
         <div class="matchmaker-export">
           <button class="btn btn-primary" id="btnExportMatch">
             <span class="material-symbols-outlined">content_paste</span>
@@ -381,7 +295,6 @@
         </div>
       </div>
 
-      <!-- État vide -->
       <div class="echange-results" id="echangeResults">
         <div class="echange-empty">
           <span class="material-symbols-outlined">swap_horiz</span>
@@ -392,9 +305,7 @@
 
   </main>
 
-  <!-- ═══════════════════════════════════════════════════
-       NAVIGATION MOBILE (barre du bas)
-  ═══════════════════════════════════════════════════ -->
+  <!-- NAVIGATION MOBILE -->
   <nav class="mobile-nav" role="navigation" aria-label="Navigation mobile">
     <button class="mobile-nav-btn active" data-view="album">
       <span class="material-symbols-outlined">menu_book</span>
@@ -418,30 +329,19 @@
     </button>
   </nav>
 
-  <!-- ═══════════════════════════════════════════════════
-       MODALE BOOSTER
-  ═══════════════════════════════════════════════════ -->
+  <!-- MODALE BOOSTER -->
   <div class="modal-overlay hidden" id="boosterModal" role="dialog" aria-modal="true" aria-labelledby="boosterTitle">
     <div class="modal-card booster-card">
-      <div class="modal-header booster-header" id="boosterHeader">
+      <div class="modal-header booster-header">
         <span class="modal-id" id="boosterTitle">Ouvrir un booster</span>
         <button class="btn btn-icon modal-close" id="btnBoosterClose" aria-label="Fermer">
           <span class="material-symbols-outlined">close</span>
         </button>
       </div>
       <div class="booster-body">
-        <label class="field-label" for="boosterInput">
-          Saisis les IDs :
-        </label>
+        <label class="field-label" for="boosterInput">Saisis les IDs :</label>
         <p class="booster-hint">Exemple : <code>USA 4, 12, 17</code></p>
-        <textarea
-          id="boosterInput"
-          class="exchange-textarea booster-textarea"
-          placeholder=" FWC	0, 14
- MEX	1, 5, 17, 19, 20
- RSA	7, 8, 11..."
-          rows="4"
-        ></textarea>
+        <textarea id="boosterInput" class="exchange-textarea booster-textarea" placeholder=" FWC	0, 14&#10; MEX	1, 5, 17, 19, 20&#10; RSA	7, 8, 11..." rows="4"></textarea>
         <div class="booster-preview" id="boosterPreview"></div>
       </div>
       <div class="booster-footer">
@@ -454,14 +354,10 @@
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════════════════
-       TOAST NOTIFICATION
-  ═══════════════════════════════════════════════════ -->
+  <!-- TOAST -->
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <!-- ═══════════════════════════════════════════════════
-       MODAL CONFIRMATION CLIC SUR VIGNETTE
-  ═══════════════════════════════════════════════════ -->
+  <!-- MODALE VIGNETTE -->
   <div class="modal-overlay hidden" id="stickerModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-card">
       <div class="modal-header" id="modalHeader">
@@ -491,7 +387,6 @@
           Doublon
         </button>
       </div>
-      <!-- Compteur doublons -->
       <div class="modal-dup-controls hidden" id="modalDupControls">
         <button class="btn btn-icon" id="btnDupMinus" aria-label="Diminuer">
           <span class="material-symbols-outlined">remove</span>
