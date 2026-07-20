@@ -1230,3 +1230,96 @@ body {
   .header-inner { gap: var(--sp-sm); padding: 0 var(--sp-sm); }
 }
 @media (max-width: 420px) { .header-inner { gap: 8px; } }
+
+/* ===== MODALE TUTORIEL ===== */
+.tuto-card {
+  max-width: 560px !important;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+.tuto-header {
+  background: var(--black) !important;
+  color: var(--white) !important;
+}
+.tuto-body {
+  padding: var(--sp-md);
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-md);
+}
+.tuto-section {
+  display: flex;
+  gap: var(--sp-sm);
+  align-items: flex-start;
+  border-bottom: 1.5px solid var(--gray-100);
+  padding-bottom: var(--sp-sm);
+}
+.tuto-section:last-of-type {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.tuto-section-icon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gray-50);
+  border: 2px solid var(--black);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+.tuto-section-icon .material-symbols-outlined {
+  font-size: 24px;
+}
+.tuto-section-content {
+  flex: 1;
+}
+.tuto-section-content h4 {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 16px;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  margin-bottom: 4px;
+  color: var(--black);
+}
+.tuto-section-content p {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--gray-700);
+}
+.tuto-section-content strong {
+  color: var(--black);
+  font-weight: 700;
+}
+.tuto-footer {
+  padding: var(--sp-sm);
+  border-top: 2px solid var(--gray-300);
+  display: flex;
+  justify-content: flex-end;
+  background: var(--gray-50);
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .tuto-card {
+    max-width: 100% !important;
+    margin: var(--sp-sm);
+    max-height: 95vh;
+  }
+  .tuto-section {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .tuto-section-icon {
+    width: 48px;
+    height: 48px;
+  }
+}
