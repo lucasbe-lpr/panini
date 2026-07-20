@@ -411,6 +411,26 @@ body {
   border-radius: inherit;
   z-index: 4;
 }
+
+.modal-flag-wrap.holo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(125deg, transparent 20%, rgba(0,0,0,0.05) 30%, rgba(255,255,255,0.1) 40%, rgba(0,0,0,0.05) 50%, rgba(255,255,255,0.1) 60%, transparent 80%);
+  background-size: 300% 300%;
+  opacity: 1;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  border-radius: inherit;
+  z-index: 2;
+  animation: holo-shift 2s ease infinite;
+}
+
+.modal-flag-wrap.holo {
+  position: relative; /* nécessaire pour que ::after se cale correctement */
+  overflow: hidden;
+}
+
 .sticker-card[data-type="Spécial"]:hover::after { opacity: 1; animation: holo-shift 2s ease infinite; }
 .sticker-card[data-type="Spécial"] { border-color: var(--gray-600); }
 .sticker-card[data-type="Spécial"]:hover { box-shadow: 5px 5px 0 var(--gray-700), 0 0 15px rgba(0,0,0,0.15); }
