@@ -1000,12 +1000,12 @@ body {
 }
 .match-panel-body:empty::before { content: 'Aucune vignette'; color: var(--gray-500); font-size: 13px; font-style: italic; }
 
+/* ===== STYLES POUR LES TAGS D'ÉCHANGE (version alignée) ===== */
 .match-tag {
-  position: relative;
   display: inline-flex;
-  flex-direction: column;
   align-items: center;
-  padding: 4px 8px 4px 22px;
+  gap: 6px;
+  padding: 4px 10px 4px 8px;
   font-family: var(--font-display);
   font-weight: 900;
   font-size: 11px;
@@ -1016,21 +1016,39 @@ body {
   cursor: pointer;
   transition: transform 0.1s, opacity 0.15s;
 }
-.match-tag:hover { transform: translate(-1px, -1px); }
+.match-tag:hover {
+  transform: translate(-1px, -1px);
+}
+
 .match-tag-check {
-  position: absolute;
-  left: 6px;
-  top: 6px;
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   margin: 0;
+  flex-shrink: 0;
   cursor: pointer;
   accent-color: var(--black);
 }
-.match-tag .match-tag-code { pointer-events: none; }
-.match-tag .tag-name { display: none; }
-.match-tag.excluded { opacity: 0.45; box-shadow: none; background: transparent; border-color: var(--gray-300); }
-.match-tag.excluded .match-tag-code, .match-tag.excluded .tag-name { text-decoration: line-through; }
+
+.match-tag .match-tag-code {
+  pointer-events: none;
+}
+
+/* Cache le nom du joueur par défaut (comme dans ta version originale) */
+.match-tag .tag-name {
+  display: none;
+}
+
+/* Style quand la case est décochée */
+.match-tag.excluded {
+  opacity: 0.45;
+  box-shadow: none;
+  background: transparent;
+  border-color: var(--gray-300);
+}
+.match-tag.excluded .match-tag-code,
+.match-tag.excluded .tag-name {
+  text-decoration: line-through;
+}
 
 .matchmaker-validate {
   background: var(--white);
