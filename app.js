@@ -1,20 +1,14 @@
 /**
- * COLLECTION PANINI FWC26
+ * Collection Panini FWC26
  * Logique métier, gestion d'état, rendu des vues, import/export
  */
 
 'use strict';
 
-/* ═══════════════════════════════════════════════════
-   1. CONFIGURATION GLOBALE
-   ═══════════════════════════════════════════════════ */
 const DATABASE_URL = 'database.json';
 const LS_KEY = 'panini_wc2026_collection';
 const SEARCHABLE_VIEWS = ['manquantes', 'doublons'];
 
-/* ═══════════════════════════════════════════════════
-   2. ÉTAT GLOBAL
-   ═══════════════════════════════════════════════════ */
 let stickers = [];
 let collectionState = {};
 let currentView = 'album';
@@ -25,9 +19,6 @@ let searchQuery = '';
 let searchActive = false;
 let friendCollection = null;
 
-/* ═══════════════════════════════════════════════════
-   3. INITIALISATION
-   ═══════════════════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', async () => {
   showLoadingSpinner();
   try {
@@ -41,28 +32,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     initGlobalSearch();
     initBoosterModal();
     initMatchmaker();
-   // Initialisation du tutoriel
-document.getElementById('btnTuto')?.addEventListener('click', openTutoModal);
-document.getElementById('btnTutoClose')?.addEventListener('click', closeTutoModal);
-document.getElementById('btnTutoCloseFooter')?.addEventListener('click', closeTutoModal);
-document.getElementById('tutoModal')?.addEventListener('click', (e) => {
-  if (e.target === e.currentTarget) closeTutoModal();
-});
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') {
-    const modal = document.getElementById('tutoModal');
-    if (modal && !modal.classList.contains('hidden')) closeTutoModal();
-  }
-});
-
-function openTutoModal() {
-  document.getElementById('tutoModal').classList.remove('hidden');
-  document.getElementById('btnTutoClose').focus();
-}
-
-function closeTutoModal() {
-  document.getElementById('tutoModal').classList.add('hidden');
-}
+    document.getElementById('btnTuto')?.addEventListener('click', openTutoModal);
+    document.getElementById('btnTutoClose')?.addEventListener('click', closeTutoModal);
+    document.getElementById('btnTutoCloseFooter')?.addEventListener('click', closeTutoModal);
+    document.getElementById('tutoModal')?.addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) closeTutoModal();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const modal = document.getElementById('tutoModal');
+        if (modal && !modal.classList.contains('hidden')) closeTutoModal();
+      }
+    });
     moveSearchBarToView(currentView);
     renderCurrentView();
     updateGlobalProgress();
@@ -73,9 +54,6 @@ function closeTutoModal() {
   }
 });
 
-/* ═══════════════════════════════════════════════════
-   4. CHARGEMENT DES DONNÉES
-   ═══════════════════════════════════════════════════ */
 async function loadDatabase() {
   const response = await fetch(DATABASE_URL);
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -90,9 +68,6 @@ async function loadDatabase() {
   hideLoadingSpinner();
 }
 
-/* ═══════════════════════════════════════════════════
-   5. GESTION DE LA COLLECTION
-   ═══════════════════════════════════════════════════ */
 function getStatus(id) {
   return collectionState[id]?.status || 'missing';
 }
@@ -115,9 +90,6 @@ function setStatus(id, status, count) {
   updateGlobalProgress();
 }
 
-/* ═══════════════════════════════════════════════════
-   6. PERSISTANCE
-   ═══════════════════════════════════════════════════ */
 function saveCollectionToLocalStorage() {
   try {
     localStorage.setItem(LS_KEY, JSON.stringify(collectionState));
@@ -142,9 +114,6 @@ function loadCollectionFromLocalStorage() {
   }
 }
 
-/* ═══════════════════════════════════════════════════
-   7. EXPORT / IMPORT JSON
-   ═══════════════════════════════════════════════════ */
 function downloadJSONFile(data, filename) {
   const json = JSON.stringify(data, null, 2);
   const blob = new Blob([json], { type: 'application/json' });
@@ -208,9 +177,6 @@ function importCollectionFromJSON(file) {
   reader.readAsText(file);
 }
 
-/* ═══════════════════════════════════════════════════
-   8. NAVIGATION
-   ═══════════════════════════════════════════════════ */
 function initNavigation() {
   document.querySelectorAll('[data-view]').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -243,14 +209,11 @@ function renderCurrentView() {
     case 'manquantes': renderManquantesView();  break;
     case 'doublons':   renderDoublonsView();    break;
     case 'stats':      renderStatsView();       break;
-    case 'echanges':   /* rien à rendre */      break;
+    case 'echanges':   break;
     default: break;
   }
 }
 
-/* ═══════════════════════════════════════════════════
-   9. VUE ALBUM
-   ═══════════════════════════════════════════════════ */
 function initAlbumPageSelect() {
   const select = document.getElementById('albumPageSelect');
   select.innerHTML = '';
@@ -364,9 +327,6 @@ function buildStickerCard(sticker) {
   return article;
 }
 
-/* ═══════════════════════════════════════════════════
-   10. VUE DOUBLONS
-   ═══════════════════════════════════════════════════ */
 function initFilters() {
   document.getElementById('manqSectionFilter').addEventListener('change', renderManquantesView);
   document.getElementById('dblSectionFilter').addEventListener('change', renderDoublonsView);
@@ -462,9 +422,6 @@ function renderStickerList(container, stickersList, showDupCount = false) {
   container.appendChild(frag);
 }
 
-/* ═══════════════════════════════════════════════════
-   11. EXPORT TEXTE
-   ═══════════════════════════════════════════════════ */
 function generateExportText(stickersList) {
   const map = new Map();
   stickersList.forEach(s => {
@@ -533,9 +490,6 @@ function initExportImport() {
   });
 }
 
-/* ═══════════════════════════════════════════════════
-   12. STATISTIQUES
-   ═══════════════════════════════════════════════════ */
 function renderStatsView() {
   const total = stickers.length;
   const owned = stickers.filter(s => getStatus(s.ID) === 'owned').length;
@@ -601,9 +555,6 @@ function renderStatsBars() {
   });
 }
 
-/* ═══════════════════════════════════════════════════
-   13. UTILITAIRES PARTAGÉS
-   ═══════════════════════════════════════════════════ */
 function parseTextList(text) {
   const ids = new Set();
   const knownIDs = new Set(stickers.map(s => s.ID));
@@ -621,9 +572,6 @@ function parseTextList(text) {
   return ids;
 }
 
-/* ═══════════════════════════════════════════════════
-   14. MODALE VIGNETTE
-   ═══════════════════════════════════════════════════ */
 function initModal() {
   document.getElementById('btnModalClose').addEventListener('click', closeModal);
   document.getElementById('stickerModal').addEventListener('click', (e) => {
@@ -632,23 +580,23 @@ function initModal() {
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && modalStickerID) closeModal();
   });
-document.querySelectorAll('.btn-status').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const status = btn.dataset.status;
-    if (!modalStickerID) return;
-    setStatus(modalStickerID, status);
-    updateModalStatusButtons(status);
-    updateModalHeader(status);  // ← Mise à jour en direct
-    refreshStickerInView(modalStickerID);
-    if (status === 'duplicate') {
-      document.getElementById('modalDupControls').classList.remove('hidden');
-      document.getElementById('dupCountDisplay').textContent = getDupCount(modalStickerID);
-      updateDupMinusState();
-    } else {
-      document.getElementById('modalDupControls').classList.add('hidden');
-    }
+  document.querySelectorAll('.btn-status').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const status = btn.dataset.status;
+      if (!modalStickerID) return;
+      setStatus(modalStickerID, status);
+      updateModalStatusButtons(status);
+      updateModalHeader(status);
+      refreshStickerInView(modalStickerID);
+      if (status === 'duplicate') {
+        document.getElementById('modalDupControls').classList.remove('hidden');
+        document.getElementById('dupCountDisplay').textContent = getDupCount(modalStickerID);
+        updateDupMinusState();
+      } else {
+        document.getElementById('modalDupControls').classList.add('hidden');
+      }
+    });
   });
-});
   document.getElementById('btnDupPlus').addEventListener('click', () => {
     if (!modalStickerID) return;
     const newCount = (collectionState[modalStickerID]?.count || 2) + 1;
@@ -691,9 +639,7 @@ function openModal(id) {
     ${sticker.Groupe ? `<span>Groupe ${escHtml(sticker.Groupe)}</span>` : ''}
     <span>Page ${sticker['Page']}</span>
   `;
-  
   updateModalHeader(status);
-  
   updateModalStatusButtons(status);
   const dupControls = document.getElementById('modalDupControls');
   if (status === 'duplicate') {
@@ -703,13 +649,12 @@ function openModal(id) {
   } else {
     dupControls.classList.add('hidden');
   }
-
-const flagWrap = document.getElementById('modalFlagWrap');
-if (sticker.Type === 'Spécial') {
-  flagWrap.classList.add('holo');
-} else {
-  flagWrap.classList.remove('holo');
-}
+  const flagWrap = document.getElementById('modalFlagWrap');
+  if (sticker.Type === 'Spécial') {
+    flagWrap.classList.add('holo');
+  } else {
+    flagWrap.classList.remove('holo');
+  }
   document.getElementById('stickerModal').classList.remove('hidden');
   document.getElementById('btnModalClose').focus();
 }
@@ -753,9 +698,6 @@ function refreshStickerInView(id) {
   if (currentView === 'stats')      renderStatsView();
 }
 
-/* ═══════════════════════════════════════════════════
-   15. BARRE DE PROGRESSION
-   ═══════════════════════════════════════════════════ */
 function updateGlobalProgress() {
   const total = stickers.length;
   const owned = stickers.filter(s => getStatus(s.ID) !== 'missing').length;
@@ -766,9 +708,6 @@ function updateGlobalProgress() {
   document.getElementById('progressFill').style.width = `${pct}%`;
 }
 
-/* ═══════════════════════════════════════════════════
-   16. UTILITAIRES
-   ═══════════════════════════════════════════════════ */
 function escHtml(str) {
   if (!str) return '';
   return String(str)
@@ -813,9 +752,6 @@ function showLoadingSpinner() {
 
 function hideLoadingSpinner() {}
 
-/* ═══════════════════════════════════════════════════
-   17. RECHERCHE GLOBALE
-   ═══════════════════════════════════════════════════ */
 function initGlobalSearch() {
   const input = document.getElementById('globalSearch');
   const clearBtn = document.getElementById('searchClear');
@@ -921,9 +857,6 @@ function createSearchBanner(count, q) {
   return banner;
 }
 
-/* ═══════════════════════════════════════════════════
-   18. MODE OUVERTURE DE BOOSTER
-   ═══════════════════════════════════════════════════ */
 function initBoosterModal() {
   const fab = document.getElementById('fabBooster');
   const modal = document.getElementById('boosterModal');
@@ -1034,9 +967,6 @@ function updateBoosterPreview(raw, preview) {
   preview.appendChild(frag);
 }
 
-/* ═══════════════════════════════════════════════════
-   19. MATCHMAKER
-   ═══════════════════════════════════════════════════ */
 function initMatchmaker() {
   const inputFriendJSON = document.getElementById('inputFriendJSON');
   const btnExportMatch = document.getElementById('btnExportMatch');
@@ -1056,19 +986,19 @@ function initMatchmaker() {
 
   function setMatchmakerMode(mode) {
     const isManual = mode === 'manual';
-    modeBtnImport && modeBtnImport.classList.toggle('active', !isManual);
-    modeBtnManual && modeBtnManual.classList.toggle('active', isManual);
-    modeBtnImport && modeBtnImport.setAttribute('aria-selected', String(!isManual));
-    modeBtnManual && modeBtnManual.setAttribute('aria-selected', String(isManual));
-    modePanelImport && modePanelImport.classList.toggle('hidden', isManual);
-    modePanelManual && modePanelManual.classList.toggle('hidden', !isManual);
+    modeBtnImport?.classList.toggle('active', !isManual);
+    modeBtnManual?.classList.toggle('active', isManual);
+    if (modeBtnImport) modeBtnImport.setAttribute('aria-selected', String(!isManual));
+    if (modeBtnManual) modeBtnManual.setAttribute('aria-selected', String(isManual));
+    if (modePanelImport) modePanelImport.classList.toggle('hidden', isManual);
+    if (modePanelManual) modePanelManual.classList.toggle('hidden', !isManual);
   }
 
-  modeBtnImport && modeBtnImport.addEventListener('click', () => setMatchmakerMode('import'));
-  modeBtnManual && modeBtnManual.addEventListener('click', () => setMatchmakerMode('manual'));
+  modeBtnImport?.addEventListener('click', () => setMatchmakerMode('import'));
+  modeBtnManual?.addEventListener('click', () => setMatchmakerMode('manual'));
 
   const btnAnalyseManual = document.getElementById('btnAnalyseManual');
-  btnAnalyseManual && btnAnalyseManual.addEventListener('click', runMatchmakerManual);
+  btnAnalyseManual?.addEventListener('click', runMatchmakerManual);
 
   inputFriendJSON.addEventListener('change', (e) => {
     const file = e.target.files[0];
@@ -1080,19 +1010,19 @@ function initMatchmaker() {
     e.target.value = '';
   });
 
-  btnExportMatch && btnExportMatch.addEventListener('click', exportMatchSummary);
-  btnCopyMatch && btnCopyMatch.addEventListener('click', exportMatchSummary);
-  btnCopyMatchText && btnCopyMatchText.addEventListener('click', () => copyTextarea('matchTextarea'));
-  resultsEl && resultsEl.addEventListener('change', (e) => {
+  btnExportMatch?.addEventListener('click', exportMatchSummary);
+  btnCopyMatch?.addEventListener('click', exportMatchSummary);
+  btnCopyMatchText?.addEventListener('click', () => copyTextarea('matchTextarea'));
+  resultsEl?.addEventListener('change', (e) => {
     if (!e.target.classList.contains('match-tag-check')) return;
     const tag = e.target.closest('.match-tag');
-    tag && tag.classList.toggle('excluded', !e.target.checked);
+    tag?.classList.toggle('excluded', !e.target.checked);
     updateValidateHint();
   });
-  btnSelectAllMatches && btnSelectAllMatches.addEventListener('click', () => setAllMatchChecks(true));
-  btnSelectNoneMatches && btnSelectNoneMatches.addEventListener('click', () => setAllMatchChecks(false));
-  btnValidateExchange && btnValidateExchange.addEventListener('click', validateExchange);
-  btnCloseMatchExport && btnCloseMatchExport.addEventListener('click', () => {
+  btnSelectAllMatches?.addEventListener('click', () => setAllMatchChecks(true));
+  btnSelectNoneMatches?.addEventListener('click', () => setAllMatchChecks(false));
+  btnValidateExchange?.addEventListener('click', validateExchange);
+  btnCloseMatchExport?.addEventListener('click', () => {
     document.getElementById('matchExportZone').classList.add('hidden');
   });
 }
@@ -1229,24 +1159,19 @@ function setAllMatchChecks(checked) {
 function updateValidateHint() {
   const hint = document.getElementById('validateHint');
   if (!hint) return;
-
   const giveChecked = document.querySelectorAll('#giveList .match-tag-check:checked').length;
   const receiveChecked = document.querySelectorAll('#receiveList .match-tag-check:checked').length;
   const total = giveChecked + receiveChecked;
-
   if (total === 0) {
     hint.textContent = 'Décoche les cartes qui n\'ont pas été échangées, puis valide pour mettre à jour ta collection.';
     return;
   }
-
   const vignettePluriel = total > 1 ? 's' : '';
   const etre = total > 1 ? 'seront' : 'sera';
   const marquePluriel = total > 1 ? 's' : '';
   const echangePluriel = total > 1 ? 's' : '';
-
   const donnePluriel = giveChecked > 1 ? 's' : '';
   const recuPluriel = receiveChecked > 1 ? 's' : '';
-
   hint.textContent =
     `${total} vignette${vignettePluriel} ${etre} marquée${marquePluriel} comme échangée${echangePluriel} : ` +
     `${giveChecked} donnée${donnePluriel}, ${receiveChecked} reçue${recuPluriel}.`;
@@ -1293,8 +1218,6 @@ function validateExchange() {
   refreshMatchResults();
   const total = selectedGive.length + selectedReceive.length;
   const plural = total > 1 ? 's' : '';
-  const givePlural = selectedGive.length > 1 ? 's' : '';
-  const receivePlural = selectedReceive.length > 1 ? 's' : '';
   showToast(`Échange validé : ${total} vignette${plural} mise${plural} à jour. Fichier pour ton échangeur téléchargé.`, 3500);
 }
 
@@ -1322,4 +1245,13 @@ function exportMatchSummary() {
   const zone = document.getElementById('matchExportZone');
   zone.classList.remove('hidden');
   zone.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function openTutoModal() {
+  document.getElementById('tutoModal').classList.remove('hidden');
+  document.getElementById('btnTutoClose').focus();
+}
+
+function closeTutoModal() {
+  document.getElementById('tutoModal').classList.add('hidden');
 }
