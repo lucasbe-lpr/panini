@@ -830,7 +830,7 @@ body {
 
 /* Booster */
 .booster-card { max-width: 460px !important; }
-.booster-header { background: var(--gray-50) !important; color: var(--white) !important; }
+.booster-header { background: var(--gray-50) !important; color: var(--black) !important; }
 .booster-body { padding: var(--sp-sm); display: flex; flex-direction: column; gap: var(--sp-xs); border-bottom: 2px solid var(--gray-300); }
 .booster-hint { font-size: 12px; color: var(--gray-500); }
 .booster-hint code { background: var(--gray-100); padding: 2px 6px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 700; }
