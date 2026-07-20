@@ -644,7 +644,7 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
-.list-group-header img { height: 18px; width: auto; border: 1px solid var(--gray-300); border-radius: 2px; }
+.list-group-header img { height: 18px; width: auto; border: 1px solid var(--white); border-radius: 2px; }
 
 /* Export texte */
 .export-zone {
