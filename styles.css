@@ -1370,9 +1370,3 @@ body {
   .header-actions .btn .btn-label {
     display: none !important;
   }
-
-  /* Bouton Réinitialiser toujours caché sur mobile */
-  #btnReset {
-    display: none !important;
-  }
-}
