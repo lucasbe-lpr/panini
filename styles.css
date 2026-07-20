@@ -1034,7 +1034,7 @@ body {
 
 .matchmaker-validate {
   background: var(--white);
-  border: 3px solid var(--color-owned);
+  border: 3px solid #67FEDB;
   border-radius: var(--radius-md);
   padding: var(--sp-sm);
   margin-bottom: var(--sp-sm);
