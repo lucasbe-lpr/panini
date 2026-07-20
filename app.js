@@ -681,6 +681,13 @@ function openModal(id) {
   } else {
     dupControls.classList.add('hidden');
   }
+
+const flagWrap = document.getElementById('modalFlagWrap');
+if (sticker.Type === 'Spécial') {
+  flagWrap.classList.add('holo');
+} else {
+  flagWrap.classList.remove('holo');
+}
   document.getElementById('stickerModal').classList.remove('hidden');
   document.getElementById('btnModalClose').focus();
 }
