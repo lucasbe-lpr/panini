@@ -1,5 +1,5 @@
 /**
- * PANINI WC 2026 — APPLICATION JAVASCRIPT COMPLÈTE
+ * COLLECTION PANINI FWC26
  * Logique métier, gestion d'état, rendu des vues, import/export
  */
 
@@ -343,7 +343,7 @@ function buildStickerCard(sticker) {
 }
 
 /* ═══════════════════════════════════════════════════
-   10. VUES MANQUANTES / DOUBLONS
+   10. VUE DOUBLONS
    ═══════════════════════════════════════════════════ */
 function initFilters() {
   document.getElementById('manqSectionFilter').addEventListener('change', renderManquantesView);
@@ -1266,7 +1266,7 @@ function exportMatchSummary() {
   const giveText = giveList.length ? giveList.join(', ') : 'Aucun doublon à donner';
   const receiveText = receiveList.length ? receiveList.join(', ') : 'Aucune vignette à recevoir';
   const text = [
-    '=== RÉCAPITULATIF ÉCHANGE PANINI WC2026 ===',
+    'RÉCAPITULATIF',
     '',
     `Ce que je peux te donner (${giveList.length}) :`,
     giveText,
@@ -1274,7 +1274,7 @@ function exportMatchSummary() {
     `Ce que tu peux me donner (${receiveList.length}) :`,
     receiveText,
     '',
-    `Généré le ${new Date().toLocaleDateString('fr-FR')} via Panini WC2026 Tracker`,
+    `Généré le ${new Date().toLocaleDateString('fr-FR')} via Ma collection Panini FWC26`,
   ].join('\n');
   document.getElementById('matchTextarea').value = text;
   const zone = document.getElementById('matchExportZone');
