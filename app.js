@@ -138,7 +138,7 @@ function downloadJSONFile(data, filename) {
 
 function exportCollectionAsJSON() {
   try {
-    downloadJSONFile(collectionState, 'ma-collection-wc2026.json');
+    downloadJSONFile(collectionState, 'ma-collection.json');
     showToast('Collection exportée avec succès.');
   } catch (e) {
     console.error('Erreur lors de l\'export :', e);
@@ -175,7 +175,8 @@ function importCollectionFromJSON(file) {
       saveCollectionToLocalStorage();
       renderCurrentView();
       updateGlobalProgress();
-      showToast(`Collection importée (${validKeys.length} vignettes chargées).`);
+      const plural = validKeys.length > 1 ? 's' : '';
+      showToast(`Collection importée (${validKeys.length} vignette${plural} chargée${plural}).`);
     } catch (e) {
       console.error('Erreur lors de l\'import :', e);
       showToast(`Erreur d'import : ${e.message}`);
@@ -933,7 +934,8 @@ function initBoosterModal() {
     });
     renderCurrentView();
     closeBoosterModal();
-    showToast(`${ids.valid.length} vignette${ids.valid.length > 1 ? 's' : ''} ajoutée${ids.valid.length > 1 ? 's' : ''}.`, 3000);
+    const plural = ids.valid.length > 1 ? 's' : '';
+    showToast(`${ids.valid.length} vignette${plural} ajoutée${plural}.`, 3000);
   });
 }
 
@@ -1100,7 +1102,7 @@ function runMatchmakerManual() {
   const duplicatesRaw = document.getElementById('friendDuplicatesInput').value.trim();
   const missingRaw = document.getElementById('friendMissingInput').value.trim();
   if (!duplicatesRaw && !missingRaw) {
-    showToast('La liste de ton ami est vide.');
+    showToast('La liste de ton échangeur est vide.');
     return;
   }
   const parsed = parseFriendManual(duplicatesRaw, missingRaw);
@@ -1118,16 +1120,16 @@ function refreshMatchResults() {
   const emptyEl = document.getElementById('echangeResults');
   const mesManquantes = new Set(stickers.filter(s => getStatus(s.ID) === 'missing').map(s => s.ID));
   const mesDoublons = new Set(stickers.filter(s => getStatus(s.ID) === 'duplicate').map(s => s.ID));
-  const amiManquantes = new Set(stickers.filter(s => {
+  const échangeurManquantes = new Set(stickers.filter(s => {
     const entry = friendCollection[s.ID];
     return !entry || entry.status === 'missing';
   }).map(s => s.ID));
-  const amiDoublons = new Set(stickers.filter(s => {
+  const échangeurDoublons = new Set(stickers.filter(s => {
     const entry = friendCollection[s.ID];
     return entry && entry.status === 'duplicate';
   }).map(s => s.ID));
-  const jeDonne = [...mesDoublons].filter(id => amiManquantes.has(id));
-  const ilDonne = [...mesManquantes].filter(id => amiDoublons.has(id));
+  const jeDonne = [...mesDoublons].filter(id => échangeurManquantes.has(id));
+  const ilDonne = [...mesManquantes].filter(id => échangeurDoublons.has(id));
   emptyEl.classList.add('hidden');
   resultsEl.classList.remove('hidden');
   document.getElementById('matchmakerSummary').innerHTML = `
@@ -1203,7 +1205,7 @@ function updateValidateHint() {
 
 function validateExchange() {
   if (!friendCollection) {
-    showToast('Analyse d\'abord la collection de ton ami.');
+    showToast('Analyse d\'abord la collection de ton échangeur.');
     return;
   }
   const selectedGive = Array.from(document.querySelectorAll('#giveList .match-tag'))
@@ -1236,12 +1238,15 @@ function validateExchange() {
       ? { status: 'owned', count: 0 }
       : { status: 'duplicate', count: next };
   });
-  downloadJSONFile(friendCollection, `collection-ami-apres-echange-${dateStamp()}.json`);
+  downloadJSONFile(friendCollection, `collection-de-ton-échangeur-à-jour-${dateStamp()}.json`);
   renderCurrentView();
   updateGlobalProgress();
   refreshMatchResults();
   const total = selectedGive.length + selectedReceive.length;
-  showToast(`Échange validé : ${total} vignette${total > 1 ? 's' : ''} mise${total > 1 ? 's' : ''} à jour. Fichier pour ton ami téléchargé.`, 3500);
+  const plural = total > 1 ? 's' : '';
+  const givePlural = selectedGive.length > 1 ? 's' : '';
+  const receivePlural = selectedReceive.length > 1 ? 's' : '';
+  showToast(`Échange validé : ${total} vignette${plural} mise${plural} à jour. Fichier pour ton échangeur téléchargé.`, 3500);
 }
 
 function exportMatchSummary() {
