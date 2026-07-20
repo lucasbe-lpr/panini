@@ -610,22 +610,23 @@ function initModal() {
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && modalStickerID) closeModal();
   });
-  document.querySelectorAll('.btn-status').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const status = btn.dataset.status;
-      if (!modalStickerID) return;
-      setStatus(modalStickerID, status);
-      updateModalStatusButtons(status);
-      refreshStickerInView(modalStickerID);
-      if (status === 'duplicate') {
-        document.getElementById('modalDupControls').classList.remove('hidden');
-        document.getElementById('dupCountDisplay').textContent = getDupCount(modalStickerID);
-        updateDupMinusState();
-      } else {
-        document.getElementById('modalDupControls').classList.add('hidden');
-      }
-    });
+document.querySelectorAll('.btn-status').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const status = btn.dataset.status;
+    if (!modalStickerID) return;
+    setStatus(modalStickerID, status);
+    updateModalStatusButtons(status);
+    updateModalHeader(status);  // ← Mise à jour en direct
+    refreshStickerInView(modalStickerID);
+    if (status === 'duplicate') {
+      document.getElementById('modalDupControls').classList.remove('hidden');
+      document.getElementById('dupCountDisplay').textContent = getDupCount(modalStickerID);
+      updateDupMinusState();
+    } else {
+      document.getElementById('modalDupControls').classList.add('hidden');
+    }
   });
+});
   document.getElementById('btnDupPlus').addEventListener('click', () => {
     if (!modalStickerID) return;
     const newCount = (collectionState[modalStickerID]?.count || 2) + 1;
@@ -668,15 +669,9 @@ function openModal(id) {
     ${sticker.Groupe ? `<span>Groupe ${escHtml(sticker.Groupe)}</span>` : ''}
     <span>Page ${sticker['Page']}</span>
   `;
-  const headerColors = {
-    owned:     { bg: 'var(--green-deep)',      fg: 'var(--yellow-lime)' },
-    missing:   { bg: 'var(--surface-mid)',     fg: 'var(--outline)' },
-    duplicate: { bg: 'var(--orange-vibrant)',  fg: '#fff' },
-  };
-  const colors = headerColors[status] || headerColors.missing;
-  const header = document.getElementById('modalHeader');
-  header.style.background = colors.bg;
-  header.style.color = '#ffffff';
+  
+  updateModalHeader(status);
+  
   updateModalStatusButtons(status);
   const dupControls = document.getElementById('modalDupControls');
   if (status === 'duplicate') {
@@ -688,6 +683,18 @@ function openModal(id) {
   }
   document.getElementById('stickerModal').classList.remove('hidden');
   document.getElementById('btnModalClose').focus();
+}
+
+function updateModalHeader(status) {
+  const header = document.getElementById('modalHeader');
+  const headerColors = {
+    owned:     { bg: 'var(--green-deep)' },
+    missing:   { bg: 'var(--surface-mid)' },
+    duplicate: { bg: 'var(--orange-vibrant)' }
+  };
+  const colors = headerColors[status] || headerColors.missing;
+  header.style.background = colors.bg;
+  header.style.color = '#ffffff';
 }
 
 function closeModal() {
