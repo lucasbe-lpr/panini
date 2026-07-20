@@ -676,7 +676,7 @@ function openModal(id) {
   const colors = headerColors[status] || headerColors.missing;
   const header = document.getElementById('modalHeader');
   header.style.background = colors.bg;
-  header.style.color = colors.fg;
+  header.style.color = '#ffffff';
   updateModalStatusButtons(status);
   const dupControls = document.getElementById('modalDupControls');
   if (status === 'duplicate') {
