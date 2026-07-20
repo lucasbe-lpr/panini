@@ -1363,9 +1363,3 @@ body {
     justify-content: center;
   }
 }
-@media (max-width: 800px) {
-  /* Masquer le bouton Réinitialiser sur mobile */
-  #btnReset {
-    display: none !important;
-  }
-}
