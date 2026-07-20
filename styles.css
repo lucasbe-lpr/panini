@@ -1020,25 +1020,43 @@ body {
   transform: translate(-1px, -1px);
 }
 
+.match-tag {
+  display: inline-flex;
+  align-items: center;        
+  gap: 6px;                  
+  padding: 4px 10px 4px 8px;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 11px;
+  line-height: 1;            
+  border: 2px solid var(--black);
+  border-radius: var(--radius-sm);
+  background: var(--gray-50);
+  box-shadow: 2px 2px 0 var(--black);
+  cursor: pointer;
+  transition: transform 0.1s, opacity 0.15s;
+}
+.match-tag:hover {
+  transform: translate(-1px, -1px);
+}
+
 .match-tag-check {
   width: 16px;
   height: 16px;
   margin: 0;
-  flex-shrink: 0;
+  flex-shrink: 0;            /* ← empêche la case de rétrécir */
   cursor: pointer;
   accent-color: var(--black);
 }
 
 .match-tag .match-tag-code {
-  pointer-events: none;
+  pointer-events: none;      /* ← pour que le clic aille sur la checkbox */
 }
 
-/* Cache le nom du joueur par défaut (comme dans ta version originale) */
 .match-tag .tag-name {
   display: none;
 }
 
-/* Style quand la case est décochée */
 .match-tag.excluded {
   opacity: 0.45;
   box-shadow: none;
