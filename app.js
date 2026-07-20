@@ -1207,14 +1207,27 @@ function setAllMatchChecks(checked) {
 function updateValidateHint() {
   const hint = document.getElementById('validateHint');
   if (!hint) return;
+
   const giveChecked = document.querySelectorAll('#giveList .match-tag-check:checked').length;
   const receiveChecked = document.querySelectorAll('#receiveList .match-tag-check:checked').length;
   const total = giveChecked + receiveChecked;
+
   if (total === 0) {
     hint.textContent = 'Décoche les cartes qui n\'ont pas été échangées, puis valide pour mettre à jour ta collection.';
-  } else {
-    hint.textContent = `${total} vignette${total > 1 ? 's' : ''} seront marquées comme échangées : ${giveChecked} donnée${giveChecked > 1 ? 's' : ''}, ${receiveChecked} reçue${receiveChecked > 1 ? 's' : ''}.`;
+    return;
   }
+
+  const vignettePluriel = total > 1 ? 's' : '';
+  const etre = total > 1 ? 'seront' : 'sera';
+  const marquePluriel = total > 1 ? 's' : '';
+  const echangePluriel = total > 1 ? 's' : '';
+
+  const donnePluriel = giveChecked > 1 ? 's' : '';
+  const recuPluriel = receiveChecked > 1 ? 's' : '';
+
+  hint.textContent =
+    `${total} vignette${vignettePluriel} ${etre} marquée${marquePluriel} comme échangée${echangePluriel} : ` +
+    `${giveChecked} donnée${donnePluriel}, ${receiveChecked} reçue${recuPluriel}.`;
 }
 
 function validateExchange() {
