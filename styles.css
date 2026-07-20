@@ -1231,12 +1231,18 @@ body {
 }
 @media (max-width: 420px) { .header-inner { gap: 8px; } }
 
-/* ===== MODALE TUTORIEL ===== */
 .tuto-card {
   max-width: 560px !important;
-  max-height: 90vh;
+  max-height: 80vh !important;   /* ← hauteur max 80% de l'écran */
+  height: auto;
+  margin: 10vh auto !important;  /* ← centrée verticalement (10% en haut et en bas) */
   display: flex;
   flex-direction: column;
+  border: 4px solid var(--black);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  background: var(--white);
+  overflow: hidden;              /* ← empêche le débordement */
 }
 .tuto-header {
   background: var(--black) !important;
@@ -1244,7 +1250,7 @@ body {
 }
 .tuto-body {
   padding: var(--sp-md);
-  overflow-y: auto;
+  overflow-y: auto;   /* ← permet le scroll interne */
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -1321,5 +1327,39 @@ body {
   .tuto-section-icon {
     width: 48px;
     height: 48px;
+  }
+}
+
+/* ===== HEADER SUR MOBILE ===== */
+@media (max-width: 600px) {
+  .header-actions {
+    gap: 4px;
+  }
+  .header-actions .btn {
+    padding: 6px 6px;
+    min-width: auto;
+    font-size: 0;                /* ← cache tout texte résiduel */
+  }
+  .header-actions .btn .material-symbols-outlined {
+    font-size: 20px;            /* ← icône un peu plus petite */
+  }
+  .header-actions .btn .btn-label {
+    display: none !important;    /* ← on cache le texte */
+  }
+  .header-inner {
+    padding: 0 8px;
+    gap: 8px;
+  }
+  .header-brand-text .brand-title {
+    font-size: 18px;            /* ← titre un peu plus petit */
+  }
+  .header-credit {
+    display: none;              /* ← on cache "par Lucas..." pour gagner de la place */
+  }
+  /* Pour que les boutons restent bien alignés */
+  .header-actions .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
 }
