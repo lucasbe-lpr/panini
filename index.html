@@ -11,8 +11,6 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-
-  <!-- EN-TÊTE -->
   <header class="app-header">
     <div class="header-inner">
       <div class="header-brand">
@@ -47,13 +45,12 @@
           <span class="material-symbols-outlined">restart_alt</span>
         </button>
         <button class="btn btn-secondary" id="btnTuto" title="Aide &amp; tutoriel">
-        <span class="material-symbols-outlined">help_outline</span>
-       </button>
+          <span class="material-symbols-outlined">help_outline</span>
+        </button>
       </div>
     </div>
   </header>
 
-  <!-- NAVIGATION DESKTOP -->
   <nav class="main-nav" role="navigation" aria-label="Navigation principale">
     <button class="nav-btn active" data-view="album" aria-pressed="true">
       <span class="material-symbols-outlined" aria-hidden="true">menu_book</span>
@@ -77,10 +74,7 @@
     </button>
   </nav>
 
-  <!-- CONTENU PRINCIPAL -->
   <main class="app-main" id="appMain">
-
-    <!-- VUE ALBUM -->
     <section class="view" id="view-album" aria-label="Vue Album">
       <div class="view-search-slot" id="searchSlot-album">
         <div class="view-search" id="viewSearchBar">
@@ -117,7 +111,6 @@
       <div class="sticker-grid" id="stickerGrid" role="list" aria-label="Vignettes de la page"></div>
     </section>
 
-    <!-- VUE MANQUANTES -->
     <section class="view hidden" id="view-manquantes" aria-label="Mes vignettes manquantes">
       <div class="view-search-slot" id="searchSlot-manquantes"></div>
       <div class="view-header">
@@ -148,7 +141,6 @@
       </div>
     </section>
 
-    <!-- VUE DOUBLONS -->
     <section class="view hidden" id="view-doublons" aria-label="Mes doublons">
       <div class="view-search-slot" id="searchSlot-doublons"></div>
       <div class="view-header">
@@ -179,7 +171,6 @@
       </div>
     </section>
 
-    <!-- VUE STATISTIQUES -->
     <section class="view hidden" id="view-stats" aria-label="Statistiques de la collection">
       <div class="view-header">
         <h2 class="view-title">Vue globale</h2>
@@ -189,12 +180,10 @@
       <div class="stats-bars" id="statsBars"></div>
     </section>
 
-    <!-- VUE ÉCHANGES -->
     <section class="view hidden" id="view-echanges" aria-label="Gestion des échanges">
       <div class="view-header">
         <h2 class="view-title">Gestion des échanges</h2>
       </div>
-
       <div class="matchmaker-import-block">
         <div class="matchmaker-import-header">
           <span class="material-symbols-outlined">person_add</span>
@@ -239,7 +228,6 @@
           </div>
         </div>
       </div>
-
       <div class="matchmaker-results hidden" id="matchmakerResults">
         <div class="matchmaker-summary" id="matchmakerSummary"></div>
         <div class="matchmaker-split">
@@ -295,7 +283,6 @@
           <textarea id="matchTextarea" class="export-textarea" readonly></textarea>
         </div>
       </div>
-
       <div class="echange-results" id="echangeResults">
         <div class="echange-empty">
           <span class="material-symbols-outlined">swap_horiz</span>
@@ -303,10 +290,8 @@
         </div>
       </div>
     </section>
-
   </main>
 
-  <!-- NAVIGATION MOBILE -->
   <nav class="mobile-nav" role="navigation" aria-label="Navigation mobile">
     <button class="mobile-nav-btn active" data-view="album">
       <span class="material-symbols-outlined">menu_book</span>
@@ -330,7 +315,6 @@
     </button>
   </nav>
 
-  <!-- MODALE BOOSTER -->
   <div class="modal-overlay hidden" id="boosterModal" role="dialog" aria-modal="true" aria-labelledby="boosterTitle">
     <div class="modal-card booster-card">
       <div class="modal-header booster-header">
@@ -342,7 +326,7 @@
       <div class="booster-body">
         <label class="field-label" for="boosterInput">Saisis les IDs :</label>
         <p class="booster-hint">Exemple : <code>USA 4, 12, 17</code></p>
-        <textarea id="boosterInput" class="exchange-textarea booster-textarea" placeholder=" FWC	0, 14&#10; MEX	1, 5, 17, 19, 20&#10; RSA	7, 8, 11..." rows="4"></textarea>
+        <textarea id="boosterInput" class="exchange-textarea booster-textarea" placeholder=" FWC 0, 14&#10; MEX 1, 5, 17, 19, 20&#10; RSA 7, 8, 11..." rows="4"></textarea>
         <div class="booster-preview" id="boosterPreview"></div>
       </div>
       <div class="booster-footer">
@@ -355,10 +339,8 @@
     </div>
   </div>
 
-  <!-- TOAST -->
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <!-- MODALE VIGNETTE -->
   <div class="modal-overlay hidden" id="stickerModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-card">
       <div class="modal-header" id="modalHeader">
@@ -400,85 +382,85 @@
     </div>
   </div>
 
-  <script src="app.js"></script>
-  <!-- MODALE TUTORIEL -->
-<div class="modal-overlay hidden" id="tutoModal" role="dialog" aria-modal="true" aria-labelledby="tutoTitle">
-  <div class="modal-card tuto-card">
-    <div class="modal-header tuto-header">
-      <span class="modal-id" id="tutoTitle">Aide &amp; tutoriel</span>
-      <button class="btn btn-icon modal-close" id="btnTutoClose" aria-label="Fermer">
-        <span class="material-symbols-outlined">close</span>
-      </button>
-    </div>
-    <div class="tuto-body">
-      <div class="tuto-section">
-        <div class="tuto-section-icon">
-          <span class="material-symbols-outlined">menu_book</span>
+  <div class="modal-overlay hidden" id="tutoModal" role="dialog" aria-modal="true" aria-labelledby="tutoTitle">
+    <div class="modal-card tuto-card">
+      <div class="modal-header tuto-header">
+        <span class="modal-id" id="tutoTitle">Aide &amp; tutoriel</span>
+        <button class="btn btn-icon modal-close" id="btnTutoClose" aria-label="Fermer">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="tuto-body">
+        <div class="tuto-section">
+          <div class="tuto-section-icon">
+            <span class="material-symbols-outlined">menu_book</span>
+          </div>
+          <div class="tuto-section-content">
+            <h4>Album</h4>
+            <p>Parcours les pages de l’album à l’aide des flèches ou du menu déroulant. Clique sur une vignette pour modifier son statut : <strong>possédée</strong>, <strong>manquante</strong> ou <strong>doublon</strong>.</p>
+          </div>
         </div>
-        <div class="tuto-section-content">
-          <h4>Album</h4>
-          <p>Parcours les pages de l’album à l’aide des flèches ou du menu déroulant. Clique sur une vignette pour modifier son statut : <strong>possédée</strong>, <strong>manquante</strong> ou <strong>doublon</strong>.</p>
+        <div class="tuto-section">
+          <div class="tuto-section-icon">
+            <span class="material-symbols-outlined">search_off</span>
+          </div>
+          <div class="tuto-section-content">
+            <h4>Manquantes</h4>
+            <p>Visionne toutes les vignettes qu’il te reste à trouver. Tu peux filtrer par section et exporter la liste au format texte pour la partager.</p>
+          </div>
+        </div>
+        <div class="tuto-section">
+          <div class="tuto-section-icon">
+            <span class="material-symbols-outlined">content_copy</span>
+          </div>
+          <div class="tuto-section-content">
+            <h4>Doublons</h4>
+            <p>Consulte tes vignettes en double, avec leur quantité exacte. Exporte également la liste pour faciliter tes échanges.</p>
+          </div>
+        </div>
+        <div class="tuto-section">
+          <div class="tuto-section-icon">
+            <span class="material-symbols-outlined">leaderboard</span>
+          </div>
+          <div class="tuto-section-content">
+            <h4>Statistiques</h4>
+            <p>Suis ta progression globale et par pays grâce aux barres de complétion. Idéal pour visualiser d’un coup d’œil où tu en es.</p>
+          </div>
+        </div>
+        <div class="tuto-section">
+          <div class="tuto-section-icon">
+            <span class="material-symbols-outlined">swap_horiz</span>
+          </div>
+          <div class="tuto-section-content">
+            <h4>Échanges</h4>
+            <p>Importe la collection de ton échangeur (fichier JSON ou saisie manuelle). L’app analyse automatiquement les doublons et les manquantes mutuels, et te propose un échange équilibré.</p>
+          </div>
+        </div>
+        <div class="tuto-section">
+          <div class="tuto-section-icon">
+            <span class="material-symbols-outlined">stacks</span>
+          </div>
+          <div class="tuto-section-content">
+            <h4>Booster</h4>
+            <p>Ouvre un booster en saisissant les IDs des vignettes que tu viens d’obtenir. L’app les ajoute automatiquement à ta collection, en gérant les doublons.</p>
+          </div>
+        </div>
+        <div class="tuto-section">
+          <div class="tuto-section-icon">
+            <span class="material-symbols-outlined">save</span>
+          </div>
+          <div class="tuto-section-content">
+            <h4>Export / Import</h4>
+            <p>Exporte ta collection au format JSON pour la sauvegarder ou la partager. Importe également un fichier JSON pour restaurer ta progression.</p>
+          </div>
         </div>
       </div>
-      <div class="tuto-section">
-        <div class="tuto-section-icon">
-          <span class="material-symbols-outlined">search_off</span>
-        </div>
-        <div class="tuto-section-content">
-          <h4>Manquantes</h4>
-          <p>Visionne toutes les vignettes qu’il te reste à trouver. Tu peux filtrer par section et exporter la liste au format texte pour la partager.</p>
-        </div>
+      <div class="tuto-footer">
+        <button class="btn btn-primary" id="btnTutoCloseFooter">J’ai compris !</button>
       </div>
-      <div class="tuto-section">
-        <div class="tuto-section-icon">
-          <span class="material-symbols-outlined">content_copy</span>
-        </div>
-        <div class="tuto-section-content">
-          <h4>Doublons</h4>
-          <p>Consulte tes vignettes en double, avec leur quantité exacte. Exporte également la liste pour faciliter tes échanges.</p>
-        </div>
-      </div>
-      <div class="tuto-section">
-        <div class="tuto-section-icon">
-          <span class="material-symbols-outlined">leaderboard</span>
-        </div>
-        <div class="tuto-section-content">
-          <h4>Statistiques</h4>
-          <p>Suis ta progression globale et par pays grâce aux barres de complétion. Idéal pour visualiser d’un coup d’œil où tu en es.</p>
-        </div>
-      </div>
-      <div class="tuto-section">
-        <div class="tuto-section-icon">
-          <span class="material-symbols-outlined">swap_horiz</span>
-        </div>
-        <div class="tuto-section-content">
-          <h4>Échanges</h4>
-          <p>Importe la collection de ton échangeur (fichier JSON ou saisie manuelle). L’app analyse automatiquement les doublons et les manquantes mutuels, et te propose un échange équilibré.</p>
-        </div>
-      </div>
-      <div class="tuto-section">
-        <div class="tuto-section-icon">
-          <span class="material-symbols-outlined">stacks</span>
-        </div>
-        <div class="tuto-section-content">
-          <h4>Booster</h4>
-          <p>Ouvre un booster en saisissant les IDs des vignettes que tu viens d’obtenir. L’app les ajoute automatiquement à ta collection, en gérant les doublons.</p>
-        </div>
-      </div>
-      <div class="tuto-section">
-        <div class="tuto-section-icon">
-          <span class="material-symbols-outlined">save</span>
-        </div>
-        <div class="tuto-section-content">
-          <h4>Export / Import</h4>
-          <p>Exporte ta collection au format JSON pour la sauvegarder ou la partager. Importe également un fichier JSON pour restaurer ta progression.</p>
-        </div>
-      </div>
-    </div>
-    <div class="tuto-footer">
-      <button class="btn btn-primary" id="btnTutoCloseFooter">J’ai compris !</button>
     </div>
   </div>
-</div>
+
+  <script src="app.js"></script>
 </body>
 </html>
