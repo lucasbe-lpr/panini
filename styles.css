@@ -397,37 +397,23 @@ body {
 }
 .sticker-card:hover .dup-badge { transform: rotate(0deg); }
 
-/* Effet holographique */
-@keyframes holo-shift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
+/* Effet holographique Spécial */
+@keyframes holo-shift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 .sticker-card[data-type="Spécial"]::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(125deg, 
-    rgba(255, 0, 0, 0.25), 
-    rgba(255, 255, 0, 0.25), 
-    rgba(0, 255, 0, 0.25), 
-    rgba(0, 255, 255, 0.25), 
-    rgba(0, 0, 255, 0.25), 
-    rgba(255, 0, 255, 0.25)
-  );
-  background-size: 600% 600%;
+  background: linear-gradient(125deg, transparent 20%, rgba(0,0,0,0.05) 30%, rgba(255,255,255,0.1) 40%, rgba(0,0,0,0.05) 50%, rgba(255,255,255,0.1) 60%, transparent 80%);
+  background-size: 300% 300%;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s ease;
   border-radius: inherit;
   z-index: 4;
-  mix-blend-mode: overlay;
 }
-.sticker-card[data-type="Spécial"]:hover::after {
-  opacity: 0.85;
-  animation: holo-shift 2.5s ease infinite;
-}
+.sticker-card[data-type="Spécial"]:hover::after { opacity: 1; animation: holo-shift 2s ease infinite; }
+.sticker-card[data-type="Spécial"] { border-color: var(--gray-600); }
+.sticker-card[data-type="Spécial"]:hover { box-shadow: 5px 5px 0 var(--gray-700), 0 0 15px rgba(0,0,0,0.15); }
 
 /* Styles de statut */
 .sticker-card.type-special .sticker-header { background: #000000 !important; color: #ffffff !important; }
@@ -781,35 +767,6 @@ body {
   max-width: 360px;
   overflow: hidden;
   animation: slideUp 0.2s ease;
-}
-.modal-card.modal-holo {
-  position: relative;
-  overflow: hidden;
-}
-.modal-card.modal-holo::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(125deg, 
-    rgba(255, 0, 0, 0.15), 
-    rgba(255, 255, 0, 0.15), 
-    rgba(0, 255, 0, 0.15), 
-    rgba(0, 255, 255, 0.15), 
-    rgba(0, 0, 255, 0.15), 
-    rgba(255, 0, 255, 0.15)
-  );
-  background-size: 600% 600%;
-  opacity: 0.9;
-  pointer-events: none;
-  animation: holo-shift 4s ease infinite;
-  z-index: 0;
-}
-.modal-card.modal-holo .modal-body,
-.modal-card.modal-holo .modal-flag-wrap,
-.modal-card.modal-holo .modal-actions,
-.modal-card.modal-holo .modal-dup-controls {
-  position: relative;
-  z-index: 1;
 }
 @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 .modal-header {
