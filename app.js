@@ -41,6 +41,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     initGlobalSearch();
     initBoosterModal();
     initMatchmaker();
+   // Initialisation du tutoriel
+document.getElementById('btnTuto')?.addEventListener('click', openTutoModal);
+document.getElementById('btnTutoClose')?.addEventListener('click', closeTutoModal);
+document.getElementById('btnTutoCloseFooter')?.addEventListener('click', closeTutoModal);
+document.getElementById('tutoModal')?.addEventListener('click', (e) => {
+  if (e.target === e.currentTarget) closeTutoModal();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const modal = document.getElementById('tutoModal');
+    if (modal && !modal.classList.contains('hidden')) closeTutoModal();
+  }
+});
+
+function openTutoModal() {
+  document.getElementById('tutoModal').classList.remove('hidden');
+  document.getElementById('btnTutoClose').focus();
+}
+
+function closeTutoModal() {
+  document.getElementById('tutoModal').classList.add('hidden');
+}
     moveSearchBarToView(currentView);
     renderCurrentView();
     updateGlobalProgress();
