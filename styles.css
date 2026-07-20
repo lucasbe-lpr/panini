@@ -1332,34 +1332,47 @@ body {
 
 /* ===== HEADER SUR MOBILE ===== */
 @media (max-width: 600px) {
+  /* Header plus compact */
+  .header-inner {
+    gap: 6px;
+    padding: 0 6px;
+  }
+
+  .brand-title {
+    font-size: 16px !important;  /* titre un peu plus petit */
+    letter-spacing: -0.01em;
+  }
+
+  .header-credit {
+    font-size: 7px;              /* crédit plus petit mais toujours visible */
+    letter-spacing: 0.04em;
+    color: rgba(255,255,255,0.4);
+  }
+
+  .header-progress {
+    display: none;               /* on cache la barre de progression pour gagner de la place */
+  }
+
   .header-actions {
     gap: 4px;
   }
+
   .header-actions .btn {
     padding: 6px 6px;
+    font-size: 0;                /* cache le texte éventuel */
     min-width: auto;
-    font-size: 0;                /* ← cache tout texte résiduel */
   }
+
   .header-actions .btn .material-symbols-outlined {
-    font-size: 20px;            /* ← icône un peu plus petite */
+    font-size: 20px;
   }
+
   .header-actions .btn .btn-label {
-    display: none !important;    /* ← on cache le texte */
+    display: none !important;
   }
-  .header-inner {
-    padding: 0 8px;
-    gap: 8px;
-  }
-  .header-brand-text .brand-title {
-    font-size: 18px;            /* ← titre un peu plus petit */
-  }
-  .header-credit {
-    display: none;              /* ← on cache "par Lucas..." pour gagner de la place */
-  }
-  /* Pour que les boutons restent bien alignés */
-  .header-actions .btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+
+  /* Bouton Réinitialiser toujours caché sur mobile */
+  #btnReset {
+    display: none !important;
   }
 }
