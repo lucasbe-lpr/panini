@@ -1330,27 +1330,25 @@ body {
   }
 }
 
-/* ===== HEADER SUR MOBILE ===== */
 @media (max-width: 600px) {
-  /* Header plus compact */
   .header-inner {
-    gap: 6px;
-    padding: 0 6px;
+    gap: 8px;              /* espace entre les éléments */
+    padding: 0 12px;       /* ← plus d'espace sur les côtés (était 6px) */
   }
 
   .brand-title {
-    font-size: 16px !important;  /* titre un peu plus petit */
+    font-size: 16px !important;
     letter-spacing: -0.01em;
   }
 
   .header-credit {
-    font-size: 7px;              /* crédit plus petit mais toujours visible */
+    font-size: 7px;
     letter-spacing: 0.04em;
     color: rgba(255,255,255,0.4);
   }
 
   .header-progress {
-    display: none;               /* on cache la barre de progression pour gagner de la place */
+    display: none;
   }
 
   .header-actions {
@@ -1359,7 +1357,7 @@ body {
 
   .header-actions .btn {
     padding: 6px 6px;
-    font-size: 0;                /* cache le texte éventuel */
+    font-size: 0;
     min-width: auto;
   }
 
@@ -1370,3 +1368,4 @@ body {
   .header-actions .btn .btn-label {
     display: none !important;
   }
+}
