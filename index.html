@@ -47,6 +47,9 @@
           <span class="material-symbols-outlined">restart_alt</span>
           <span class="btn-label">Réinit.</span>
         </button>
+        <button class="btn btn-secondary" id="btnTuto" title="Aide &amp; tutoriel">
+        <span class="material-symbols-outlined">help_outline</span>
+       </button>
       </div>
     </div>
   </header>
@@ -399,5 +402,84 @@
   </div>
 
   <script src="app.js"></script>
+  <!-- MODALE TUTORIEL -->
+<div class="modal-overlay hidden" id="tutoModal" role="dialog" aria-modal="true" aria-labelledby="tutoTitle">
+  <div class="modal-card tuto-card">
+    <div class="modal-header tuto-header">
+      <span class="modal-id" id="tutoTitle">Aide &amp; tutoriel</span>
+      <button class="btn btn-icon modal-close" id="btnTutoClose" aria-label="Fermer">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="tuto-body">
+      <div class="tuto-section">
+        <div class="tuto-section-icon">
+          <span class="material-symbols-outlined">menu_book</span>
+        </div>
+        <div class="tuto-section-content">
+          <h4>Album</h4>
+          <p>Parcours les pages de l’album à l’aide des flèches ou du menu déroulant. Clique sur une vignette pour modifier son statut : <strong>Possédée</strong>, <strong>Manquante</strong> ou <strong>Doublon</strong>.</p>
+        </div>
+      </div>
+      <div class="tuto-section">
+        <div class="tuto-section-icon">
+          <span class="material-symbols-outlined">search_off</span>
+        </div>
+        <div class="tuto-section-content">
+          <h4>Manquantes</h4>
+          <p>Visionne toutes les vignettes qu’il te reste à trouver. Tu peux filtrer par section et exporter la liste au format texte pour la partager.</p>
+        </div>
+      </div>
+      <div class="tuto-section">
+        <div class="tuto-section-icon">
+          <span class="material-symbols-outlined">content_copy</span>
+        </div>
+        <div class="tuto-section-content">
+          <h4>Doublons</h4>
+          <p>Consulte tes vignettes en double, avec leur quantité exacte. Exporte également la liste pour faciliter tes échanges.</p>
+        </div>
+      </div>
+      <div class="tuto-section">
+        <div class="tuto-section-icon">
+          <span class="material-symbols-outlined">leaderboard</span>
+        </div>
+        <div class="tuto-section-content">
+          <h4>Statistiques</h4>
+          <p>Suis ta progression globale et par pays grâce aux barres de complétion. Idéal pour visualiser d’un coup d’œil où tu en es.</p>
+        </div>
+      </div>
+      <div class="tuto-section">
+        <div class="tuto-section-icon">
+          <span class="material-symbols-outlined">swap_horiz</span>
+        </div>
+        <div class="tuto-section-content">
+          <h4>Échanges</h4>
+          <p>Importe la collection de ton échangeur (fichier JSON ou saisie manuelle). L’app analyse automatiquement les doublons et les manquantes mutuels, et te propose un échange équilibré.</p>
+        </div>
+      </div>
+      <div class="tuto-section">
+        <div class="tuto-section-icon">
+          <span class="material-symbols-outlined">stacks</span>
+        </div>
+        <div class="tuto-section-content">
+          <h4>Booster</h4>
+          <p>Ouvre un booster en saisissant les IDs des vignettes que tu viens d’obtenir. L’app les ajoute automatiquement à ta collection, en gérant les doublons.</p>
+        </div>
+      </div>
+      <div class="tuto-section">
+        <div class="tuto-section-icon">
+          <span class="material-symbols-outlined">save</span>
+        </div>
+        <div class="tuto-section-content">
+          <h4>Export / Import</h4>
+          <p>Exporte ta collection au format JSON pour la sauvegarder ou la partager. Importe également un fichier JSON pour restaurer ta progression.</p>
+        </div>
+      </div>
+    </div>
+    <div class="tuto-footer">
+      <button class="btn btn-primary" id="btnTutoCloseFooter">J’ai compris !</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
