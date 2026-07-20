@@ -659,16 +659,15 @@ function openModal(id) {
   if (!sticker) return;
   modalStickerID = id;
   const status = getStatus(id);
-  document.getElementById('modalId').textContent = sticker.ID;
-  document.getElementById('modalTitle').textContent = sticker.Nom;
-  document.getElementById('modalFlag').src = sticker.Drapeau || '';
-  document.getElementById('modalFlag').alt = sticker.Section;
-  document.getElementById('modalMeta').innerHTML = `
-    <span>${escHtml(sticker.Section)}</span>
-    <span>${escHtml(sticker.Type)}</span>
-    ${sticker.Groupe ? `<span>Groupe ${escHtml(sticker.Groupe)}</span>` : ''}
-    <span>Page ${sticker['Page']}</span>
-  `;
+  // ... (affichage des infos)
+
+  // Gestion de l'effet holographique du modal
+  const modalCard = document.querySelector('.modal-card');
+  if (sticker.Type === 'Spécial') {
+    modalCard.classList.add('modal-holo');
+  } else {
+    modalCard.classList.remove('modal-holo');
+  }
   
   updateModalHeader(status);
   
@@ -699,6 +698,7 @@ function updateModalHeader(status) {
 
 function closeModal() {
   document.getElementById('stickerModal').classList.add('hidden');
+  document.querySelector('.modal-card').classList.remove('modal-holo');
   modalStickerID = null;
 }
 
